@@ -1,0 +1,35 @@
+# Configuration Details and Settings
+
+Camera Settings
+	Camera Brand
+		- Canon
+	Camera Model
+		- Rebel Xt1
+	Lens
+		- Tokina 100mm Macro
+	Trigger Method
+		- USB
+		- Cable Release
+	Overlap X-axis (percent)
+	Overlap Y-axis (percent)
+	Pause before Exposure (seconds)
+	Pause for Exposure (seconds)
+		
+	
+File Path
+	Download Images (True/False)
+	Download Destination
+	XML Destination
+	
+
+Sample Details
+	SampleID
+	Camera Height
+	Focus Stacking Mode
+		- None
+		- Manual
+		- Automatic
+	Focus Stacking Frames (1-10)
+
+CNC Settings
+	
