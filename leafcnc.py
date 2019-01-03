@@ -20,6 +20,12 @@ sessionData = {}
 
 cameraStatusUpdateText = ""	
 
+# Display Constants
+LARGE_FONT = ("Verdana", 16)
+MED_FONT = ("Verdana", 12)
+SMALL_FONT = ("Verdana", 9)
+
+
 # GPIO Pin Settings
 focus = LED(17)
 shutter = LED(24)
