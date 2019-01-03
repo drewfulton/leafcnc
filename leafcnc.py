@@ -1,17 +1,90 @@
 # LeafCNC Application
 
 # Import Libraries and Modules
-import tkinter
+import tkinter, configparser, os
 
+from gpiozero import LED
 from tkinter import *
 from tkinter import ttk, messagebox, filedialog
 
+# Global Variables
+configpath = os.path.dirname(os.path.abspath(__file__))+"/config.ini"
 
-# Functions to Move CNC Head
+# Stores info about the status of all components of system
+systemStatus = {}
+
+# Stores details about active sessionData
+sessionData = {}  
+
+cameraStatusUpdateText = ""	
+
+# GPIO Pin Settings
+focus = LED(17)
+shutter = LED(24)
+
+
+# Functions to Move CNC Machine
 
 # Functions to Control Camera
 
 # Create Config File and Variables
+def createConfig(path):
+	# Create config file
+	config = configparser.ConfigParser()
+
+	# Camera Details
+	config["cam1"] = {"brand": "null", "model": "null", "serial": "null", "port": "null", "idx": "null", "position": "Lowest", "code": ""}
+	config["cam2"] = {"brand": "null", "model": "null", "serial": "null", "port": "null", "idx": "null", "position": "MidLower", "code": ""}
+	config["cam3"] = {"brand": "null", "model": "null", "serial": "null", "port": "null", "idx": "null", "position": "MidHigher", "code": ""}
+	config["cam4"] = {"brand": "null", "model": "null", "serial": "null", "port": "null", "idx": "null", "position": "Top", "code": ""}
+	
+	# Item Details
+	config["itemDetails"] = { "itemProject": "Default Project",
+							"itemNumber": "Item01", 
+							"itemDescription": "Default Description", 
+							"itemPositions": "1",
+							}
+
+	# Table Settings
+	config["tableSettings"] = { "tableEnd": 0,
+								"tableOrigin": 0,
+							}
+
+	
+	# General Settings
+	config["generalSettings"] = {"genDegrees": 5,
+									"genDirection": "cw",
+									"genGreenScreen": True,
+									"genCameraTrigger": "usb",
+									"genCameraOrder": "series",
+									"genPauseAfterRotation": 1,
+									"genPauseExposure": 0.5,
+									"genDownloadJPG": True,
+									"genDownloadJPGBypassPrompt": False,
+									"genStorage": "local",
+									"genLocalStoragePath": "/home/pi/turntable/storage/",
+									"genRemoteStoragePath": "/home/pi/TurntableRemote/",
+									"genBypassLocalStoragePrompt": True,
+									}
+	
+	# Write Config file
+	with open(path, "w") as config_file:
+		config.write(config_file)
+
+def getConfig(path):
+	if not os.path.exists(path):
+		createConfig(path)
+	
+	config = configparser.ConfigParser()
+	config.read(path)
+	return config
+
+def updateConfig(config, path):
+	with open(path, "w") as config_file:
+		config.write(config_file)
+
+
+
 
 # XML Management Functions
 
@@ -206,8 +279,10 @@ class RunSample(tkinter.Frame):
 
 
 
-#RunApplication Start
+config = getConfig(configpath)
 
+
+#RunApplication Start
 app = LeafCNC()
 
 app.tk.mainloop() 
