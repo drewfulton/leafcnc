@@ -173,6 +173,14 @@ class StartPage(tkinter.Frame):
 		# Page Title
 		pageTitle = ttk.Label(self, text="Leaf CNC Controller", font=LARGE_FONT)
 		pageTitle.grid(row=0, columnspan=100, sticky="WE")
+		
+		# Button List
+			# Initilize System
+			# Edit Settings
+			# Edit Sample Details
+			# Run Sample
+			
+
 
 		# Save and Return 
 		btnStartPage = ttk.Button(self, text="Back to Home", command=lambda: controller.show_frame(StartPage))
