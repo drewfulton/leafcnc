@@ -106,14 +106,14 @@ class LeafCNC:
 		self.tk.bind("<Escape>", self.end_fullscreen)
 
 		self.frames = {}
-		FrameList = ()
+		FrameList = (StartPage, Settings, SampleDetails, Initilization, RunSample)
 		
 		for F in FrameList:
 			frame = F(self.frame, self)
 			self.frames[F] = frame
 			frame.grid(row=0, column=0, sticky="nsew")
 		
-		self.show_frame(StartPage, Settings, SampleDetails, Initilization, RunSample)
+		self.show_frame(StartPage)
 	
 		
 	def show_frame(self, cont):
