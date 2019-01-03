@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 # LeafCNC Application
 
 # Import Libraries and Modules
