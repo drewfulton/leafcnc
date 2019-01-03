@@ -38,7 +38,7 @@ class LeafCNC:
 			self.frames[F] = frame
 			frame.grid(row=0, column=0, sticky="nsew")
 		
-		self.show_frame(StartPage)
+		self.show_frame(StartPage, Settings, SampleDetails, Initilization, RunSample)
 	
 		
 	def show_frame(self, cont):
@@ -86,14 +86,123 @@ class LeafCNC:
 		return "break"
 
 # Start Page Class
+class StartPage(tkinter.Frame):
+	def __init__(self, parent, controller):
+		tkinter.Frame.__init__(self,parent)
+
+		# Size Columns
+		self.grid_columnconfigure(1, minsize=34)
+
+		# Size Rows
+		self.grid_rowconfigure(2, minsize=100)
+		self.grid_rowconfigure(99, minsize=20)
+
+		# Page Title
+		pageTitle = ttk.Label(self, text="Leaf CNC Controller", font=LARGE_FONT)
+		pageTitle.grid(row=0, columnspan=100, sticky="WE")
+
+		# Save and Return 
+		btnStartPage = ttk.Button(self, text="Back to Home", command=lambda: controller.show_frame(StartPage))
+		btnStartPage.grid(row=100, column=1, sticky="WE")
+
+		btnQuit = ttk.Button(self, text="Quit", command=controller.quitProgram)
+		btnQuit.grid(row=100, column=6, sticky="EW")
+
 
 # Settings Class
+class Settings(tkinter.Frame):
+	def __init__(self, parent, controller):
+		tkinter.Frame.__init__(self,parent)
 
-# Item Details Class
+		# Size Columns
+		self.grid_columnconfigure(1, minsize=34)
+
+		# Size Rows
+		self.grid_rowconfigure(2, minsize=100)
+		self.grid_rowconfigure(99, minsize=20)
+
+		# Page Title
+		pageTitle = ttk.Label(self, text="Controller Settings", font=LARGE_FONT)
+		pageTitle.grid(row=0, columnspan=100, sticky="WE")
+
+		# Save and Return 
+		btnStartPage = ttk.Button(self, text="Back to Home", command=lambda: controller.show_frame(StartPage))
+		btnStartPage.grid(row=100, column=1, sticky="WE")
+
+		btnQuit = ttk.Button(self, text="Quit", command=controller.quitProgram)
+		btnQuit.grid(row=100, column=6, sticky="EW")
+
+
+# Sample Details Class
+class SampleDetails(tkinter.Frame):
+	def __init__(self, parent, controller):
+		tkinter.Frame.__init__(self,parent)
+
+		# Size Columns
+		self.grid_columnconfigure(1, minsize=34)
+
+		# Size Rows
+		self.grid_rowconfigure(2, minsize=100)
+		self.grid_rowconfigure(99, minsize=20)
+
+		# Page Title
+		pageTitle = ttk.Label(self, text="Sample Details", font=LARGE_FONT)
+		pageTitle.grid(row=0, columnspan=100, sticky="WE")
+
+		# Save and Return 
+		btnStartPage = ttk.Button(self, text="Back to Home", command=lambda: controller.show_frame(StartPage))
+		btnStartPage.grid(row=100, column=1, sticky="WE")
+
+		btnQuit = ttk.Button(self, text="Quit", command=controller.quitProgram)
+		btnQuit.grid(row=100, column=6, sticky="EW")
+
 
 # Initilization class
+class Initilization(tkinter.Frame):
+	def __init__(self, parent, controller):
+		tkinter.Frame.__init__(self,parent)
+
+		# Size Columns
+		self.grid_columnconfigure(1, minsize=34)
+
+		# Size Rows
+		self.grid_rowconfigure(2, minsize=100)
+		self.grid_rowconfigure(99, minsize=20)
+
+		# Page Title
+		pageTitle = ttk.Label(self, text="System Initilization", font=LARGE_FONT)
+		pageTitle.grid(row=0, columnspan=100, sticky="WE")
+
+		# Save and Return 
+		btnStartPage = ttk.Button(self, text="Back to Home", command=lambda: controller.show_frame(StartPage))
+		btnStartPage.grid(row=100, column=1, sticky="WE")
+
+		btnQuit = ttk.Button(self, text="Quit", command=controller.quitProgram)
+		btnQuit.grid(row=100, column=6, sticky="EW")
+
 
 # Run Sample Class
+class RunSample(tkinter.Frame):
+	def __init__(self, parent, controller):
+		tkinter.Frame.__init__(self,parent)
+
+		# Size Columns
+		self.grid_columnconfigure(1, minsize=34)
+
+		# Size Rows
+		self.grid_rowconfigure(2, minsize=100)
+		self.grid_rowconfigure(99, minsize=20)
+
+		# Page Title
+		pageTitle = ttk.Label(self, text="Run Sample", font=LARGE_FONT)
+		pageTitle.grid(row=0, columnspan=100, sticky="WE")
+
+		# Save and Return 
+		btnStartPage = ttk.Button(self, text="Back to Home", command=lambda: controller.show_frame(StartPage))
+		btnStartPage.grid(row=100, column=1, sticky="WE")
+
+		btnQuit = ttk.Button(self, text="Quit", command=controller.quitProgram)
+		btnQuit.grid(row=100, column=6, sticky="EW")
 
 
 
