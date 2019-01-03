@@ -262,6 +262,14 @@ class Initilization(tkinter.Frame):
 		btnQuit.grid(row=100, column=6, sticky="EW")
 
 
+	# Order of Operations
+		# Initilize CNC Machine
+			# Set Minimums
+			# Set Maximums
+		# Initilize Camera
+		
+
+
 # Run Sample Class
 class RunSample(tkinter.Frame):
 	def __init__(self, parent, controller):
@@ -286,6 +294,33 @@ class RunSample(tkinter.Frame):
 		btnQuit.grid(row=100, column=6, sticky="EW")
 
 
+	# Order of Operations
+		# Initilization Checks
+			# Check for Initilization of Table
+			# Check for Initilization of Camera
+			# Check for Storage Destination
+			# Check Camera Settings are not for White Frame
+			# Check to make sure XML file doesn't already exist
+		# Confirm Sample ID
+		# Begin Sampling Run
+			# Initiate XML
+			# Move Camera to Origin
+			# Capture White Frame
+			# Calculate Frame Positions
+			# Begin Sampling Loop
+				# Move Camera to next position
+				# Pause for Image Delay
+				# Capture Frame
+		# Begin Post Processing
+			# Download Files from Camera
+			# Rename Files
+			# Save XML Data
+		# Return Camera to Origin
+		# Display Completion Window
+		# Play Sound
+		
+			
+		
 
 config = getConfig(configpath)
 
