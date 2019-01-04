@@ -45,7 +45,7 @@ def moveCNC(dx,dy, machine):
 	yPos = yPos + dy
 	msg = 'G0 X'+str(xPos)+' Y'+str(yPos)
 	machine.write(msg.encode())
-	responseString = s.readline().decode()
+	responseString = machine.readline().decode()
 	return responseString
 	 
 def openCNC(port):
@@ -323,9 +323,9 @@ class Initilization(tkinter.Frame):
 		btnCNCDownSmall = ttk.Button(self, text="Down5", command=lambda: moveCNC(0, -5, machine))
 		btnCNCDownMed = ttk.Button(self, text="Down50", command=lambda: moveCNC(0, -50, machine))
 		btnCNCDownLarge = ttk.Button(self, text="Down100", command=lambda: moveCNC(0, -100, machine))
-		btnCNCRightSmall = ttk.Button(self, text="Left5", command=lambda: moveCNC(5, 0, machine))
-		btnCNCRightMed = ttk.Button(self, text="Left50", command=lambda: moveCNC(50, 0, machine))
-		btnCNCRightLarge = ttk.Button(self, text="Left100", command=lambda: moveCNC(100, 0, machine))
+		btnCNCRightSmall = ttk.Button(self, text="Right5", command=lambda: moveCNC(5, 0, machine))
+		btnCNCRightMed = ttk.Button(self, text="Right50", command=lambda: moveCNC(50, 0, machine))
+		btnCNCRightLarge = ttk.Button(self, text="Right100", command=lambda: moveCNC(100, 0, machine))
 	
 		
 		btnSetOrigin = ttk.Button(self, text="Set Origin", command=lambda: setCNCOrigin(machine))
