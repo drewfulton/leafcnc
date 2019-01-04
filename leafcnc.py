@@ -58,7 +58,8 @@ def closeCNC(machine):
 	machine.close()
 	return True
 
-def setCNCOrigin(machine):
+def setCNCOrigin():
+	global machine
 	closeCNC(machine)
 	machine = openCNC(config["cnc"]["port"])
 
@@ -333,7 +334,7 @@ class Initilization(tkinter.Frame):
 		btnCNCRightLarge = ttk.Button(self, text="Right100", command=lambda: moveCNC(100, 0, machine))
 	
 		
-		btnSetOrigin = ttk.Button(self, text="Set Origin", command=lambda: setCNCOrigin(machine))
+		btnSetOrigin = ttk.Button(self, text="Set Origin", command=lambda: setCNCOrigin())
 		
 		btnCNCUpLarge.grid(row=10, column=13, sticky="NEWS")
 		btnCNCUpMed.grid(row=11, column=13, sticky="NEWS")
