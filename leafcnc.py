@@ -60,8 +60,12 @@ def closeCNC(machine):
 
 def setCNCOrigin():
 	global machine
+	global xPos
+	global yPos
 	closeCNC(machine)
 	machine = openCNC(config["cnc"]["port"])
+	xPos = 0
+	yPos = 0
 
 # Functions to Control Camera
 
