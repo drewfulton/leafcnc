@@ -43,7 +43,7 @@ def moveCNC(dx,dy, machine):
 	global yPos
 	xPos = xPos + dx
 	yPos = yPos + dy
-	msg = 'G0 X'+str(xPos)+' Y'+str(yPos)
+	msg = 'G0 X'+str(xPos)+' Y'+str(yPos)+'\n'
 	print(str(msg))
 	machine.write(msg.encode())
 	responseString = machine.readline().decode()
