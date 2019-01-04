@@ -46,8 +46,9 @@ def moveCNC(dx,dy, machine):
 	msg = 'G0 X'+str(xPos)+' Y'+str(yPos)
 	print(str(msg))
 	machine.write(msg.encode())
-# 	responseString = machine.readline().decode()
-# 	return responseString
+	responseString = machine.readline().decode()
+	print("Response: "+str(responseString))
+	return responseString
 	 
 def openCNC(port):
 	machine = serial.Serial(port,115200)
@@ -285,7 +286,10 @@ class SampleDetails(tkinter.Frame):
 class Initilization(tkinter.Frame):
 	def __init__(self, parent, controller):
 		tkinter.Frame.__init__(self,parent)
-
+		
+		# Global Variables
+		global machine
+		
 		# Size Columns
 		self.grid_columnconfigure(1, minsize=34)
 		
