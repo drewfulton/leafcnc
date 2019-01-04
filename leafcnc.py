@@ -48,7 +48,7 @@ def moveCNC(dx,dy, machine):
 	responseString = s.readline().decode()
 	return responseString
 	 
-def openCNC(port=config["cnc"]["port"]):
+def openCNC(port):
 	machine = serial.Serial(port,115200)
 	return machine
 
