@@ -45,8 +45,8 @@ def moveCNC(dx,dy, machine):
 	yPos = yPos + dy
 	msg = 'G0 X'+str(xPos)+' Y'+str(yPos)
 	machine.write(msg.encode())
-	responseString = machine.readline().decode()
-	return responseString
+# 	responseString = machine.readline().decode()
+# 	return responseString
 	 
 def openCNC(port):
 	machine = serial.Serial(port,115200)
