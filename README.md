@@ -6,3 +6,18 @@ This is a lab-based solution to automate capturing high-resolution photographs o
 
 This software controls the CNC machine and the camera.
 
+Prerequisites
+	Gphoto2
+		Install with script found at: https://github.com/gonzalo/gphoto2-updater
+		
+	Apt-Get Installs
+	
+	Pip3 Installs
+		pyserial
+		
+		
+		
+Installed for Testing Purposes (To Be Removed Later)
+	bCNC (https://github.com/vlachoudis/bCNC)
+	
+	

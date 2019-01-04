@@ -3,7 +3,7 @@
 # LeafCNC Application
 
 # Import Libraries and Modules
-import tkinter, configparser, os
+import tkinter, configparser, os, serial, time
 
 from gpiozero import LED
 from tkinter import *
@@ -20,6 +20,11 @@ sessionData = {}
 
 cameraStatusUpdateText = ""	
 
+# CNC Positions
+xPos = 0
+yPos = 0
+
+
 # Display Constants
 LARGE_FONT = ("Verdana", 16)
 MED_FONT = ("Verdana", 12)
@@ -33,13 +38,36 @@ shutter = LED(24)
 
 # Functions to Move CNC Machine
 
+def moveCNC(dx,dy, machine):
+	global xPos
+	global yPos
+	xPos = xPos + dx
+	yPos = yPos + dy
+	msg = 'G0 X'+str(xPos)+' Y'+str(yPos)
+	machine.write(msg.encode())
+	responseString = s.readline().decode()
+	return responseString
+	 
+def openCNC(port=config["cnc"]["port"]):
+	machine = serial.Serial(port,115200)
+	return machine
+
+def closeCNC(machine):
+	machine.close()
+	return True
+
+def setCNCOrigin(machine):
+	closeCNC(machine)
+	machine = openCNC(config["cnc"]["port"])
+
 # Functions to Control Camera
 
 # Create Config File and Variables
 def createConfig(path):
 	# Create config file
 	config = configparser.ConfigParser()
-
+	config["cnc"] = {"port": "/dev/ttyUSB0"}
+	
 	# Camera Details
 	config["cam1"] = {"brand": "null", "model": "null", "serial": "null", "port": "null", "idx": "null", "position": "Lowest", "code": ""}
 	config["cam2"] = {"brand": "null", "model": "null", "serial": "null", "port": "null", "idx": "null", "position": "MidLower", "code": ""}
@@ -173,22 +201,28 @@ class StartPage(tkinter.Frame):
 
 		# Size Columns
 		self.grid_columnconfigure(1, minsize=34)
+		self.grid_columnconfigure(10, minsize=50)
+		self.grid_columnconfigure(12, minsize=50)
+		self.grid_columnconfigure(14, minsize=50)
 
 		# Size Rows
 		self.grid_rowconfigure(2, minsize=100)
+		self.grid_rowconfigure(10, minsize=50)
 		self.grid_rowconfigure(99, minsize=20)
 
 		# Page Title
 		pageTitle = ttk.Label(self, text="Leaf CNC Controller", font=LARGE_FONT)
 		pageTitle.grid(row=0, columnspan=100, sticky="WE")
 		
-		# Button List
-			# Initilize System
-			# Edit Settings
-			# Edit Sample Details
-			# Run Sample
-			
-
+		
+		# Buttons
+		btnInit = ttk.Button(self, text="Initilization", command=lambda: controller.show_frame(Initilization))
+		btnInit.grid(row=10, column=10, sticky="NEWS")
+		btnRunSample = ttk.Button(self, text="Run Sample", command=lambda: controller.show_frame(RunSample))
+		btnRunSample.grid(row=10, column=12, sticky="NEWS")
+		btnSettings = ttk.Button(self, text="Settings", command=lambda: controller.show_frame(Settings))
+		btnSettings.grid(row=10, column=14, sticky="NEWS")
+		
 
 		# Save and Return 
 		btnStartPage = ttk.Button(self, text="Back to Home", command=lambda: controller.show_frame(StartPage))
@@ -253,14 +287,63 @@ class Initilization(tkinter.Frame):
 
 		# Size Columns
 		self.grid_columnconfigure(1, minsize=34)
-
+		
+		self.grid_columnconfigure(10, minsize=20)
+		self.grid_columnconfigure(11, minsize=10)
+		self.grid_columnconfigure(12, minsize=5)
+		self.grid_columnconfigure(13, minsize=20)
+		self.grid_columnconfigure(14, minsize=5)
+		self.grid_columnconfigure(15, minsize=10)
+		self.grid_columnconfigure(16, minsize=20)
+		
 		# Size Rows
 		self.grid_rowconfigure(2, minsize=100)
+		
+		self.grid_rowconfigure(10, minsize=20)
+		self.grid_rowconfigure(11, minsize=10)
+		self.grid_rowconfigure(12, minsize=5)
+		self.grid_rowconfigure(13, minsize=20)
+		self.grid_rowconfigure(14, minsize=5)
+		self.grid_rowconfigure(15, minsize=10)
+		self.grid_rowconfigure(15, minsize=20)
+		
 		self.grid_rowconfigure(99, minsize=20)
 
 		# Page Title
 		pageTitle = ttk.Label(self, text="System Initilization", font=LARGE_FONT)
 		pageTitle.grid(row=0, columnspan=100, sticky="WE")
+
+		# CNC Initilization Buttons
+		btnCNCUpSmall = ttk.Button(self, text="Up5", command=lambda: moveCNC(0, 5, machine))
+		btnCNCUpMed = ttk.Button(self, text="Up50", command=lambda: moveCNC(0, 50, machine))
+		btnCNCUpLarge = ttk.Button(self, text="Up100", command=lambda: moveCNC(0, 100, machine))
+		btnCNCLeftSmall = ttk.Button(self, text="Left5", command=lambda: moveCNC(-5, 0, machine))
+		btnCNCLeftMed = ttk.Button(self, text="Left50", command=lambda: moveCNC(-50, 0, machine))
+		btnCNCLeftLarge = ttk.Button(self, text="Left100", command=lambda: moveCNC(-100, 0, machine))
+		btnCNCDownSmall = ttk.Button(self, text="Down5", command=lambda: moveCNC(0, -5, machine))
+		btnCNCDownMed = ttk.Button(self, text="Down50", command=lambda: moveCNC(0, -50, machine))
+		btnCNCDownLarge = ttk.Button(self, text="Down100", command=lambda: moveCNC(0, -100, machine))
+		btnCNCRightSmall = ttk.Button(self, text="Left5", command=lambda: moveCNC(5, 0, machine))
+		btnCNCRightMed = ttk.Button(self, text="Left50", command=lambda: moveCNC(50, 0, machine))
+		btnCNCRightLarge = ttk.Button(self, text="Left100", command=lambda: moveCNC(100, 0, machine))
+	
+		
+		btnSetOrigin = ttk.Button(self, text="Set Origin", command=lambda: setCNCOrigin(machine))
+		
+		btnCNCUpLarge.grid(row=10, column=13, sticky="NEWS")
+		btnCNCUpMed.grid(row=11, column=13, sticky="NEWS")
+		btnCNCUpSmall.grid(row=12, column=13, sticky="NEWS")
+		btnCNCLeftLarge.grid(row=13, column=10, sticky="NEWS")
+		btnCNCLeftMed.grid(row=13, column=11, sticky="NEWS")
+		btnCNCLeftSmall.grid(row=13, column=12, sticky="NEWS")
+		btnCNCDownLarge.grid(row=160, column=13, sticky="NEWS")
+		btnCNCDownMed.grid(row=15, column=13, sticky="NEWS")
+		btnCNCDownSmall.grid(row=14, column=13, sticky="NEWS")
+		btnCNCRightLarge.grid(row=13, column=16, sticky="NEWS")
+		btnCNCRightMed.grid(row=13, column=15, sticky="NEWS")
+		btnCNCRightSmall.grid(row=13, column=14, sticky="NEWS")
+		btnSetOrigin.grid(row=13, column=13, sticky="NEWS")
+		
 
 		# Save and Return 
 		btnStartPage = ttk.Button(self, text="Back to Home", command=lambda: controller.show_frame(StartPage))
@@ -272,11 +355,13 @@ class Initilization(tkinter.Frame):
 
 	# Order of Operations
 		# Initilize CNC Machine
-			# Set Minimums
-			# Set Maximums
+			# Move Machine to Origin
 		# Initilize Camera
 		
-
+		def startInitCNC():
+			# Connect to Machine
+			# Verify Origin
+			
 
 # Run Sample Class
 class RunSample(tkinter.Frame):
