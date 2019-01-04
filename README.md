@@ -21,3 +21,6 @@ Installed for Testing Purposes (To Be Removed Later)
 	bCNC (https://github.com/vlachoudis/bCNC)
 	
 	
+	
+Max X = 360
+Max Y = -470
