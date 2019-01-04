@@ -336,7 +336,7 @@ class Initilization(tkinter.Frame):
 		btnCNCLeftLarge.grid(row=13, column=10, sticky="NEWS")
 		btnCNCLeftMed.grid(row=13, column=11, sticky="NEWS")
 		btnCNCLeftSmall.grid(row=13, column=12, sticky="NEWS")
-		btnCNCDownLarge.grid(row=160, column=13, sticky="NEWS")
+		btnCNCDownLarge.grid(row=16, column=13, sticky="NEWS")
 		btnCNCDownMed.grid(row=15, column=13, sticky="NEWS")
 		btnCNCDownSmall.grid(row=14, column=13, sticky="NEWS")
 		btnCNCRightLarge.grid(row=13, column=16, sticky="NEWS")
@@ -358,10 +358,6 @@ class Initilization(tkinter.Frame):
 			# Move Machine to Origin
 		# Initilize Camera
 		
-		def startInitCNC():
-			# Connect to Machine
-			# Verify Origin
-			pass
 
 # Run Sample Class
 class RunSample(tkinter.Frame):
@@ -416,7 +412,7 @@ class RunSample(tkinter.Frame):
 		
 
 config = getConfig(configpath)
-
+machine = openCNC(config["cnc"]["port"])
 
 #RunApplication Start
 app = LeafCNC()
