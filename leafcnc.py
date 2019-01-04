@@ -361,7 +361,7 @@ class Initilization(tkinter.Frame):
 		def startInitCNC():
 			# Connect to Machine
 			# Verify Origin
-			
+			pass
 
 # Run Sample Class
 class RunSample(tkinter.Frame):
