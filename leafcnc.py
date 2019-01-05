@@ -75,7 +75,7 @@ def createConfig(path):
 	config = configparser.ConfigParser()
 	
 	config["cnc"] = {"port": "/dev/ttyUSB0", "xOverlap": "40", "yOverlap":"40", "pauseLength":"1"}
-	config["camera"] = {"body": "Canon T1i", "lens": "Tokina 100mm", "trigger":"USB"}
+	config["camera"] = {"body": "Canon T1i", "lens": "Tokina 100mm", "trigger":"USB", "exposure":"1"}
 	config["filepaths"] = {"download":"True", "imagePath":'', "xmlPath": ''}
 	
 	# Write Config file
