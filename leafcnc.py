@@ -73,42 +73,10 @@ def setCNCOrigin():
 def createConfig(path):
 	# Create config file
 	config = configparser.ConfigParser()
-	config["cnc"] = {"port": "/dev/ttyUSB0"}
 	
-	# Camera Details
-	config["cam1"] = {"brand": "null", "model": "null", "serial": "null", "port": "null", "idx": "null", "position": "Lowest", "code": ""}
-	config["cam2"] = {"brand": "null", "model": "null", "serial": "null", "port": "null", "idx": "null", "position": "MidLower", "code": ""}
-	config["cam3"] = {"brand": "null", "model": "null", "serial": "null", "port": "null", "idx": "null", "position": "MidHigher", "code": ""}
-	config["cam4"] = {"brand": "null", "model": "null", "serial": "null", "port": "null", "idx": "null", "position": "Top", "code": ""}
-	
-	# Item Details
-	config["itemDetails"] = { "itemProject": "Default Project",
-							"itemNumber": "Item01", 
-							"itemDescription": "Default Description", 
-							"itemPositions": "1",
-							}
-
-	# Table Settings
-	config["tableSettings"] = { "tableEnd": 0,
-								"tableOrigin": 0,
-							}
-
-	
-	# General Settings
-	config["generalSettings"] = {"genDegrees": 5,
-									"genDirection": "cw",
-									"genGreenScreen": True,
-									"genCameraTrigger": "usb",
-									"genCameraOrder": "series",
-									"genPauseAfterRotation": 1,
-									"genPauseExposure": 0.5,
-									"genDownloadJPG": True,
-									"genDownloadJPGBypassPrompt": False,
-									"genStorage": "local",
-									"genLocalStoragePath": "/home/pi/turntable/storage/",
-									"genRemoteStoragePath": "/home/pi/TurntableRemote/",
-									"genBypassLocalStoragePrompt": True,
-									}
+	config["cnc"] = {"port": "/dev/ttyUSB0", "xOverlap": "40", "yOverlap":"40", "pauseLength":"1"}
+	config["camera"] = {"body": "Canon T1i", "lens": "Tokina 100mm", "trigger":"USB"}
+	config["filepaths"] = {"download":"True", "imagePath":'', "xmlPath": ''}
 	
 	# Write Config file
 	with open(path, "w") as config_file:
@@ -243,24 +211,140 @@ class StartPage(tkinter.Frame):
 class Settings(tkinter.Frame):
 	def __init__(self, parent, controller):
 		tkinter.Frame.__init__(self,parent)
-
+		
+		# Variables
+		self.cameraBody = TextVar()
+		self.cameraBody.set(config['camera']['body'])
+		self.lens = TextVar()
+		self.lens.set(config['camera']['lens'])
+		self.triggerMethod = TextVar()
+		self.triggerMethod.set(config['camera']['trigger'])
+		self.exposureLength = StringVar()
+		self.exposureLength.set(str(config['camera']['exposure']))
+		self.xOverlap = IntVar()
+		self.xOverlap.set(config['cnc']['xOverlap'])
+		self.yOverlap = IntVar()
+		self.yOverlap.set(config['cnc']['yOverlap'])
+		self.pauseLength = StringVar()
+		self.pauseLength.set(config['cnc']['pauseLength'])
+		self.download = BooleanVar()
+		self.download.set(config['filepaths'].getboolean("download"))
+		self.imagePath = StringVar()
+		self.imagePath.set(config['filepaths']['imagePath'])
+		self.xmlPath = StringVar()
+		self.xmlPath.set(config['filepaths']['xmlPath'])
+		
 		# Size Columns
-		self.grid_columnconfigure(1, minsize=34)
-
+		self.grid_columnconfigure(1, minsize=50)
+		self.grid_columnconfigure(10, minsize=100)
+		self.grid_columnconfigure(11, minsize=200)
+		self.grid_columnconfigure(12, minsize=25)
+		self.grid_columnconfigure(19, minsize=50)
+		self.grid_columnconfigure(20, minsize=100)
+		self.grid_columnconfigure(21, minsize=200)
+		self.grid_columnconfigure(99, minsize=50)
 		# Size Rows
 		self.grid_rowconfigure(2, minsize=100)
 		self.grid_rowconfigure(99, minsize=20)
+		self.grid_rowconfigure(10, minsize=50)
+		self.grid_rowconfigure(11, minsize=20)
+		self.grid_rowconfigure(10, minsize=50)
+		self.grid_rowconfigure(12, minsize=20)
+		self.grid_rowconfigure(13, minsize=50)
+		self.grid_rowconfigure(14, minsize=20)
+		self.grid_rowconfigure(15, minsize=50)
+		self.grid_rowconfigure(16, minsize=20)
+		self.grid_rowconfigure(17, minsize=50)
+		self.grid_rowconfigure(18, minsize=20)
+		self.grid_rowconfigure(19, minsize=50)
 
+		self.grid_rowconfigure(20, minsize=20)
+		self.grid_rowconfigure(21, minsize=50)
+		self.grid_rowconfigure(22, minsize=20)
+		self.grid_rowconfigure(23, minsize=50)
+		self.grid_rowconfigure(24, minsize=20)
+		self.grid_rowconfigure(25, minsize=50)
+		self.grid_rowconfigure(26, minsize=20)
+		self.grid_rowconfigure(27, minsize=50)
+		
 		# Page Title
-		pageTitle = ttk.Label(self, text="Controller Settings", font=LARGE_FONT)
+		pageTitle = ttk.Label(self, text="LeafCNC Settings", font=LARGE_FONT)
 		pageTitle.grid(row=0, columnspan=100, sticky="WE")
 
+
+		# Camera Settings
+		lblCameraBody = ttk.Label(self, text="Camera Body", font=MED_FONT)
+		cmbCameraBody = ttk.Combobox(self, textvariable=self.cameraBody, width=10)
+		cmbCameraBody['values'] = ["Canon T1i"]
+		lblCameraBody.grid(row=10, column=10, sticky="WE")
+		cmbCameraBody.grid(row=10, column=11, sticky="WE")
+		lblLens = ttk.Label(self, text="Lens", font=MED_FONT)
+		cmbLens = ttk.Combobox(self, textvariable=self.lens, width=10)
+		cmbLens['values'] = ["Tokina 100"]
+		lblLens.grid(row=12, column=10, sticky="WE")
+		cmbLens.grid(row=12, column=11, sticky="WE")
+		lblTriggerMethod = ttk.Label(self, text="Trigger Method", font=MED_FONT)
+		cmbTriggerMethod = ttk.Combobox(self, textvariable=self.triggerMethod, width=10)
+		cmbTriggerMethod['values'] = ["USB","Cable Release"]
+		lblTriggerMethod.grid(row=14, column=10, sticky="WE")
+		cmbTriggerMethod.grid(row=14, column=11, sticky="WE")
+		lblExposure = ttk.Label(self, text="Exposure Length (s)", font=MED_FONT)
+		entryExposure = ttk.Entry(self, textvariable=self.exposureLength, width=5)
+		lblExposure.grid(row=16, column=10, sticky="WE")
+		entryExposure.grid(row=16, column=11, sticky="WE")
+		
+		# CNC Settings
+		lblxOverlap = ttk.Label(self, text="X-Axis Overlap (%)", font=MED_FONT)
+		entryxOverlap = ttk.Entry(self, textvariable=self.xOverlap, width=5)
+		lblxOverlap.grid(row=10, column=20, sticky="WE")
+		entryxOverlap.grid(row=10, column=21, sticky="WE")
+		lblyOverlap = ttk.Label(self, text="Y-Axis Overlap (%)", font=MED_FONT)
+		entryyOverlap = ttk.Entry(self, textvariable=self.yOverlap, width=5)
+		lblyOverlap.grid(row=12, column=20, sticky="WE")
+		entryyOverlap.grid(row=12, column=21, sticky="WE")
+		lblPause = ttk.Label(self, text="Pause Length (s)", font=MED_FONT)
+		entryPause = ttk.Entry(self, textvariable=self.pauseLength, width=5)
+		lblPause.grid(row=14, column=20, sticky="WE")
+		entryPause.grid(row=14, column=21, sticky="WE")
+
+		# File Paths
+		folderIcon = ImageTk.PhotoImage(Image.open("/home/pi/leafcnc/backend/folderIcon-small.png"))
+		lblDownloadFiles = ttk.Label(self, text="Download Files from Camera", font=MED_FONT)
+		lblDownloadFiles.grid(row=20, column=10, sticky="EW")
+		chkDownloadFiles = ttk.Checkbutton(self, var=self.download, onvalue=True, offvalue=False, command=lambda: [self.updateVariable()] )
+		chkDownloadFiles.grid(row=20, column=11, sticky="EW")
+		lblImagePath = ttk.Label(self, text="Image Storage Path", font=MED_FONT)
+		lblImagePath.grid(row=22, column=10, sticky="EW")
+		fileImagePath = ttk.Entry(self, textvariable=self.imagePath, width=30)
+		fileImagePath.grid(row=22, column=11, sticky="EW")
+		btnImagePath = ttk.Button(self, image=folderIcon, command=lambda: selectDirectory(self.imagePath))
+		btnImagePath.image = folderIcon
+		btnImagePath.grid(row=22, column=12, sticky="W")
+		lblxmlPath = ttk.Label(self, text="XML Storage Path", font=SMALL_FONT)
+		lblxmlPath.grid(row=24, column=10, columnspan=2, sticky="EW")
+		filexmlPath = ttk.Entry(self, textvariable=self.xmlPath, width=30)
+		filexmlPath.grid(row=24, column=11, sticky="EW")
+		btnxmlPath = ttk.Button(self, image=folderIcon, command=lambda: selectDirectory(self.xmlPath))
+		btnxmlPath.image = folderIcon
+		btnxmlPath.grid(row=24, column=12, sticky="W")
+
 		# Save and Return 
-		btnStartPage = ttk.Button(self, text="Back to Home", command=lambda: controller.show_frame(StartPage))
+		btnStartPage = ttk.Button(self, text="Save", command=lambda: [self.updateVariable(), controller.show_frame(StartPage)])
 		btnStartPage.grid(row=100, column=1, sticky="WE")
 
-		btnQuit = ttk.Button(self, text="Quit", command=controller.quitProgram)
-		btnQuit.grid(row=100, column=6, sticky="EW")
+		
+	def updateVariable(self, event=None):
+		config['camera']['body'] = str(self.cameraBody.get())
+		config['camera']['lens'] = str(self.lens.get())
+		config['camera']['trigger'] = str(self.triggerMethod.get())
+		config['camera']['exposure'] = str(self.exposureLength.get())
+		config['cnc']['xOverlap'] = str(self.xOverlap.get())
+		config['cnc']['yOverlap'] = str(self.yOverlap.get())
+		config['cnc']['Pause'] = str(self.pauseLength.get())
+		config['filepaths']['download'] = str(self.download.get())
+		config['filepaths']['imagePath'] = str(self.imagePath.get())
+		config['filepaths']['xmlPath'] = str(self.xmlPath.get())
+		updateConfig(config, configpath)
 
 
 # Sample Details Class
@@ -361,13 +445,7 @@ class Initilization(tkinter.Frame):
 
 		btnQuit = ttk.Button(self, text="Quit", command=controller.quitProgram)
 		btnQuit.grid(row=100, column=6, sticky="EW")
-
-
-	# Order of Operations
-		# Initilize CNC Machine
-			# Move Machine to Origin
-		# Initilize Camera
-		
+	
 
 # Run Sample Class
 class RunSample(tkinter.Frame):
