@@ -8,7 +8,7 @@ import tkinter, configparser, os, serial, time
 from gpiozero import LED
 from tkinter import *
 from tkinter import ttk, messagebox, filedialog
-from pillow import Image, ImageTk
+from Pillow import Image, ImageTk
 
 # Global Variables
 configpath = os.path.dirname(os.path.abspath(__file__))+"/config.ini"
