@@ -14,6 +14,7 @@ Prerequisites
 	
 	Pip3 Installs
 		pyserial
+		Pillow
 		
 		
 		
