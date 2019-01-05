@@ -25,3 +25,21 @@ Installed for Testing Purposes (To Be Removed Later)
 	
 Max X = 360
 Max Y = -470
+
+
+Electronics Notes
+	Power Requirements
+		12V
+			CNC Machine (has AC Adapter)
+			Monitor for Camera
+			Monitor for Pi
+			
+		7.4V 
+			Camera (has AC Adapter)
+		
+		5V
+			Raspberry Pi (has AC Adapter)
+			Monitor for Camera
+			Monitor for Pi
+			Lightbox (has AC Adapter)
+			
