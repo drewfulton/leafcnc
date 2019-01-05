@@ -75,7 +75,7 @@ def createConfig(path):
 	# Create config file
 	config = configparser.ConfigParser()
 	
-	config["cnc"] = {"port": "/dev/ttyUSB0", "xOverlap": "40", "yOverlap":"40", "pauseLength":"1"}
+	config["cnc"] = {"port": "/dev/ttyUSB0", "xOverlap": "40", "yOverlap":"40", "pause":"1"}
 	config["camera"] = {"body": "Canon T1i", "lens": "Tokina 100mm", "trigger":"USB", "exposure":"1"}
 	config["filepaths"] = {"download":"True", "imagePath":'', "xmlPath": ''}
 	
@@ -105,7 +105,7 @@ def updateConfig(config, path):
 class LeafCNC:
 	def __init__(self):
 		self.tk = Tk()
-		self.tk.attributes('-fullscreen',True)
+# 		self.tk.attributes('-fullscreen',True)
 		self.tk.title("LeafCNC Controller")
 		self.frame = Frame(self.tk)
 		self.frame.pack(side="top", fill="both", expand = True)
@@ -227,7 +227,7 @@ class Settings(tkinter.Frame):
 		self.yOverlap = IntVar()
 		self.yOverlap.set(config['cnc']['yOverlap'])
 		self.pauseLength = StringVar()
-		self.pauseLength.set(config['cnc']['pauseLength'])
+		self.pauseLength.set(config['cnc']['pause'])
 		self.download = BooleanVar()
 		self.download.set(config['filepaths'].getboolean("download"))
 		self.imagePath = StringVar()
@@ -345,7 +345,7 @@ class Settings(tkinter.Frame):
 		config['camera']['exposure'] = str(self.exposureLength.get())
 		config['cnc']['xOverlap'] = str(self.xOverlap.get())
 		config['cnc']['yOverlap'] = str(self.yOverlap.get())
-		config['cnc']['Pause'] = str(self.pauseLength.get())
+		config['cnc']['pause'] = str(self.pauseLength.get())
 		config['filepaths']['download'] = str(self.download.get())
 		config['filepaths']['imagePath'] = str(self.imagePath.get())
 		config['filepaths']['xmlPath'] = str(self.xmlPath.get())
