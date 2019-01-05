@@ -247,26 +247,26 @@ class Settings(tkinter.Frame):
 		# Size Rows
 		self.grid_rowconfigure(2, minsize=100)
 		self.grid_rowconfigure(99, minsize=20)
-		self.grid_rowconfigure(10, minsize=50)
-		self.grid_rowconfigure(11, minsize=20)
-		self.grid_rowconfigure(10, minsize=50)
-		self.grid_rowconfigure(12, minsize=20)
-		self.grid_rowconfigure(13, minsize=50)
-		self.grid_rowconfigure(14, minsize=20)
-		self.grid_rowconfigure(15, minsize=50)
-		self.grid_rowconfigure(16, minsize=20)
-		self.grid_rowconfigure(17, minsize=50)
-		self.grid_rowconfigure(18, minsize=20)
-		self.grid_rowconfigure(19, minsize=50)
+		self.grid_rowconfigure(10, minsize=20)
+		self.grid_rowconfigure(11, minsize=10)
+		self.grid_rowconfigure(10, minsize=20)
+		self.grid_rowconfigure(12, minsize=10)
+		self.grid_rowconfigure(13, minsize=20)
+		self.grid_rowconfigure(14, minsize=10)
+		self.grid_rowconfigure(15, minsize=20)
+		self.grid_rowconfigure(16, minsize=10)
+		self.grid_rowconfigure(17, minsize=20)
+		self.grid_rowconfigure(18, minsize=10)
+		self.grid_rowconfigure(19, minsize=20)
 
-		self.grid_rowconfigure(20, minsize=20)
-		self.grid_rowconfigure(21, minsize=50)
-		self.grid_rowconfigure(22, minsize=20)
-		self.grid_rowconfigure(23, minsize=50)
-		self.grid_rowconfigure(24, minsize=20)
-		self.grid_rowconfigure(25, minsize=50)
-		self.grid_rowconfigure(26, minsize=20)
-		self.grid_rowconfigure(27, minsize=50)
+		self.grid_rowconfigure(20, minsize=10)
+		self.grid_rowconfigure(21, minsize=20)
+		self.grid_rowconfigure(22, minsize=10)
+		self.grid_rowconfigure(23, minsize=20)
+		self.grid_rowconfigure(24, minsize=10)
+		self.grid_rowconfigure(25, minsize=20)
+		self.grid_rowconfigure(26, minsize=10)
+		self.grid_rowconfigure(27, minsize=20)
 		
 		# Page Title
 		pageTitle = ttk.Label(self, text="LeafCNC Settings", font=LARGE_FONT)
@@ -310,9 +310,9 @@ class Settings(tkinter.Frame):
 
 		# File Paths
 		folderIcon = ImageTk.PhotoImage(Image.open("/home/pi/leafcnc/backend/folderIcon-small.png"))
-		lblDownloadFiles = ttk.Label(self, text="Download Files from Camera", font=MED_FONT)
-		lblDownloadFiles.grid(row=20, column=10, sticky="EW")
-		chkDownloadFiles = ttk.Checkbutton(self, var=self.download, onvalue=True, offvalue=False, command=lambda: [self.updateVariable()] )
+# 		lblDownloadFiles = ttk.Label(self, text="Download Files from Camera", font=MED_FONT)
+# 		lblDownloadFiles.grid(row=20, column=10, sticky="EW")
+		chkDownloadFiles = ttk.Checkbutton(self, var=self.download, text="Download Files from Camera", onvalue=True, offvalue=False, command=lambda: [self.updateVariable()] )
 		chkDownloadFiles.grid(row=20, column=11, sticky="EW")
 		lblImagePath = ttk.Label(self, text="Image Storage Path", font=MED_FONT)
 		lblImagePath.grid(row=22, column=10, sticky="EW")
@@ -333,6 +333,10 @@ class Settings(tkinter.Frame):
 		btnStartPage = ttk.Button(self, text="Save", command=lambda: [self.updateVariable(), controller.show_frame(StartPage)])
 		btnStartPage.grid(row=100, column=1, sticky="WE")
 
+		def selectDirectory(var):
+			directory = filedialog.askdirectory()
+			var.set(directory)
+			return var
 		
 	def updateVariable(self, event=None):
 		config['camera']['body'] = str(self.cameraBody.get())
