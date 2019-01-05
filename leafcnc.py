@@ -116,7 +116,7 @@ class LeafCNC:
 		self.tk.bind("<Escape>", self.end_fullscreen)
 
 		self.frames = {}
-		FrameList = (StartPage, Settings, SampleDetails, Initilization, RunSample)
+		FrameList = (StartPage, Settings, Initilization, RunSample)
 		
 		for F in FrameList:
 			frame = F(self.frame, self)
@@ -348,30 +348,6 @@ class Settings(tkinter.Frame):
 		updateConfig(config, configpath)
 
 
-# Sample Details Class
-class SampleDetails(tkinter.Frame):
-	def __init__(self, parent, controller):
-		tkinter.Frame.__init__(self,parent)
-
-		# Size Columns
-		self.grid_columnconfigure(1, minsize=34)
-
-		# Size Rows
-		self.grid_rowconfigure(2, minsize=100)
-		self.grid_rowconfigure(99, minsize=20)
-
-		# Page Title
-		pageTitle = ttk.Label(self, text="Sample Details", font=LARGE_FONT)
-		pageTitle.grid(row=0, columnspan=100, sticky="WE")
-
-		# Save and Return 
-		btnStartPage = ttk.Button(self, text="Back to Home", command=lambda: controller.show_frame(StartPage))
-		btnStartPage.grid(row=100, column=1, sticky="WE")
-
-		btnQuit = ttk.Button(self, text="Quit", command=controller.quitProgram)
-		btnQuit.grid(row=100, column=6, sticky="EW")
-
-
 # Initilization class
 class Initilization(tkinter.Frame):
 	def __init__(self, parent, controller):
@@ -443,9 +419,6 @@ class Initilization(tkinter.Frame):
 		# Save and Return 
 		btnStartPage = ttk.Button(self, text="Back to Home", command=lambda: controller.show_frame(StartPage))
 		btnStartPage.grid(row=100, column=1, sticky="WE")
-
-		btnQuit = ttk.Button(self, text="Quit", command=controller.quitProgram)
-		btnQuit.grid(row=100, column=6, sticky="EW")
 	
 
 # Run Sample Class
