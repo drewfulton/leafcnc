@@ -200,11 +200,7 @@ class StartPage(tkinter.Frame):
 		btnSettings.grid(row=10, column=14, sticky="NEWS")
 		
 
-		# Save and Return 
-		btnStartPage = ttk.Button(self, text="Back to Home", command=lambda: controller.show_frame(StartPage))
-		btnStartPage.grid(row=100, column=1, sticky="WE")
-
-		btnQuit = ttk.Button(self, text="Quit", command=controller.quitProgram)
+		btnQuit = ttk.Button(self, text="Quit", command=lambda: exit())
 		btnQuit.grid(row=100, column=6, sticky="EW")
 
 
