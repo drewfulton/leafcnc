@@ -1,12 +1,11 @@
 # Configuration Details and Settings
 
 Camera Settings
-	Camera Brand
-		- Canon
-	Camera Model
-		- Rebel Xt1
+	Camera 
+		- Canon Rebel T1i
 	Lens
 		- Tokina 100mm Macro
+
 	Trigger Method
 		- USB
 		- Cable Release
@@ -31,5 +30,3 @@ Sample Details
 		- Automatic
 	Focus Stacking Frames (1-10)
 
-CNC Settings
-	
