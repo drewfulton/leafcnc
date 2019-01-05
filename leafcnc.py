@@ -213,11 +213,11 @@ class Settings(tkinter.Frame):
 		tkinter.Frame.__init__(self,parent)
 		
 		# Variables
-		self.cameraBody = TextVar()
+		self.cameraBody = StringVar()
 		self.cameraBody.set(config['camera']['body'])
-		self.lens = TextVar()
+		self.lens = StringVar()
 		self.lens.set(config['camera']['lens'])
-		self.triggerMethod = TextVar()
+		self.triggerMethod = StringVar()
 		self.triggerMethod.set(config['camera']['trigger'])
 		self.exposureLength = StringVar()
 		self.exposureLength.set(str(config['camera']['exposure']))
