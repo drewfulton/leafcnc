@@ -29,7 +29,7 @@ xPos = 0
 yPos = 0
 
 XMAX = 200 #should actually be 360 but just testing to avoid the circuit board
-YMAX = -470
+YMAX = 470
 
 # Display Constants
 LARGE_FONT = ("Verdana", 16)
