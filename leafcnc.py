@@ -31,7 +31,7 @@ yPos = 0
 XMAX = 200 #should actually be 360 but just testing to avoid the circuit board
 YMAX = 470
 
-rateOfTravel = 200 #mm/s
+rateOfTravel = 100 #mm/s
 # Display Constants
 LARGE_FONT = ("Verdana", 16)
 MED_FONT = ("Verdana", 12)
