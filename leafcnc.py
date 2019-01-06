@@ -706,7 +706,7 @@ class StartPage(tkinter.Frame):
 		
 			sessionStatus.set("Capturing Image at Position #"+str(positionCount)+" of "+str(len(positions)))
 
-			machine = moveCNCtoCoordinates(position["x"], position["y"], machine)	
+			responseString = moveCNCtoCoordinates(position["x"], position["y"], machine)	
 			time.sleep(int(config["cnc"]["pause"]))
 			# Trigger Camera
 
@@ -730,7 +730,7 @@ class StartPage(tkinter.Frame):
 		sessionStatus.set("Returning Camera to Origin")
 		print(str(sessionStatus.get()))
 		
-		machine = moveCNCtoCoordinates(0, 0, machine)
+		responseString = moveCNCtoCoordinates(0, 0, machine)
 		
 		if events["cancel"].is_set():
 			cancelSession()
