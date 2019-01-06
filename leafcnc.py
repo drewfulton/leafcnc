@@ -3,7 +3,7 @@
 # LeafCNC Application
 
 # Import Libraries and Modules
-import tkinter, configparser, os, serial, time
+import tkinter, configparser, os, serial, time, threading
 
 from gpiozero import LED
 from tkinter import *
