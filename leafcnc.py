@@ -248,7 +248,7 @@ def xmlRestart():
 
 def xmlAddImage(position, cameraFilename, finalFilename):
 	xmlData = xmlTree.getroot()
-	nodes = xmlData.findall("./Images/")
+	nodes = xmlData.findall("Images")
 	for node in nodes:
 		xmlImage = ET.SubElement(node, "Image")
 		xmlImagePositionX = ET.SubElement(xmlImage, "PositionX")
@@ -422,7 +422,7 @@ class StartPage(tkinter.Frame):
 					cncInitLine0 = ttk.Label(cncInitPrompt, text="Please Confirm Camera is at Origin Point (0,0) and Correct Height", font=LARGE_FONT).pack()
 					cncInitLine1 = ttk.Label(cncInitPrompt, text="Press Continue to proceed with Sampling.", font=MED_FONT).pack()
 					cncInitLine2 = ttk.Label(cncInitPrompt, text="Press Cancel to go to Initilization Setup.", font=MED_FONT).pack()
-					cncInitContinue = ttk.Button(cncInitPrompt, text="Continue", command=lambda: [closeWindow(cncInitPrompt), events["sampleInfoInit"].set()]).pack()
+					cncInitContinue = ttk.Button(cncInitPrompt, text="Continue", command=lambda: [closeWindow(cncInitPrompt)]).pack()
 					cncInitCancel = ttk.Button(cncInitPrompt, text="Cancel", command=lambda: [closeWindow(cncInitPrompt), events["cancel"].set(), events['cncInit'].clear()]).pack()
 					centerWindow(cncInitPrompt)
 					events["cncInit"].clear()
@@ -447,7 +447,6 @@ class StartPage(tkinter.Frame):
 					entrySampleSizeX = ttk.Entry(sampleInfoInitWindow, textvariable=self.sampleX, width=10).pack()
 					lblSampleSizeY = ttk.Label(sampleInfoInitWindow, text="Sample Width:", font=MED_FONT).pack()
 					entrySampleSizeY = ttk.Entry(sampleInfoInitWindow, textvariable=self.sampleY, width=10).pack()
-					
 					sampleInfoInitContinue = ttk.Button(sampleInfoInitWindow, text="Continue", command=lambda: [self.updateSampleInfo(), closeWindow(sampleInfoInitWindow), events["pause"].clear()]).pack()
 					sampleInfoInitCancel = ttk.Button(sampleInfoInitWindow, text="Cancel", command=lambda: [closeWindow(sampleInfoInitWindow), events["cancel"].set(), events["pause"].clear()]).pack()
 					centerWindow(sampleInfoInitWindow)
