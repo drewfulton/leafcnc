@@ -711,7 +711,7 @@ class StartPage(tkinter.Frame):
 			print("Move To: ("+str(position["x"])+", "+str(position["y"])+")")
 			print("Distance to Travel: "+str(distanceToTravel))
 			
-			timetoTravel = distanceToTravel*rateOfTravel
+			timetoTravel = distanceToTravel/rateOfTravel
 			responseString = moveCNCtoCoordinates(position["x"], position["y"], machine)	
 			time.sleep(timetoTravel)
 			time.sleep(int(config["cnc"]["pause"]))
