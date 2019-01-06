@@ -451,7 +451,7 @@ class StartPage(tkinter.Frame):
 				
 				if events["xmlWarning"].is_set():
 					events["pause"].set()
- 					playSound("error")
+					playSound("error")
 					xmlWarningPrompt = Toplevel(self)
 					xmlWarningPrompt.title("XML Warning")
 					xmlWarningTitle = ttk.Label(xmlWarningPrompt, text="XML File Exists", font=MED_FONT).pack()
