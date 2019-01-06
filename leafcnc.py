@@ -509,7 +509,7 @@ class StartPage(tkinter.Frame):
 
 	def startSession(self, events, sessionStatus):
 		global rolledOver
-		
+		global machine
 		# Check to see if everything is ready
 # 		status["camerasInit"] = False
 # 		status["cameraSettings"] = False
