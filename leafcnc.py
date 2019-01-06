@@ -51,7 +51,7 @@ def moveCNCbyAmount(dx,dy, machine):
 	xPos = xPos + dx
 	yPos = yPos + dy
 	msg = 'G0 X'+str(xPos)+' Y'+str(yPos)+'\n'
-	print(str(msg))
+# 	print(str(msg))
 	machine.write(msg.encode())
 	responseString = machine.readline().decode()
 # 	print("Response: "+str(responseString))
@@ -63,10 +63,10 @@ def moveCNCtoCoordinates(x, y, machine):
 	xPos = x
 	yPos = y
 	msg = 'G0 X'+str(xPos)+' Y'+str(yPos)+'\n'
-	print(str(msg))
+# 	print(str(msg))
 	machine.write(msg.encode())
 	responseString = machine.readline().decode()
-	print("Response: "+str(responseString))
+# 	print("Response: "+str(responseString))
 	return responseString
 
 def openCNC(port):
@@ -693,14 +693,14 @@ class StartPage(tkinter.Frame):
 		calcX = 0
 		calcY = 0
 		while calcX < XMAX:
-			calcX = calcX + (XMAX/framesPerX)
 			while calcY < YMAX:
-				calcY = calcY + (YMAX/framesPerY)
 				pos = {}
 				pos["x"] = calcX
 				pos["y"] = calcY
 				print("Pos: "+str(pos))
 				positions.append(pos)
+				calcY = calcY + (YMAX/framesPerY)
+			calcX = calcX + (XMAX/framesPerX)
 			calcY = 0
 		print("Positions: "+str(positions))
 		for position in positions:
