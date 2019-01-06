@@ -17,6 +17,7 @@ configpath = os.path.dirname(os.path.abspath(__file__))+"/config.ini"
 
 # Stores info about the status of all components of system
 systemStatus = {}
+status = {}
 
 # Stores details about active sessionData
 sessionData = {}  
