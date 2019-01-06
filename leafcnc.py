@@ -3,7 +3,7 @@
 # LeafCNC Application
 
 # Import Libraries and Modules
-import tkinter, configparser, os, serial, time, threading, pygame, datetime
+import tkinter, configparser, os, serial, time, threading, pygame, datetime, math
 
 from gpiozero import LED
 from tkinter import *
@@ -31,6 +31,7 @@ yPos = 0
 XMAX = 200 #should actually be 360 but just testing to avoid the circuit board
 YMAX = 470
 
+rateOfTravel = 200 #mm/s
 # Display Constants
 LARGE_FONT = ("Verdana", 16)
 MED_FONT = ("Verdana", 12)
@@ -53,7 +54,7 @@ def moveCNCbyAmount(dx,dy, machine):
 	print(str(msg))
 	machine.write(msg.encode())
 	responseString = machine.readline().decode()
-	print("Response: "+str(responseString))
+# 	print("Response: "+str(responseString))
 	return responseString
 	 
 def moveCNCtoCoordinates(x, y, machine):
@@ -513,6 +514,7 @@ class StartPage(tkinter.Frame):
 		global YMAX
 		global xPos
 		global yPos
+		global rateOfTravel
 		
 		# Check to see if everything is ready
 # 		status["camerasInit"] = False
@@ -704,11 +706,17 @@ class StartPage(tkinter.Frame):
 		for position in positions:
 		
 			sessionStatus.set("Capturing Image at Position #"+str(positionCount)+" of "+str(len(positions)))
-
+			distanceToTravel = math.sqrt((xPos-int(position["x"]))**2 + (yPos - int(position["y"]))**2)
+			print("Move From: ("+str(xPos)+", "+str(yPos)+")")
+			print("Move To: ("+str(position["x"])+", "+str(position["y"])+")")
+			print("Distance to Travel: "+str(distanceToTravel))
+			
+			timetoTravel = distanceToTravel*rateOfTravel
 			responseString = moveCNCtoCoordinates(position["x"], position["y"], machine)	
+			tiem.sleep(timetoTravel)
 			time.sleep(int(config["cnc"]["pause"]))
 			# Trigger Camera
-
+			
 			time.sleep(int(config["camera"]["exposure"]))
 			imageCount +=1	
 			positionCount +=1		
