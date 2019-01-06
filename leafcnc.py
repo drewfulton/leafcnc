@@ -3,7 +3,7 @@
 # LeafCNC Application
 
 # Import Libraries and Modules
-import tkinter, configparser, os, serial, time, threading, pygame
+import tkinter, configparser, os, serial, time, threading, pygame, datetime
 
 from gpiozero import LED
 from tkinter import *
@@ -142,6 +142,10 @@ def playSoundThread(sound):
 def cancelSession():
 	#Doesn't actually do anything for now
 	pass
+
+def setEvent(event):
+	event.set()
+	return
 
 
 
@@ -416,8 +420,8 @@ class StartPage(tkinter.Frame):
 					lblSampleSizeY = ttk.Label(sampleInfoInitWindow, text="Sample Width:", font=MED_FONT)
 					entrySampleSizeY = ttk.Entry(sampleInfoInitWindow, textvariable=self.sampleY, width=10)
 					
-					sampleInfoInitContinue = ttk.Button(sampleInfoInitPrompt, text="Continue", command=lambda: [self.updateSampleInfo(), closeWindow(sampleInfoInitPrompt), events["pause"].clear()]).pack()
-					sampleInfoInitCancel = ttk.Button(sampleInfoInitPrompt, text="Cancel", command=lambda: [closeWindow(sampleInfoInitPrompt), events["cancel"].set(), events["pause"].clear()]).pack()
+					sampleInfoInitContinue = ttk.Button(sampleInfoInitWindow, text="Continue", command=lambda: [self.updateSampleInfo(), closeWindow(sampleInfoInitWindow), events["pause"].clear()]).pack()
+					sampleInfoInitCancel = ttk.Button(sampleInfoInitWindow, text="Cancel", command=lambda: [closeWindow(sampleInfoInitWindow), events["cancel"].set(), events["pause"].clear()]).pack()
 					centerWindow(sampleInfoInitPrompt)
 					events["sampleInfoInit"].clear()
 				
@@ -517,7 +521,7 @@ class StartPage(tkinter.Frame):
 						cancelSession()
 						break
 				status["filepathInit"] = True
-			elif os.path.ismount(config["filepaths"]["imagePath"]):
+			elif os.path.isdir(config["filepaths"]["imagePath"]):
 				status["filepathInit"] = True
 			else:
 				events["filePathProblem"].set()
