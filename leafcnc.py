@@ -139,6 +139,10 @@ def playSoundThread(sound):
 	time.sleep(3)
 	pygame.mixer.quit()
 
+def cancelSession():
+	#Doesn't actually do anything for now
+	pass
+
 
 
 # XML Management Functions
