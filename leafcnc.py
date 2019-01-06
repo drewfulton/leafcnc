@@ -514,9 +514,9 @@ class StartPage(tkinter.Frame):
 			events["xmlPathProblem"].set()
 			events["pause"].set()
 			while events["pause"].is_set():
-			if events["cancel"].is_set():
-				cancelSession()
-				break
+				if events["cancel"].is_set():
+					cancelSession()
+					break
 			status["xmlpathInit"] = True
 								
 		# Check to see camera settings are not White Frame Settings (1" at 6400 ISO)
