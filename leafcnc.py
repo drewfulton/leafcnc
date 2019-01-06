@@ -721,7 +721,7 @@ class StartPage(tkinter.Frame):
 			return
 			
 		# Return Camera to Origin
-		sessionStatus.set("Position "+str(positionofItem)+": Returning Camera to Origin")
+		sessionStatus.set("Returning Camera to Origin")
 		print(str(sessionStatus.get()))
 		
 		machine = moveCNCtoCoordinates(0, 0, machine)
