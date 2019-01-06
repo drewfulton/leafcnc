@@ -222,7 +222,7 @@ class LeafCNC:
 		self.tk.bind("<Escape>", self.end_fullscreen)
 
 		self.frames = {}
-		FrameList = (StartPage, Settings, Initilization, RunSample)
+		FrameList = (StartPage, Settings, Initilization)
 		
 		for F in FrameList:
 			frame = F(self.frame, self)
