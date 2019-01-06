@@ -215,6 +215,32 @@ def xmlLogTime(activity, state, other=""):
 		stateStamp.text = str(datetime.datetime.now())
 	writeXML(xmlTree)
 
+def xmlTaskStatus(activity, state, other=""):
+	xmlData = xmlTree.getroot()
+	if other != "":
+		other = "/"+other
+		
+	nodes = xmlData.findall("./Tasks/Task[@activity='"+activity+"']"+other+"/Status")
+	if nodes:
+		for node in nodes:
+			node.text = str(state)
+	else:
+		nodes = xmlData.findall("./Tasks/Task[@activity='"+activity+"']"+other+"")
+		if nodes:
+			for node in nodes:
+				xmlStatus = ET.SubElement(node, "Status")
+				xmlStatus.text = str(state)
+		else:
+			nodes = xmlData.findall("./Tasks")
+			if nodes:
+				for node in nodes:
+					xmlActivity = ET.SubElement(node, "Task")
+					xmlActivity.set("activity", activity)
+					xmlStatus = ET.SubElement(xmlActivity, "Status")
+					xmlStatus.text = str(state)
+	writeXML(xmlTree)
+
+
 def xmlRestart():
 	xmlData = xmlTree.getroot()
 	xmlData.clear()
