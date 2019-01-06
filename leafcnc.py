@@ -713,7 +713,7 @@ class StartPage(tkinter.Frame):
 			
 			timetoTravel = distanceToTravel*rateOfTravel
 			responseString = moveCNCtoCoordinates(position["x"], position["y"], machine)	
-			tiem.sleep(timetoTravel)
+			time.sleep(timetoTravel)
 			time.sleep(int(config["cnc"]["pause"]))
 			# Trigger Camera
 			
