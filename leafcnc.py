@@ -596,7 +596,6 @@ class StartPage(tkinter.Frame):
 
 		if events["cancel"].is_set():
 			cancelSession()
-			break
 
 		# Trigger White Frame
 # 		sessionStatus.set("Capturing Initial White Frame")
