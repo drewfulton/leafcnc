@@ -304,7 +304,7 @@ class StartPage(tkinter.Frame):
 		btnSettings.grid(row=10, column=14, sticky="NEWS")
 		
 
-		btnQuit = ttk.Button(self, text="Quit", command=lam	bda: controller.quitProgram(machine))
+		btnQuit = ttk.Button(self, text="Quit", command=lambda: controller.quitProgram(machine))
 		btnQuit.grid(row=100, column=6, sticky="EW")
 
 		def startSessionThreading(sessionStatus):
