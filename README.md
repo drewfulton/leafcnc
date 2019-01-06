@@ -11,7 +11,10 @@ Prerequisites
 		Install with script found at: https://github.com/gonzalo/gphoto2-updater
 		
 	Apt-Get Installs
-	
+		libxml2-dev 
+		libxslt-dev
+		python-dev
+		python3-lxml
 	Pip3 Installs
 		pyserial
 		Pillow

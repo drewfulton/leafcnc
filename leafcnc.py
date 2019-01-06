@@ -3,18 +3,21 @@
 # LeafCNC Application
 
 # Import Libraries and Modules
-import tkinter, configparser, os, serial, time
+import tkinter, configparser, os, serial, time, threading, pygame, datetime, math
 
 from gpiozero import LED
 from tkinter import *
 from tkinter import ttk, messagebox, filedialog
 from PIL import Image, ImageTk
+from multiprocessing.dummy import Pool as ThreadPool
+from lxml import etree as ET
 
 # Global Variables
 configpath = os.path.dirname(os.path.abspath(__file__))+"/config.ini"
 
 # Stores info about the status of all components of system
 systemStatus = {}
+status = {}
 
 # Stores details about active sessionData
 sessionData = {}  
@@ -25,7 +28,10 @@ cameraStatusUpdateText = ""
 xPos = 0
 yPos = 0
 
+XMAX = 200 #should actually be 360 but just testing to avoid the circuit board
+YMAX = 470
 
+rateOfTravel = 100 #mm/s
 # Display Constants
 LARGE_FONT = ("Verdana", 16)
 MED_FONT = ("Verdana", 12)
@@ -39,18 +45,30 @@ shutter = LED(24)
 
 # Functions to Move CNC Machine
 
-def moveCNC(dx,dy, machine):
+def moveCNCbyAmount(dx,dy, machine):
 	global xPos
 	global yPos
 	xPos = xPos + dx
 	yPos = yPos + dy
 	msg = 'G0 X'+str(xPos)+' Y'+str(yPos)+'\n'
-	print(str(msg))
+# 	print(str(msg))
 	machine.write(msg.encode())
 	responseString = machine.readline().decode()
-	print("Response: "+str(responseString))
+# 	print("Response: "+str(responseString))
 	return responseString
 	 
+def moveCNCtoCoordinates(x, y, machine):
+	global xPos
+	global yPos
+	xPos = x
+	yPos = y
+	msg = 'G0 X'+str(xPos)+' Y'+str(yPos)+'\n'
+# 	print(str(msg))
+	machine.write(msg.encode())
+	responseString = machine.readline().decode()
+# 	print("Response: "+str(responseString))
+	return responseString
+
 def openCNC(port):
 	machine = serial.Serial(port,115200)
 	return machine
@@ -78,6 +96,7 @@ def createConfig(path):
 	config["cnc"] = {"port": "/dev/ttyUSB0", "xOverlap": "40", "yOverlap":"40", "pause":"1"}
 	config["camera"] = {"body": "Canon T1i", "lens": "Tokina 100mm", "trigger":"USB", "exposure":"1"}
 	config["filepaths"] = {"download":"True", "imagePath":'', "xmlPath": ''}
+	config["sample"] = {"cameraHeight":"", "id":"", "stackingMode":"None", "stackingCount":"0", "sizeX":"360","sizeY":"470"}
 	
 	# Write Config file
 	with open(path, "w") as config_file:
@@ -96,9 +115,157 @@ def updateConfig(config, path):
 		config.write(config_file)
 
 
+# Miscellaneous Tkinter Functions
+def centerWindow(window):
+	time.sleep(0.25)
+	window.update_idletasks()
+	w = window.winfo_screenwidth()
+	h = window.winfo_screenheight()
+	size = tuple(int(_) for _ in window.geometry().split('+')[0].split('x'))
+	x = w/2 - size[0]/2
+	y = h/2 - size[1]/2
+	window.geometry("%dx%d+%d+%d" % (size + (x,y)))
+
+def closeWindow(window):
+	window.destroy()
+
+def playSound(file):
+	soundThread = threading.Thread(target=playSoundThread, args=(file,))
+	soundThread.start()
+
+def playSoundThread(sound):
+	pygame.mixer.init()
+	pygame.mixer.music.load("backend/soundeffects/"+sound+".mp3")
+	pygame.mixer.music.play()
+	time.sleep(3)
+	pygame.mixer.quit()
+
+def cancelSession():
+	#Doesn't actually do anything for now
+	pass
+
+def setEvent(event):
+	event.set()
+	return
+
 
 
 # XML Management Functions
+def writeXML(xmlTree):
+	xmlTree.write(config["filepaths"]["xmlPath"]+'/'+config["sample"]["id"]+".xml", pretty_print=True)
+
+def initXML():
+	
+	# Sample Details
+	xmlSampleDetails = ET.SubElement(xmlData, "SampleDetails")
+	xmlSampleID = ET.SubElement(xmlSampleDetails, "SampleID")
+	xmlSampleID.text = config["sample"]["ID"]
+
+	# Session Details
+	xmlSessionDetails = ET.SubElement(xmlData, "SessionDetails")
+	xmlCameraHeight = ET.SubElement(xmlSessionDetails, "CameraCount")
+	xmlCameraHeight.text = str(config["sample"]["cameraHeight"])
+	xmlStackingMode = ET.SubElement(xmlSessionDetails, "StackingMode")
+	xmlStackingMode.text = str(config["sample"]["stackingMode"])
+	xmlStackingCount = ET.SubElement(xmlSessionDetails, "StackingFrameCount")
+	xmlStackingMode.text = str(config["sample"]["stackingcount"])
+	xmlSampleSizeX = ET.SubElement(xmlSessionDetails, "SampleSizeX")
+	xmlSampleSizeX.text = str(config["sample"]["sizeX"])
+	xmlSampleSizeY = ET.SubElement(xmlSessionDetails, "SampleSizeY")
+	xmlSampleSizeY.text = str(config["sample"]["sizey"])
+	xmlCameraBody = ET.SubElement(xmlSessionDetails, "CameraBody")
+	xmlCameraBody.text = str(config["camera"]["body"])
+	xmlCameraLens = ET.SubElement(xmlSessionDetails, "CameraLens")
+	xmlCameraLens.text = str(config["camera"]["lens"])
+	xmlCameraOverlapX = ET.SubElement(xmlSessionDetails, "XAxisOverlap")
+	xmlCameraOverlapX.text = str(config["cnc"]["xOverlap"])
+	xmlCameraOverlapY = ET.SubElement(xmlSessionDetails, "YAxisOverlap")
+	xmlCameraOverlapY.text = str(config["cnc"]["yOverlap"])
+	xmlExposurePause = ET.SubElement(xmlSessionDetails, "ExposurePauseLength")
+	xmlExposurePause.text = str(config["camera"]["exposure"])
+	xmlCNCPause = ET.SubElement(xmlSessionDetails, "PauseAfterMovement")
+	xmlCNCPause.text = str(config["cnc"]["pause"])
+	xmlCameraTrigger = ET.SubElement(xmlSessionDetails, "CameraTriggerMode")
+	xmlCameraTrigger.text = str(config["camera"]["trigger"])
+
+	# Tasks
+	xmlTasks = ET.SubElement(xmlData, "Tasks")
+	xmlImageCapture = ET.SubElement(xmlTasks, "Task")
+	xmlImageCapture.set("activity", "ImageCapture")
+
+	# Images
+	xmlImages = ET.SubElement(xmlData, "Images")
+
+	writeXML(xmlTree)
+	
+	return xmlTree
+
+	
+def xmlLogTime(activity, state, other=""):
+	xmlData = xmlTree.getroot()
+	if other != "":
+		other = "/"+other
+	
+	findString = "./Tasks/Task[@activity='"+activity+"']"+other
+# 	print(findString)
+	nodes = xmlData.findall(findString)
+	for node in nodes:
+		stateNode = ET.SubElement(node, state)
+		stateNode.text = str(datetime.datetime.now().strftime('%Y%m%d %H:%M:%S'))
+		stateStamp = ET.SubElement(node, state+"Stamp")
+		stateStamp.text = str(datetime.datetime.now())
+	writeXML(xmlTree)
+
+def xmlTaskStatus(activity, state, other=""):
+	xmlData = xmlTree.getroot()
+	if other != "":
+		other = "/"+other
+		
+	nodes = xmlData.findall("./Tasks/Task[@activity='"+activity+"']"+other+"/Status")
+	if nodes:
+		for node in nodes:
+			node.text = str(state)
+	else:
+		nodes = xmlData.findall("./Tasks/Task[@activity='"+activity+"']"+other+"")
+		if nodes:
+			for node in nodes:
+				xmlStatus = ET.SubElement(node, "Status")
+				xmlStatus.text = str(state)
+		else:
+			nodes = xmlData.findall("./Tasks")
+			if nodes:
+				for node in nodes:
+					xmlActivity = ET.SubElement(node, "Task")
+					xmlActivity.set("activity", activity)
+					xmlStatus = ET.SubElement(xmlActivity, "Status")
+					xmlStatus.text = str(state)
+	writeXML(xmlTree)
+
+
+def xmlRestart():
+	xmlData = xmlTree.getroot()
+	xmlData.clear()
+	return xmlTree
+
+def xmlAddImage(position, cameraFilename, finalFilename):
+	xmlData = xmlTree.getroot()
+	nodes = xmlData.findall("Images")
+	for node in nodes:
+		xmlImage = ET.SubElement(node, "Image")
+		xmlImagePositionX = ET.SubElement(xmlImage, "PositionX")
+		xmlImagePositionX.text =  str(position["x"])
+		xmlImagePositionY = ET.SubElement(xmlImage, "PositionY")
+		xmlImagePositionY.text =  str(position["y"])
+		xmlImageFilename = ET.SubElement(xmlImage, "CameraFilename")
+		xmlImageFilename.text = str(cameraFilename)
+		xmlImageFilename = ET.SubElement(xmlImage, "FinalFilename")
+		xmlImageFilename.text = str(finalFilename)
+	writeXML(xmlTree)
+	
+	return xmlTree
+	
+
+
 
 
 # Tkinter Application Overview
@@ -116,7 +283,7 @@ class LeafCNC:
 		self.tk.bind("<Escape>", self.end_fullscreen)
 
 		self.frames = {}
-		FrameList = (StartPage, Settings, Initilization, RunSample)
+		FrameList = (StartPage, Settings, Initilization)
 		
 		for F in FrameList:
 			frame = F(self.frame, self)
@@ -145,36 +312,34 @@ class LeafCNC:
 		self.tk.attributes("-fullscreen", True)
 		return "break"
 		
-	def quitProgram(self, event=None):
-# 		Kill Camera Ports and IDX
-# 		config["cam1"]["port"] = "null"
-# 		config["cam2"]["port"] = "null"
-# 		config["cam3"]["port"] = "null"
-# 		config["cam4"]["port"] = "null"
-# 		config["cam1"]["idx"] = "null"
-# 		config["cam2"]["idx"] = "null"
-# 		config["cam3"]["idx"] = "null"
-# 		config["cam4"]["idx"] = "null"
-# 		config["cam1"]["code"] = ""
-# 		config["cam2"]["code"] = ""
-# 		config["cam3"]["code"] = ""
-# 		config["cam4"]["code"] = ""
-# 		updateConfig(config, configpath)
-# 		
-# 		Kill Test Images
-# 		for cam in camList:
-# 			killTestImage(cam)
-# 		
-# 		turnOffMotors()
-# 		
-# 		exit()
+	def quitProgram(self, machine, event=None):
+		updateConfig(config, configpath)
+		closeCNC(machine)
+		exit()
 		return "break"
 
 # Start Page Class
 class StartPage(tkinter.Frame):
 	def __init__(self, parent, controller):
+		global machine
+		
 		tkinter.Frame.__init__(self,parent)
 
+		# Variables
+		self.cameraHeight = StringVar()
+		self.cameraHeight.set(config["sample"]["cameraHeight"])
+		self.sampleID = StringVar()
+		self.sampleID.set(config["sample"]["id"])
+		self.stackingMode = StringVar()
+		self.stackingMode.set(config["sample"]["stackingMode"])
+		self.stackingCount = IntVar()
+		self.stackingCount.set(int(config["sample"]["stackingCount"]))
+		self.sampleX = IntVar()
+		self.sampleX.set(int(config["sample"]["sizeX"]))
+		self.sampleY = IntVar()
+		self.sampleY.set(int(config["sample"]["sizeY"]))
+		self.sessionStatus = StringVar()
+		
 		# Size Columns
 		self.grid_columnconfigure(1, minsize=34)
 		self.grid_columnconfigure(10, minsize=50)
@@ -194,17 +359,437 @@ class StartPage(tkinter.Frame):
 		# Buttons
 		btnInit = ttk.Button(self, text="Initilization", command=lambda: controller.show_frame(Initilization))
 		btnInit.grid(row=10, column=10, sticky="NEWS")
-		btnRunSample = ttk.Button(self, text="Run Sample", command=lambda: controller.show_frame(RunSample))
+		btnRunSample = ttk.Button(self, text="Run Sample", command=lambda: startSessionThreading(self.sessionStatus))
 		btnRunSample.grid(row=10, column=12, sticky="NEWS")
 		btnSettings = ttk.Button(self, text="Settings", command=lambda: controller.show_frame(Settings))
 		btnSettings.grid(row=10, column=14, sticky="NEWS")
 		
 
-		btnQuit = ttk.Button(self, text="Quit", command=lambda: exit())
+		btnQuit = ttk.Button(self, text="Quit", command=lambda: controller.quitProgram(machine))
 		btnQuit.grid(row=100, column=6, sticky="EW")
 
+		def startSessionThreading(sessionStatus):
+			events = {}
+			events["complete"] = threading.Event()
+			events["cancel"] = threading.Event()
+			events["pause"] = threading.Event()
+			events["cncInit"] = threading.Event()
+			events["sampleInfoInit"] = threading.Event()
+			events["filePathProblem"] = threading.Event()
+			events["xmlPathProblem"] = threading.Event()
+			events["xmlWarning"] = threading.Event()
+			sessionThread = threading.Thread(target=self.startSession, args=( events, sessionStatus))
+			interfaceThread = threading.Thread(target=sessionWindow, args=( events, sessionStatus))
+			interfaceThread.start()
+			sessionThread.start()
+			
+		
+		def sessionWindow(events, sessionStatus):
+			sessionWindow = Toplevel(self)
+			sessionWindow.title("Leaf Sampling Session")
+			sessionWindow.geometry("550x350")
+			centerWindow(sessionWindow)
+			sessionWindow.focus_force()
 
-# Settings Class
+			sessionWindow.grid_rowconfigure(2, minsize=60)
+			sessionWindow.grid_rowconfigure(3, minsize=30)
+			sessionWindow.grid_rowconfigure(4, minsize=30)
+			sessionWindow.grid_rowconfigure(5, minsize=30)
+			sessionWindow.grid_rowconfigure(6, minsize=30)
+			sessionWindow.grid_rowconfigure(6, minsize=30)
+			sessionWindow.grid_columnconfigure(3, minsize=350)
+
+
+			lblTitle = ttk.Label(sessionWindow, text="Leaf Sampling Status", font=LARGE_FONT, justify="center")
+			lblTitle.grid(row=1, sticky="WE", columnspan=100)
+		
+			lblStatusTitle = ttk.Label(sessionWindow, text="Status:", font=MED_FONT, justify="left")
+			lblStatusTitle.grid(row=2, column=2, sticky="W")
+		
+			lblStatus = ttk.Label(sessionWindow, textvariable=self.sessionStatus, font=MED_FONT, justify="left")
+			lblStatus.grid(row=2, column=3, sticky="W")
+
+			btnCancel = ttk.Button(sessionWindow, text="Cancel", command=lambda: [setEvent(events["cancel"])])
+			btnCancel.grid(row=8, column=3, columnspan=2, sticky="WE")
+		
+			while not events["complete"].is_set():
+				if events["cancel"].is_set():
+					sessionStatus.set("Cancelling...")
+
+				if events["cncInit"].is_set():
+					events["pause"].set()
+					cncInitPrompt = Toplevel(self)
+					cncInitPrompt.title("Inititilize Machine")
+					cncInitLine0 = ttk.Label(cncInitPrompt, text="Please Confirm Camera is at Origin Point (0,0) and Correct Height", font=LARGE_FONT).pack()
+					cncInitLine1 = ttk.Label(cncInitPrompt, text="Press Continue to proceed with Sampling.", font=MED_FONT).pack()
+					cncInitLine2 = ttk.Label(cncInitPrompt, text="Press Cancel to go to Initilization Setup.", font=MED_FONT).pack()
+					cncInitContinue = ttk.Button(cncInitPrompt, text="Continue", command=lambda: [closeWindow(cncInitPrompt), events["pause"].clear()]).pack()
+					cncInitCancel = ttk.Button(cncInitPrompt, text="Cancel", command=lambda: [closeWindow(cncInitPrompt), events["cancel"].set(), events['cncInit'].clear()]).pack()
+					centerWindow(cncInitPrompt)
+					events["cncInit"].clear()
+				
+				if events["sampleInfoInit"].is_set():
+					events["pause"].set()
+# 					playSound("error")
+					sampleInfoInitWindow = Toplevel(self)
+					sampleInfoInitWindow.title("Sample Details")
+					sampleInfoInitTitle = ttk.Label(sampleInfoInitWindow, text="Enter Sample Information", font=MED_FONT).pack()
+					lblSampleID = ttk.Label(sampleInfoInitWindow, text="Sample ID:", font=MED_FONT).pack()
+					entrySampleID = ttk.Entry(sampleInfoInitWindow, textvariable=self.sampleID, width=10).pack()
+					lblCameraHeight = ttk.Label(sampleInfoInitWindow, text="Camera Height:", font=MED_FONT).pack()
+					entryCameraHeight = ttk.Entry(sampleInfoInitWindow, textvariable=self.cameraHeight, width=10).pack()
+					lblStackingMode = ttk.Label(sampleInfoInitWindow, text="Focus Stacking Mode:", font=MED_FONT).pack()
+					cmbStackingMode = ttk.Combobox(sampleInfoInitWindow, textvariable=self.stackingMode, width=10)
+					cmbStackingMode['values'] = ["None","Auto","Manual"]
+					cmbStackingMode.pack()
+					lblStackingCount = ttk.Label(sampleInfoInitWindow, text="Stacking Count:", font=MED_FONT).pack()
+					entryStackingCount = ttk.Entry(sampleInfoInitWindow, textvariable=self.stackingCount, width=10).pack()
+					lblSampleSizeX = ttk.Label(sampleInfoInitWindow, text="Sample Height:", font=MED_FONT).pack()
+					entrySampleSizeX = ttk.Entry(sampleInfoInitWindow, textvariable=self.sampleX, width=10).pack()
+					lblSampleSizeY = ttk.Label(sampleInfoInitWindow, text="Sample Width:", font=MED_FONT).pack()
+					entrySampleSizeY = ttk.Entry(sampleInfoInitWindow, textvariable=self.sampleY, width=10).pack()
+					sampleInfoInitContinue = ttk.Button(sampleInfoInitWindow, text="Continue", command=lambda: [self.updateSampleInfo(), closeWindow(sampleInfoInitWindow), events["pause"].clear()]).pack()
+					sampleInfoInitCancel = ttk.Button(sampleInfoInitWindow, text="Cancel", command=lambda: [closeWindow(sampleInfoInitWindow), events["cancel"].set(), events["pause"].clear()]).pack()
+					centerWindow(sampleInfoInitWindow)
+					events["sampleInfoInit"].clear()
+				
+				if events["filePathProblem"].is_set():
+					events["pause"].set()
+					playSound("error")
+					filePathPrompt = Toplevel(self)
+					filePathPrompt.title("File Path Problem")
+					filePathTitle = ttk.Label(filePathPrompt, text="File Path Problem", font=MED_FONT).pack()
+					filePathPromptLine2 = ttk.Label(filePathPrompt, text="Unable to access the folder designated for image downloads.", font=MED_FONT).pack()
+					filePathPromptLine3 = ttk.Label(filePathPrompt, text="Please hit Cancel and ensure this folder is correct and mounted.", font=MED_FONT).pack()
+					filePathCancel = ttk.Button(filePathPrompt, text="Cancel", command=lambda: [closeWindow(filePathPrompt), events["cancel"].set(), events["pause"].clear()]).pack()
+					centerWindow(filePathPrompt)
+					events["filePathProblem"].clear()
+				
+				if events["xmlPathProblem"].is_set():
+					events["pause"].set()
+					playSound("error")
+					xmlPathPrompt = Toplevel(self)
+					xmlPathPrompt.title("XML Path Problem")
+					xmlPathTitle = ttk.Label(xmlPathPrompt, text="XML Path Problem", font=MED_FONT).pack()
+					xmlPathPromptLine2 = ttk.Label(xmlPathPrompt, text="Unable to access the folder designated for XML files.", font=MED_FONT).pack()
+					xmlPathPromptLine3 = ttk.Label(xmlPathPrompt, text="Please hit Cancel and ensure this folder is correct and mounted.", font=MED_FONT).pack()
+					xmlPathCancel = ttk.Button(xmlPathPrompt, text="Cancel", command=lambda: [closeWindow(xmlPathPrompt), events["cancel"].set(), events["pause"].clear()]).pack()
+					centerWindow(xmlPathPrompt)
+					events["xmlPathProblem"].clear()
+				
+				if events["xmlWarning"].is_set():
+					events["pause"].set()
+					playSound("error")
+					xmlWarningPrompt = Toplevel(self)
+					xmlWarningPrompt.title("XML Warning")
+					xmlWarningTitle = ttk.Label(xmlWarningPrompt, text="XML File Exists", font=MED_FONT).pack()
+					xmlWarningPromptLine2 = ttk.Label(xmlWarningPrompt, text="It appears that an XML already exists for a sample with this Sample ID.", font=MED_FONT).pack()
+					xmlWarningPromptLine3 = ttk.Label(xmlWarningPrompt, text="Select Continue to continue and add to the existing XML File.", font=MED_FONT).pack()
+					xmlWarningPrompteLine4 = ttk.Label(xmlWarningPrompt, text="Select Cancel to cancel and start over.", font=SMALL_FONT).pack()
+					xmlWarningContinue = ttk.Button(xmlWarningPrompt, text="Continue", command=lambda: [closeWindow(xmlWarningPrompt), events["pause"].clear()]).pack()
+					xmlWarningCancel = ttk.Button(xmlWarningPrompt, text="Cancel", command=lambda: [closeWindow(xmlWarningPrompt), events["cancel"].set(), events["pause"].clear()]).pack()
+					centerWindow(xmlWarningPrompt)
+					events["xmlWarning"].clear()
+				
+			
+			closeWindow(sessionWindow)
+			self.sessionStatus.set("")
+			events["complete"].clear()
+			playSound("complete")
+		
+	def updateSampleInfo(self, event=None):
+		config['sample']['id'] = str(self.sampleID.get())
+		config['sample']['cameraHeight'] = str(self.cameraHeight.get())
+		config['sample']['stackingMode'] = str(self.stackingMode.get())
+		config['sample']['stackingCount'] = str(self.stackingCount.get())
+		config['sample']['sizeX'] = str(self.sampleX.get())
+		config['sample']['sizeY'] = str(self.sampleY.get())
+		updateConfig(config, configpath)
+
+
+	def startSession(self, events, sessionStatus):
+		global rolledOver
+		global machine
+		global XMAX
+		global YMAX
+		global xPos
+		global yPos
+		global rateOfTravel
+		
+		# Check to see if everything is ready
+# 		status["camerasInit"] = False
+# 		status["cameraSettings"] = False
+# 		status["tableInit"] = False
+		status["filepathInit"] = False
+		status["xmlpathInit"] = False
+		status["xmlCheck"] = False
+
+
+		# Check to see that camera is connected
+# 		if status["cameras"] > 0:
+# 			status["camerasInit"] = True
+# 		else: 
+# 			events["noCamerasPrompt"].set()
+# 			events["pause"].set()
+# 			while events["pause"].is_set():
+# 				if events["cancel"].is_set():
+# 					cancelSession()
+# 					break
+# 				pass
+# 		if events["cancel"].is_set():
+# 			events["complete"].set()
+# 			cancelSession()	
+# 			return
+
+
+		# Check to see if File Download Path is available
+		if config["filepaths"]["download"] == "False":
+			status["filepathInit"] = True
+		else:
+			if config["filepaths"]["imagePath"] == '':
+				status["filepathInit"] = False
+				events["filePathProblem"].set()
+				events["pause"].set()
+				while events["pause"].is_set():
+					if events["cancel"].is_set():
+						cancelSession()
+						break
+				status["filepathInit"] = True
+			elif os.path.isdir(config["filepaths"]["imagePath"]):
+				status["filepathInit"] = True
+			else:
+				events["filePathProblem"].set()
+				events["pause"].set()
+				while events["pause"].is_set():
+					if events["cancel"].is_set():
+						cancelSession()
+						break
+				status["filepathInit"] = True
+								
+		# Check to see if XML Path is available
+		if config["filepaths"]["xmlPath"] == '':
+			status["xmlpathInit"] = False
+			events["xmlPathProblem"].set()
+			events["pause"].set()
+			while events["pause"].is_set():
+				if events["cancel"].is_set():
+					cancelSession()
+					break
+			status["xmlpathInit"] = True
+		elif os.path.isdir(config["filepaths"]["xmlPath"]):
+			status["xmlpathInit"] = True
+		else:
+			events["xmlPathProblem"].set()
+			events["pause"].set()
+			while events["pause"].is_set():
+				if events["cancel"].is_set():
+					cancelSession()
+					break
+			status["xmlpathInit"] = True
+								
+		# Check to see camera settings are not White Frame Settings (1" at 6400 ISO)
+# 		status["cameraSettings"] = False
+# 		while not status["cameraSettings"]:
+# 			# Connect to Camera
+# 			context = gp.Context()
+# 			camera = initCamera(cameraNumber, context)		
+# 	
+# 			# Get Image Size/Type Settings from Camera
+# 			camConfig = camera.get_config(context) 
+# 			camera.exit(context)
+# 			camSettings = {}
+# 			iso = camConfig.get_child_by_name("iso") 
+# 			camSettings["iso"] = iso.get_value()
+# 			shutterspeed = camConfig.get_child_by_name("shutterspeed") 
+# 			camSettings["shutterspeed"] = shutterspeed.get_value()
+# 			exposurecompensation = camConfig.get_child_by_name("exposurecompensation")			
+# 			camSettings["exposurecompensation"] = exposurecompensation.get_value()
+# 			imagequality = camConfig.get_child_by_name("imagequality") 
+# 			camSettings["imagequality"] = imagequality.get_value() 		#"0"
+# 		
+# 			if str(camSettings["iso"]) == "6400" or str(camSettings["exposurecompensation"]) == "5" or str(camSettings["imagequality"]) != "NEF+Fine":
+# 				camerasToFix.append(cameraNumber)
+# 		
+# 			if len(camerasToFix) > 0:
+# 				events["fixCameraSettings"].set()
+# 				events["pause"].set()
+# 				while events["pause"].is_set():
+# 					if events["cancel"].is_set():
+# 						cancelSession()
+# 						break
+# 			else:	
+# 				status["cameraSettings"] = True
+# 
+
+		# Prompt User to Verify Table is Ready
+		events["cncInit"].set()
+		events["pause"].set()
+		while events["pause"].is_set():
+			if events["cancel"].is_set():
+				cancelSession()
+				break
+		
+		# Prompt User for Sample ID Info
+		events["sampleInfoInit"].set()
+		events["pause"].set()
+		while events["pause"].is_set():
+			if events["cancel"].is_set():
+				cancelSession()
+				break
+		
+
+
+		# Check to see if XML file already exists.
+		status["xmlCheck"] = False
+		while not status["xmlCheck"]:
+			if os.path.isfile(config["filepaths"]["xmlPath"]+"/"+config["sample"]["id"]+".xml"):
+				events["xmlWarning"].set()
+				while events["pause"].is_set():
+					if events["cancel"].is_set():
+						cancelSession()
+						break
+
+					status["xmlCheck"] = True
+			else:
+				status["xmlCheck"] = True
+		
+		
+		# Start Process
+		sessionStatus.set("Initilizing XML Session")
+		
+		# Initiate XML Data
+		xmlTree = initXML()
+		xmlTree = xmlLogTime("ImageCapture", "Start")
+		xmlTree = xmlTaskStatus("ImageCapture", "Processing")
+
+		if events["cancel"].is_set():
+			cancelSession()
+
+		# Trigger White Frame
+# 		sessionStatus.set("Capturing Initial White Frame")
+# 		threads = {}
+# 		whiteFrameFilenames = self.processParallel(connectedCamList, triggerWhiteFrame, 4)
+# 		
+# 		for cam, frame in whiteFrameFilenames:
+# 			sessionData[cam][positionofItem]["whiteframe"]=frame
+# 			xmlTree = xmlImageAddWhiteframe(positionofItem, cam, frame)
+# 		print("Session Data: "+str(sessionData))
+		
+		
+
+		# Start Photos and Rotation
+		xPos = 0
+		yPos = 0
+		imageCount = 1
+		positionCount = 1
+		
+		# Calculate Frames Per X
+		framesPerX = 4
+		# Calculate Frames Per Y	
+		framesPerY = 8
+		# Generate List of Positions
+		positions = []
+		
+		calcX = 0
+		calcY = 0
+		while calcX < XMAX:
+			while calcY < YMAX:
+				pos = {}
+				pos["x"] = calcX
+				pos["y"] = calcY
+				print("Pos: "+str(pos))
+				positions.append(pos)
+				calcY = calcY + (YMAX/framesPerY)
+			calcX = calcX + (XMAX/framesPerX)
+			calcY = 0
+		print("Positions: "+str(positions))
+		for position in positions:
+		
+			sessionStatus.set("Capturing Image at Position #"+str(positionCount)+" of "+str(len(positions)))
+			distanceToTravel = math.sqrt((xPos-int(position["x"]))**2 + (yPos - int(position["y"]))**2)
+			print("Move From: ("+str(xPos)+", "+str(yPos)+")")
+			print("Move To: ("+str(position["x"])+", "+str(position["y"])+")")
+			print("Distance to Travel: "+str(distanceToTravel))
+			
+			timetoTravel = distanceToTravel/rateOfTravel
+			responseString = moveCNCtoCoordinates(position["x"], position["y"], machine)	
+			time.sleep(timetoTravel)
+			time.sleep(int(config["cnc"]["pause"]))
+			# Trigger Camera
+			
+			time.sleep(int(config["camera"]["exposure"]))
+			imageCount +=1	
+			positionCount +=1		
+			cameraFilename = ''  	# NEED TO CALCULATE FROM WHITE FRAME FILENAME AND COUNT - BEWARE 1000 ROLLOVER
+			finalFilename = ''  	# NEED TO CALCULATE FROM BLONDER'S SYSTEM
+			xmlTree = xmlAddImage(position, cameraFilename, finalFilename)
+			
+			if events["cancel"].is_set():
+				cancelSession()
+				break
+		
+		if events["cancel"].is_set():
+			events["complete"].set()	
+			cancelSession()
+			return
+			
+		# Return Camera to Origin
+		sessionStatus.set("Returning Camera to Origin")
+		print(str(sessionStatus.get()))
+		
+		responseString = moveCNCtoCoordinates(0, 0, machine)
+		
+		if events["cancel"].is_set():
+			cancelSession()
+			events["complete"].set()	
+			return
+			
+		# Display Photography Completion Prompt
+		xmlTree = xmlTaskStatus("ImageCapture", "Complete")
+		xmlTree = xmlLogTime("ImageCapture", "Complete")
+		sessionStatus.set("Photography Complete!")
+		print(str(sessionStatus.get()))
+	
+		# Download Images
+		if config["filepaths"].getboolean("download"):
+			# Download Instructions
+			sessionStatus.set("Downloading Images...  This may take a while...")
+			print(str(sessionStatus.get()))
+			
+			xmlTree = xmlTaskStatus("DownloadingImages", "Processing")
+			xmlTree = xmlLogTime("DownloadingImages", "Start")
+
+# 			createFolderStructure()
+# 			downloadImages()
+
+			xmlTree = xmlTaskStatus("DownloadingImages", "Complete")
+			xmlTree = xmlLogTime("DownloadingImages", "Complete")
+				
+				
+		if events["cancel"].is_set():
+			cancelSession()
+			events["complete"].set()	
+			return
+
+		# Reset Status Variables and Updates
+# 		status["camerasInit"] = False
+# 		status["cameraSettings"] = False
+# 		status["tableInit"] = False
+		status["filepathInit"] = False
+		status["xmlpathInit"] = False
+		status["xmlCheck"] = False
+		sessionData.clear()
+		xmlTree = xmlRestart()
+		
+		events["complete"].set()	
+		
+			
+		return
+			
+
+
+
+# Settings Page
 class Settings(tkinter.Frame):
 	def __init__(self, parent, controller):
 		tkinter.Frame.__init__(self,parent)
@@ -348,7 +933,7 @@ class Settings(tkinter.Frame):
 		updateConfig(config, configpath)
 
 
-# Initilization class
+# Initilization Page
 class Initilization(tkinter.Frame):
 	def __init__(self, parent, controller):
 		tkinter.Frame.__init__(self,parent)
@@ -385,18 +970,18 @@ class Initilization(tkinter.Frame):
 		pageTitle.grid(row=0, columnspan=100, sticky="WE")
 
 		# CNC Initilization Buttons
-		btnCNCUpSmall = ttk.Button(self, text="Up5", command=lambda: moveCNC(0, 5, machine))
-		btnCNCUpMed = ttk.Button(self, text="Up50", command=lambda: moveCNC(0, 50, machine))
-		btnCNCUpLarge = ttk.Button(self, text="Up100", command=lambda: moveCNC(0, 100, machine))
-		btnCNCLeftSmall = ttk.Button(self, text="Left5", command=lambda: moveCNC(-5, 0, machine))
-		btnCNCLeftMed = ttk.Button(self, text="Left50", command=lambda: moveCNC(-50, 0, machine))
-		btnCNCLeftLarge = ttk.Button(self, text="Left100", command=lambda: moveCNC(-100, 0, machine))
-		btnCNCDownSmall = ttk.Button(self, text="Down5", command=lambda: moveCNC(0, -5, machine))
-		btnCNCDownMed = ttk.Button(self, text="Down50", command=lambda: moveCNC(0, -50, machine))
-		btnCNCDownLarge = ttk.Button(self, text="Down100", command=lambda: moveCNC(0, -100, machine))
-		btnCNCRightSmall = ttk.Button(self, text="Right5", command=lambda: moveCNC(5, 0, machine))
-		btnCNCRightMed = ttk.Button(self, text="Right50", command=lambda: moveCNC(50, 0, machine))
-		btnCNCRightLarge = ttk.Button(self, text="Right100", command=lambda: moveCNC(100, 0, machine))
+		btnCNCUpSmall = ttk.Button(self, text="Up5", command=lambda: moveCNCbyAmount(0, 5, machine))
+		btnCNCUpMed = ttk.Button(self, text="Up50", command=lambda: moveCNCbyAmount(0, 50, machine))
+		btnCNCUpLarge = ttk.Button(self, text="Up100", command=lambda: moveCNCbyAmount(0, 100, machine))
+		btnCNCLeftSmall = ttk.Button(self, text="Left5", command=lambda: moveCNCbyAmount(-5, 0, machine))
+		btnCNCLeftMed = ttk.Button(self, text="Left50", command=lambda: moveCNCbyAmount(-50, 0, machine))
+		btnCNCLeftLarge = ttk.Button(self, text="Left100", command=lambda: moveCNCbyAmount(-100, 0, machine))
+		btnCNCDownSmall = ttk.Button(self, text="Down5", command=lambda: moveCNCbyAmount(0, -5, machine))
+		btnCNCDownMed = ttk.Button(self, text="Down50", command=lambda: moveCNCbyAmount(0, -50, machine))
+		btnCNCDownLarge = ttk.Button(self, text="Down100", command=lambda: moveCNCbyAmount(0, -100, machine))
+		btnCNCRightSmall = ttk.Button(self, text="Right5", command=lambda: moveCNCbyAmount(5, 0, machine))
+		btnCNCRightMed = ttk.Button(self, text="Right50", command=lambda: moveCNCbyAmount(50, 0, machine))
+		btnCNCRightLarge = ttk.Button(self, text="Right100", command=lambda: moveCNCbyAmount(100, 0, machine))
 	
 		
 		btnSetOrigin = ttk.Button(self, text="Set Origin", command=lambda: setCNCOrigin())
@@ -421,60 +1006,10 @@ class Initilization(tkinter.Frame):
 		btnStartPage.grid(row=100, column=1, sticky="WE")
 	
 
-# Run Sample Class
-class RunSample(tkinter.Frame):
-	def __init__(self, parent, controller):
-		tkinter.Frame.__init__(self,parent)
-
-		# Size Columns
-		self.grid_columnconfigure(1, minsize=34)
-
-		# Size Rows
-		self.grid_rowconfigure(2, minsize=100)
-		self.grid_rowconfigure(99, minsize=20)
-
-		# Page Title
-		pageTitle = ttk.Label(self, text="Run Sample", font=LARGE_FONT)
-		pageTitle.grid(row=0, columnspan=100, sticky="WE")
-
-		# Save and Return 
-		btnStartPage = ttk.Button(self, text="Back to Home", command=lambda: controller.show_frame(StartPage))
-		btnStartPage.grid(row=100, column=1, sticky="WE")
-
-		btnQuit = ttk.Button(self, text="Quit", command=controller.quitProgram)
-		btnQuit.grid(row=100, column=6, sticky="EW")
-
-
-	# Order of Operations
-		# Initilization Checks
-			# Check for Initilization of Table
-			# Check for Initilization of Camera
-			# Check for Storage Destination
-			# Check Camera Settings are not for White Frame
-			# Check to make sure XML file doesn't already exist
-		# Confirm Sample ID
-		# Begin Sampling Run
-			# Initiate XML
-			# Move Camera to Origin
-			# Capture White Frame
-			# Calculate Frame Positions
-			# Begin Sampling Loop
-				# Move Camera to next position
-				# Pause for Image Delay
-				# Capture Frame
-		# Begin Post Processing
-			# Download Files from Camera
-			# Rename Files
-			# Save XML Data
-		# Return Camera to Origin
-		# Display Completion Window
-		# Play Sound
-		
-			
-		
-
 config = getConfig(configpath)
 machine = openCNC(config["cnc"]["port"])
+xmlData = ET.Element("data")
+xmlTree = ET.ElementTree(xmlData)
 
 #RunApplication Start
 app = LeafCNC()
