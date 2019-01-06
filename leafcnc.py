@@ -392,7 +392,8 @@ class StartPage(tkinter.Frame):
 				if events["cncInit"].is_set():
 					events["pause"].set()
 					cncInitPrompt = Toplevel(self)
-					cncInitPrompt.title("Please Confirm Camera is at Origin Point (0,0) and Correct Height")
+					cncInitPrompt.title("Inititilize Machine")
+					cncInitLine0 = ttk.Label(cncInitPrompt, text="Please Confirm Camera is at Origin Point (0,0) and Correct Height", font=LARGE_FONT).pack()
 					cncInitLine1 = ttk.Label(cncInitPrompt, text="Press Continue to proceed with Sampling.", font=MED_FONT).pack()
 					cncInitLine2 = ttk.Label(cncInitPrompt, text="Press Cancel to go to Initilization Setup.", font=MED_FONT).pack()
 					cncInitContinue = ttk.Button(cncInitPrompt, text="Continue", command=lambda: [closeWindow(cncInitPrompt), events["sampleInfoInit"].set()]).pack()
