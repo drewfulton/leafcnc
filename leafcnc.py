@@ -698,6 +698,7 @@ class StartPage(tkinter.Frame):
 				pos = {}
 				pos["x"] = calcX
 				pos["y"] = calcY
+				print("Pos: "+str(pos))
 				positions.append(pos)
 			calcY = 0
 		print("Positions: "+str(positions))
