@@ -963,6 +963,8 @@ class Initilization(tkinter.Frame):
 
 config = getConfig(configpath)
 machine = openCNC(config["cnc"]["port"])
+xmlData = ET.Element("data")
+xmlTree = ET.ElementTree(xmlData)
 
 #RunApplication Start
 app = LeafCNC()
