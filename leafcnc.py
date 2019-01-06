@@ -709,14 +709,6 @@ class StartPage(tkinter.Frame):
 		
 		events["complete"].set()	
 		
-		else:
-			# Something Isn't ready...
-			sessionStatus.set("Something isn't ready...")
-			time.sleep(5)
-			events["complete"].set()	
-
-			pass
-		events["complete"].set()
 			
 		return
 			
