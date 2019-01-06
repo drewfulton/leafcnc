@@ -422,7 +422,7 @@ class StartPage(tkinter.Frame):
 					
 					sampleInfoInitContinue = ttk.Button(sampleInfoInitWindow, text="Continue", command=lambda: [self.updateSampleInfo(), closeWindow(sampleInfoInitWindow), events["pause"].clear()]).pack()
 					sampleInfoInitCancel = ttk.Button(sampleInfoInitWindow, text="Cancel", command=lambda: [closeWindow(sampleInfoInitWindow), events["cancel"].set(), events["pause"].clear()]).pack()
-					centerWindow(sampleInfoInitPrompt)
+					centerWindow(sampleInfoInitWindow)
 					events["sampleInfoInit"].clear()
 				
 				if events["filePathProblem"].is_set():
@@ -542,7 +542,7 @@ class StartPage(tkinter.Frame):
 					cancelSession()
 					break
 			status["xmlpathInit"] = True
-		elif os.path.ismount(config["filepaths"]["xmlPath"]):
+		elif os.path.isdir(config["filepaths"]["xmlPath"]):
 			status["xmlpathInit"] = True
 		else:
 			events["xmlPathProblem"].set()
