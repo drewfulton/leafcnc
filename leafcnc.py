@@ -412,8 +412,9 @@ class StartPage(tkinter.Frame):
 					lblCameraHeight = ttk.Label(sampleInfoInitWindow, text="Camera Height:", font=MED_FONT).pack()
 					entryCameraHeight = ttk.Entry(sampleInfoInitWindow, textvariable=self.cameraHeight, width=10).pack()
 					lblStackingMode = ttk.Label(sampleInfoInitWindow, text="Focus Stacking Mode:", font=MED_FONT).pack()
-					cmbStackingMode = ttk.Combobox(sampleInfoInitWindow, textvariable=self.stackingMode, width=10).pack()
+					cmbStackingMode = ttk.Combobox(sampleInfoInitWindow, textvariable=self.stackingMode, width=10)
 					cmbStackingMode['values'] = ["None","Auto","Manual"]
+					cmbStackingMode.pack()
 					lblStackingCount = ttk.Label(sampleInfoInitWindow, text="Stacking Count:", font=MED_FONT).pack()
 					entryStackingCount = ttk.Entry(sampleInfoInitWindow, textvariable=self.stackingCount, width=10).pack()
 					lblSampleSizeX = ttk.Label(sampleInfoInitWindow, text="Sample Height:", font=MED_FONT).pack()
