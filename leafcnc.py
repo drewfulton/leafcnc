@@ -125,6 +125,9 @@ def centerWindow(window):
 	y = h/2 - size[1]/2
 	window.geometry("%dx%d+%d+%d" % (size + (x,y)))
 
+def closeWindow(window):
+	window.destroy()
+
 def playSound(file):
 	soundThread = threading.Thread(target=playSoundThread, args=(file,))
 	soundThread.start()
