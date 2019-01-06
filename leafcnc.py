@@ -125,6 +125,17 @@ def centerWindow(window):
 	y = h/2 - size[1]/2
 	window.geometry("%dx%d+%d+%d" % (size + (x,y)))
 
+def playSound(file):
+	soundThread = threading.Thread(target=playSoundThread, args=(file,))
+	soundThread.start()
+
+def playSoundThread(sound):
+	pygame.mixer.init()
+	pygame.mixer.music.load("backend/soundeffects/"+sound+".mp3")
+	pygame.mixer.music.play()
+	time.sleep(3)
+	pygame.mixer.quit()
+
 
 
 # XML Management Functions
