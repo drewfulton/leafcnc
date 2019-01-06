@@ -510,6 +510,11 @@ class StartPage(tkinter.Frame):
 	def startSession(self, events, sessionStatus):
 		global rolledOver
 		global machine
+		global XMAX
+		global YMAX
+		global xPos
+		global yPos
+		
 		# Check to see if everything is ready
 # 		status["camerasInit"] = False
 # 		status["cameraSettings"] = False
@@ -686,9 +691,9 @@ class StartPage(tkinter.Frame):
 		
 		calcX = 0
 		calcY = 0
-		while calcX <= XMAX:
+		while calcX < XMAX:
 			calcX = calcX + (XMAX/framesPerX)
-			while calcY <= YMAX:
+			while calcY < YMAX:
 				calcY = calcY + (YMAX/framesPerY)
 				pos = {}
 				pos["x"] = calcX
