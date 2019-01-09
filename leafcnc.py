@@ -208,7 +208,7 @@ def downloadImages(imageList):
 		camera_file = camera.file_get(path, filename, gp.GP_FILE_TYPE_NORMAL, context)
 		gp.gp_file_save(camera_file, target)
 		if (config["filepaths"]["delete"]):
-			gp.gp_camera_file_delete(folder, name)
+			gp.gp_camera_file_delete(path, filename)
 		
 	return
 
