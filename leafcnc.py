@@ -211,7 +211,7 @@ def downloadImages(imageList):
 			gp.gp_file_save(camera_file, target)
 # 			xmlTree = xmlUpdateJPGDownloaded(cameraNumber, filename[:-4], status["fileDest"])
 
-			progress += 1
+# 			progress += 1
 		
 # 	camStatusUpdates[cameraNumber] = updateCameraDownloadStatus(cameraNumber, "Download Complete!")
 
