@@ -882,7 +882,7 @@ class StartPage(tkinter.Frame):
 			time.sleep(int(config["cnc"]["pause"]))
 			# Trigger Camera
 			cameraInfo = triggerImageUSB()
-			finalFilename = str(config["sample"]["id"])+"_"+str(config["sample"]["datestamp"])+"_"+"_X"+str(position["x"])+"_Y"+str(position["y"]+str(cameraInfo.name[-4:]))
+			finalFilename = str(config["sample"]["id"])+"_"+str(config["sample"]["datestamp"])+"_"+str(imageCount).zfill(3)+"_X"+str(position["x"])+"_Y"+str(position["y"])+str(cameraInfo.name[-4:])
 			imageList.append((cameraInfo.folder+"/"+cameraInfo.name, finalFilename))
 			time.sleep(int(config["camera"]["exposure"]))
 			imageCount +=1	
