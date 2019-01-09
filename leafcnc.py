@@ -933,7 +933,7 @@ class StartPage(tkinter.Frame):
 			positionCount +=1		
 			finalFilename = ''  	# NEED TO CALCULATE FROM BLONDER'S SYSTEM
 			xmlTree = xmlAddImage(position, cameraFilename, finalFilename)
-			
+			print("Image Captured: "+str(cameraFilename))
 			if events["cancel"].is_set():
 				cancelSession()
 				break
