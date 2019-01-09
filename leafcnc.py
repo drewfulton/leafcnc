@@ -145,19 +145,18 @@ def triggerDarkFrame():
 
 def triggerImageUSB():
 		
-		# Connect to Camera
-		context = gp.Context()
-		camera = initCamera(context)		
+	# Connect to Camera
+	context = gp.Context()
+	camera = initCamera(context)		
 
-		# Capture Image
-		filePath = camera.capture(gp.GP_CAPTURE_IMAGE, context)
+	# Capture Image
+	filePath = camera.capture(gp.GP_CAPTURE_IMAGE, context)
+	
+	
+	
+	camera.exit(context)
 		
-		
-# 		xmlTree = xmlAddImage(cameraNumber, rotation, positionCount, positionDegree, filePath.folder, filePath.name[:-4])	
-		
-		camera.exit(context)
-		
-		return filePath
+	return (filePath.name)
 		
 
 def triggerImageCable(imageData):   
