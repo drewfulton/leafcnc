@@ -108,41 +108,40 @@ def get_file_info(camera, context, path):
     folder, name = os.path.split(path)
     return camera.file_get_info(folder, name, context)
 
-def triggerWhiteFrame(cameraNumber):
+def triggerWhiteFrame():
 	# Take Sample Image from Camera
-	if (config[cameraNumber]["port"] != "null"):
-		# Connect to Camera
-		context = gp.Context()
-		camera = initCamera(cameraNumber, context)		
-		
-		# Get Image Size/Type Settings from Camera
-		camConfig = camera.get_config(context) 
-		camSettings = {}
-		iso = camConfig.get_child_by_name("iso") 
-		camSettings["iso"] = iso.get_value()
-		shutterspeed = camConfig.get_child_by_name("shutterspeed") 
-		camSettings["shutterspeed"] = shutterspeed.get_value()
-		exposurecompensation = camConfig.get_child_by_name("exposurecompensation")			
-		camSettings["exposurecompensation"] = exposurecompensation.get_value()
-		# Set Camera to 128000 ISO at 1" exposure with +5 exposure compensation
-		iso.set_value("6400")
-		shutterspeed.set_value("1.0000s")
-		exposurecompensation.set_value("5.0")
-		camera.set_config(camConfig, context)
-		
-		# Capture Image
-		filePath = camera.capture(gp.GP_CAPTURE_IMAGE, context)
-		
-		# Restore Original Size/Type Settings to Camera
-		iso.set_value(camSettings["iso"])
-		shutterspeed.set_value(camSettings["shutterspeed"])
-		exposurecompensation.set_value(camSettings["exposurecompensation"])
-		camera.set_config(camConfig, context)
-		
-		# Exit Camera
-		camera.exit(context)
-# 		print (filePath.name)
-		return (cameraNumber, filePath.name)
+	# Connect to Camera
+	context = gp.Context()
+	camera = initCamera(cameraNumber, context)		
+	
+	# Get Image Size/Type Settings from Camera
+	camConfig = camera.get_config(context) 
+	camSettings = {}
+	iso = camConfig.get_child_by_name("iso") 
+	camSettings["iso"] = iso.get_value()
+	shutterspeed = camConfig.get_child_by_name("shutterspeed") 
+	camSettings["shutterspeed"] = shutterspeed.get_value()
+	exposurecompensation = camConfig.get_child_by_name("exposurecompensation")			
+	camSettings["exposurecompensation"] = exposurecompensation.get_value()
+	# Set Camera to 128000 ISO at 1" exposure with +5 exposure compensation
+	iso.set_value("100")
+	shutterspeed.set_value("1/4000")
+	exposurecompensation.set_value("5.0")
+	camera.set_config(camConfig, context)
+	
+	# Capture Image
+	filePath = camera.capture(gp.GP_CAPTURE_IMAGE, context)
+	
+	# Restore Original Size/Type Settings to Camera
+	iso.set_value(camSettings["iso"])
+	shutterspeed.set_value(camSettings["shutterspeed"])
+	exposurecompensation.set_value(camSettings["exposurecompensation"])
+	camera.set_config(camConfig, context)
+	
+	# Exit Camera
+	camera.exit(context)
+	print (filePath.name)
+	return (cameraNumber, filePath.name)
 
 def triggerImageUSB():
 		
@@ -705,13 +704,7 @@ class StartPage(tkinter.Frame):
 		updateConfig(config, configpath)
 
 	def test(self, event=None):
-		context = gp.Context()
-		camera = initCamera(context)
-		text = camera.get_summary()
-		print('Summary')
-		print('=======')
-		print(str(text))
-		camera.exit()
+		triggerWhiteFrame()
 
 	def startSession(self, events, sessionStatus):
 		global rolledOver
