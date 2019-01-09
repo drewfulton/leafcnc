@@ -330,7 +330,7 @@ def initXML():
 	xmlCameraTrigger = ET.SubElement(xmlSessionDetails, "CameraTriggerMode")
 	xmlCameraTrigger.text = str(config["camera"]["trigger"])
 	xmlDateStamp = ET.SubElement(xmlSessionDetails, "SessionTimeStamp")
-	xmlDateStamp.text = str(config["sample"]["timestamp"])
+	xmlDateStamp.text = str(config["sample"]["datestamp"])
 
 	# Tasks
 	xmlTasks = ET.SubElement(xmlData, "Tasks")
