@@ -983,7 +983,7 @@ class Settings(tkinter.Frame):
 		self.xmlPath = StringVar()
 		self.xmlPath.set(config['filepaths']['xmlPath'])
 		self.deleteImages = BooleanVar()
-		self.deleteImages = (config['filepaths'].getboolean['delete'])
+		self.deleteImages.set(config['filepaths'].getboolean('delete'))
 		
 		# Size Columns
 		self.grid_columnconfigure(1, minsize=50)
