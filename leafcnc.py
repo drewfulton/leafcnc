@@ -241,8 +241,8 @@ def createConfig(path):
 	config = configparser.ConfigParser()
 	
 	config["cnc"] = {"port": "/dev/ttyUSB0", "xOverlap": "40", "yOverlap":"40", "pause":"1"}
-	config["camera"] = {"body": "Canon T1i", "lens": "Tokina 100mm", "trigger":"USB", "exposure":"1"}
-	config["filepaths"] = {"download":"True", "imagePath":'', "xmlPath": ''}
+	config["camera"] = {"body": "Canon T1i", "lens": "Tokina 100mm", "trigger":"USB", "exposure":"1", "format":"JPG"}
+	config["filepaths"] = {"download":"True", "imagePath":'', "xmlPath": '', "delete":"True"}
 	config["sample"] = {"cameraHeight":"", "id":"", "stackingMode":"None", "stackingCount":"0", "sizeX":"360","sizeY":"470"}
 	
 	# Write Config file
@@ -964,6 +964,8 @@ class Settings(tkinter.Frame):
 		self.lens.set(config['camera']['lens'])
 		self.triggerMethod = StringVar()
 		self.triggerMethod.set(config['camera']['trigger'])
+		self.imageFormat = StringVar()
+		self.imageFormat.set(config['camera']['format'])
 		self.exposureLength = StringVar()
 		self.exposureLength.set(str(config['camera']['exposure']))
 		self.xOverlap = IntVar()
@@ -978,6 +980,8 @@ class Settings(tkinter.Frame):
 		self.imagePath.set(config['filepaths']['imagePath'])
 		self.xmlPath = StringVar()
 		self.xmlPath.set(config['filepaths']['xmlPath'])
+		self.deleteImages = BooleanVar()
+		self.deleteImages.(config['filepaths'].getboolean['delete'])
 		
 		# Size Columns
 		self.grid_columnconfigure(1, minsize=50)
@@ -1037,6 +1041,11 @@ class Settings(tkinter.Frame):
 		entryExposure = ttk.Entry(self, textvariable=self.exposureLength, width=5)
 		lblExposure.grid(row=16, column=10, sticky="WE")
 		entryExposure.grid(row=16, column=11, sticky="WE")
+		lblImageFormat = ttk.Label(self, text="Image Format", font=MED_FONT)
+		cmbImageFormat = ttk.Combobox(self, textvariable=self.imageFormat, width=10)
+		cmbImageFormat['values'] = ["JPG","RAW"]
+		lblImageFormat.grid(row=18, column=10, sticky="WE")
+		cmbImageFormat.grid(row=18, column=11, sticky="WE")
 		
 		# CNC Settings
 		lblxOverlap = ttk.Label(self, text="X-Axis Overlap (%)", font=MED_FONT)
@@ -1058,20 +1067,22 @@ class Settings(tkinter.Frame):
 # 		lblDownloadFiles.grid(row=20, column=10, sticky="EW")
 		chkDownloadFiles = ttk.Checkbutton(self, var=self.download, text="Download Files from Camera", onvalue=True, offvalue=False, command=lambda: [self.updateVariable()] )
 		chkDownloadFiles.grid(row=20, column=11, sticky="EW")
+		chkDeleteFiles = ttk.Checkbutton(self, var=self.download, text="Delete Files from Camera after Download", onvalue=True, offvalue=False, command=lambda: [self.updateVariable()] )
+		chkDeleteFiles.grid(row=22, column=11, sticky="EW")
 		lblImagePath = ttk.Label(self, text="Image Storage Path", font=MED_FONT)
-		lblImagePath.grid(row=22, column=10, sticky="EW")
+		lblImagePath.grid(row=24, column=10, sticky="EW")
 		fileImagePath = ttk.Entry(self, textvariable=self.imagePath, width=30)
-		fileImagePath.grid(row=22, column=11, sticky="EW")
+		fileImagePath.grid(row=24, column=11, sticky="EW")
 		btnImagePath = ttk.Button(self, image=folderIcon, command=lambda: selectDirectory(self.imagePath))
 		btnImagePath.image = folderIcon
-		btnImagePath.grid(row=22, column=12, sticky="W")
+		btnImagePath.grid(row=24, column=12, sticky="W")
 		lblxmlPath = ttk.Label(self, text="XML Storage Path", font=SMALL_FONT)
-		lblxmlPath.grid(row=24, column=10, columnspan=2, sticky="EW")
+		lblxmlPath.grid(row=26, column=10, columnspan=2, sticky="EW")
 		filexmlPath = ttk.Entry(self, textvariable=self.xmlPath, width=30)
-		filexmlPath.grid(row=24, column=11, sticky="EW")
+		filexmlPath.grid(row=26, column=11, sticky="EW")
 		btnxmlPath = ttk.Button(self, image=folderIcon, command=lambda: selectDirectory(self.xmlPath))
 		btnxmlPath.image = folderIcon
-		btnxmlPath.grid(row=24, column=12, sticky="W")
+		btnxmlPath.grid(row=26, column=12, sticky="W")
 
 		# Save and Return 
 		btnStartPage = ttk.Button(self, text="Save", command=lambda: [self.updateVariable(), controller.show_frame(StartPage)])
