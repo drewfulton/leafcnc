@@ -4,6 +4,7 @@
 
 # Import Libraries and Modules
 import tkinter, configparser, os, serial, time, threading, pygame, datetime, math
+import gphoto2 as gp
 
 from gpiozero import LED
 from tkinter import *
@@ -14,6 +15,7 @@ from lxml import etree as ET
 
 # Global Variables
 configpath = os.path.dirname(os.path.abspath(__file__))+"/config.ini"
+parser = ET.XMLParser(remove_blank_text=True)
 
 # Stores info about the status of all components of system
 systemStatus = {}
@@ -86,7 +88,207 @@ def setCNCOrigin():
 	xPos = 0
 	yPos = 0
 
+
 # Functions to Control Camera
+def listFiles(camera, context, path='/'):
+    result = []
+    # get files
+    for name, value in camera.folder_list_files(path, context):
+        result.append(os.path.join(path, name))
+    # read folders
+    folders = []
+    for name, value in camera.folder_list_folders(path, context):
+        folders.append(name)
+    # recurse over subfolders
+    for name in folders:
+        result.extend(listFiles(camera, context, os.path.join(path, name)))
+    return result
+
+def get_file_info(camera, context, path):
+    folder, name = os.path.split(path)
+    return camera.file_get_info(folder, name, context)
+
+def triggerWhiteFrame(cameraNumber):
+	# Take Sample Image from Camera
+	if (config[cameraNumber]["port"] != "null"):
+		# Connect to Camera
+		context = gp.Context()
+		camera = initCamera(cameraNumber, context)		
+		
+		# Get Image Size/Type Settings from Camera
+		camConfig = camera.get_config(context) 
+		camSettings = {}
+		iso = camConfig.get_child_by_name("iso") 
+		camSettings["iso"] = iso.get_value()
+		shutterspeed = camConfig.get_child_by_name("shutterspeed") 
+		camSettings["shutterspeed"] = shutterspeed.get_value()
+		exposurecompensation = camConfig.get_child_by_name("exposurecompensation")			
+		camSettings["exposurecompensation"] = exposurecompensation.get_value()
+		# Set Camera to 128000 ISO at 1" exposure with +5 exposure compensation
+		iso.set_value("6400")
+		shutterspeed.set_value("1.0000s")
+		exposurecompensation.set_value("5.0")
+		camera.set_config(camConfig, context)
+		
+		# Capture Image
+		filePath = camera.capture(gp.GP_CAPTURE_IMAGE, context)
+		
+		# Restore Original Size/Type Settings to Camera
+		iso.set_value(camSettings["iso"])
+		shutterspeed.set_value(camSettings["shutterspeed"])
+		exposurecompensation.set_value(camSettings["exposurecompensation"])
+		camera.set_config(camConfig, context)
+		
+		# Exit Camera
+		camera.exit(context)
+# 		print (filePath.name)
+		return (cameraNumber, filePath.name)
+
+def triggerImageUSB(imageData):
+		cameraNumber, rotation, positionCount, positionDegree, whiteFrameFilename = imageData
+		
+		# Connect to Camera
+		context = gp.Context()
+		camera = initCamera(cameraNumber, context)		
+
+		# Capture Image
+		filePath = camera.capture(gp.GP_CAPTURE_IMAGE, context)
+		
+		
+		xmlTree = xmlAddImage(cameraNumber, rotation, positionCount, positionDegree, filePath.folder, filePath.name[:-4])	
+		
+		camera.exit(context)
+
+def triggerImageCable(imageData):   
+		global focus
+		global shutter				
+		global rolledOver
+		focus.on()
+		time.sleep(0.25)
+		shutter.on()
+		time.sleep(0.5)
+		shutter.off()
+		time.sleep(0.1)
+		focus.off()
+		
+		# Calculate Filename
+		for cam in imageData:
+			cameraNumber, rotation, positionCount, positionDegree, whiteFrameFilename = cam
+			whiteFrameNumber = int(whiteFrameFilename[-8:-4])
+			if rolledOver[cameraNumber]:
+				positionCount += 1
+			currentFrameNumber = str(whiteFrameNumber + int(positionCount))[-4:].zfill(4)
+			if currentFrameNumber == "0000":
+				rolledOver[cameraNumber] = True
+				currentFrameNumber = str(int(currentFrameNumber)+1).zfill(4)
+			filename = whiteFrameFilename[:-8]+str(currentFrameNumber)	
+			
+			xmlTree = xmlAddImage(cameraNumber, rotation, positionCount, positionDegree, "", filename)	
+
+def triggerImageTest():
+		global focus
+		global shutter				
+		global rolledOver
+		focus.on()
+		time.sleep(0.25)
+		shutter.on()
+		time.sleep(0.25)
+		shutter.off()
+		focus.off()
+
+		
+def triggerImageUSBSeries(cameraNumber, rotation, positionCount, positionDegree, whiteFrameFilename):
+# 		cameraNumber, rotation, positionCount, positionDegree, whiteFrameFilename = imageData
+		
+		# Connect to Camera
+		context = gp.Context()
+		camera = initCamera(cameraNumber, context)		
+
+		# Capture Image
+		filePath = camera.capture(gp.GP_CAPTURE_IMAGE, context)
+		
+		
+		xmlTree = xmlAddImage(cameraNumber, rotation, positionCount, positionDegree, filePath.folder, filePath.name[:-4])	
+		
+		camera.exit(context)
+
+def downloadImages(cameraNumber):
+	if status["fileDest"] == "remote":
+		storagePath = config["generalSettings"]["genRemoteStoragePath"]+config["itemDetails"]["itemProject"]+"/"
+	elif status["fileDest"] == "local":
+		storagePath = config["generalSettings"]["genLocalStoragePath"]+config["itemDetails"]["itemProject"]+"/"
+
+	if not os.path.exists(storagePath+config["itemDetails"]["itemNumber"]+"/"+str(cameraNumber)):
+		os.makedirs(storagePath+config["itemDetails"]["itemNumber"]+"/"+str(cameraNumber))
+	
+	camStatusUpdates[cameraNumber] = updateCameraDownloadStatus(cameraNumber, "Getting File List")
+	#Get List of Files from Camera
+	context = gp.Context()
+	camera = initCamera(cameraNumber, context)	
+	files = listFiles(camera, context)	
+	if not files:
+		camStatusUpdates[cameraNumber] = updateCameraDownloadStatus(cameraNumber, "No Files Found on Camera")
+		print("No Files on "+str(cameraNumber))
+		return	
+
+	# Download Files for each Position
+	totalPositions = len(sessionData[cameraNumber])
+	for position in sessionData[cameraNumber]:	
+		tempPath = storagePath+config["itemDetails"]["itemNumber"]+"/"+str(cameraNumber)+"/Position "+str(position)+"/jpg"
+		if not os.path.exists(tempPath):
+			os.makedirs(tempPath)
+		print("Downloading Files from "+str(cameraNumber)+" and position "+str(position)+".")
+		filenames = filterFilename(files)
+		startPoint = filenames.index(sessionData[cameraNumber][position]["whiteframe"])
+		filesToDownloadAll = files[startPoint-1:(startPoint-1)+int(sessionData[cameraNumber][position]["imageCount"])*2]
+		filesToDownloadJPG = []
+		for file in filesToDownloadAll:
+			if file[-4:].lower() == ".jpg":
+				filesToDownloadJPG.append(file)
+		print("Files to Download: "+str(filesToDownloadJPG))
+		totalfiles = int(len(filesToDownloadJPG))
+		progress = 1
+		camStatusUpdates[cameraNumber] = updateCameraDownloadStatus(cameraNumber, "Position "+str(position)+"/"+str(totalPositions)+". Found "+str(totalfiles)+" to download.")
+		for file in filesToDownloadJPG:
+			path, filename = os.path.split(file)
+			blah, ext = os.path.splitext(file)			
+			if ext.lower() == ".jpg":
+				camStatusUpdates[cameraNumber] = updateCameraDownloadStatus(cameraNumber, "Position "+str(position)+"/"+str(totalPositions)+". Downloading File "+str(progress)+"/"+str(totalfiles)+". Filename: "+str(filename))		
+				print("Downloading: " +filename)
+
+				target = os.path.join(tempPath,filename)
+				camera_file = camera.file_get(path, filename, gp.GP_FILE_TYPE_NORMAL, context)
+				gp.gp_file_save(camera_file, target)
+				xmlTree = xmlUpdateJPGDownloaded(cameraNumber, filename[:-4], status["fileDest"])
+
+				progress += 1
+		
+	camStatusUpdates[cameraNumber] = updateCameraDownloadStatus(cameraNumber, "Download Complete!")
+
+	return
+
+def initCamera(cameraNumber, context):
+	if (config[cameraNumber]["port"] != "null"):
+		# Connect to Camera
+		camera = gp.Camera()
+		port_info_list = gp.PortInfoList()
+		port_info_list.load()
+		addr = port_info_list.lookup_path(config[cameraNumber]["port"])
+		camera.set_port_info(port_info_list[addr])
+		camera.init(context)
+	return camera
+
+def updateCameraDownloadStatus(cameraNumber, status):
+	update = "Camera "+cameraNumber[-1:]+": "+status
+	return update
+
+def filterFilename(filelist):
+	result = []
+	for path in filelist:
+		folder, name = os.path.split(path)
+		result.append(name)
+	return result
+
 
 # Create Config File and Variables
 def createConfig(path):
@@ -363,6 +565,8 @@ class StartPage(tkinter.Frame):
 		btnRunSample.grid(row=10, column=12, sticky="NEWS")
 		btnSettings = ttk.Button(self, text="Settings", command=lambda: controller.show_frame(Settings))
 		btnSettings.grid(row=10, column=14, sticky="NEWS")
+		btnTest = ttk.Button(self, text="Test Function", command=lambda: self.test())
+		btnTest.grid(row=20, column=10, sticky="NEWS")
 		
 
 		btnQuit = ttk.Button(self, text="Quit", command=lambda: controller.quitProgram(machine))
@@ -505,6 +709,9 @@ class StartPage(tkinter.Frame):
 		config['sample']['sizeX'] = str(self.sampleX.get())
 		config['sample']['sizeY'] = str(self.sampleY.get())
 		updateConfig(config, configpath)
+
+	def test(self, event=None):
+		print("This is a test.")
 
 
 	def startSession(self, events, sessionStatus):
@@ -666,14 +873,11 @@ class StartPage(tkinter.Frame):
 			cancelSession()
 
 		# Trigger White Frame
-# 		sessionStatus.set("Capturing Initial White Frame")
-# 		threads = {}
-# 		whiteFrameFilenames = self.processParallel(connectedCamList, triggerWhiteFrame, 4)
-# 		
-# 		for cam, frame in whiteFrameFilenames:
-# 			sessionData[cam][positionofItem]["whiteframe"]=frame
-# 			xmlTree = xmlImageAddWhiteframe(positionofItem, cam, frame)
-# 		print("Session Data: "+str(sessionData))
+		sessionStatus.set("Capturing Initial White Frame")
+		whiteFrameFilenames = triggerWhiteFrame
+		
+		xmlTree = xmlImageAddWhiteframe(positionofItem, cam, frame)
+		print("Session Data: "+str(sessionData))
 		
 		
 
