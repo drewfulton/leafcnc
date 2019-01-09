@@ -467,7 +467,7 @@ def xmlImageAddDarkFrame(filename):
 	nodes = xmlData.findall("Images")
 	for node in nodes:
 		xmlDarkFrame = ET.SubElement(node, "Image")
-		xmlarkFrame.set("Position", "darkframe")
+		xmlDarkFrame.set("Position", "darkframe")
 		xmlDFCameraFilename = ET.SubElement(xmlWhiteFrame, "CameraFilename")
 		xmlDFCameraFilename.text =  str(frame[:-4])
 	writeXML(xmlTree)
@@ -880,7 +880,7 @@ class StartPage(tkinter.Frame):
 			cancelSession()
 
 		# Trigger White Frame
-		sessionStatus.set("Capturing Initial White Frame")
+		sessionStatus.set("Capturing Initial Dark Frame")
 		darkFrameFilename = triggerDarkFrame()
 		
 		xmlTree = xmlImageAddDarkFrame(darkFrameFilename)
