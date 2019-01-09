@@ -404,7 +404,7 @@ def xmlAddImage(position, cameraFileInfo, finalFilename):
 		xmlImagePositionY = ET.SubElement(xmlImage, "PositionY")
 		xmlImagePositionY.text =  str(position["y"])
 		xmlImageFolder = ET.SubElement(xmlImage, "CameraFolder")
-		xmlImageFolder.text = str(cameraFileInfo.folder])
+		xmlImageFolder.text = str(cameraFileInfo.folder)
 		xmlImageFilename = ET.SubElement(xmlImage, "CameraFilename")
 		xmlImageFilename.text = str(cameraFileInfo.name[:-4])
 		xmlImageFilename = ET.SubElement(xmlImage, "FinalFilename")
