@@ -849,9 +849,9 @@ class StartPage(tkinter.Frame):
 		
 		
 		# Calculate Frames Per X
-		framesPerX = 4
+		framesPerX = 2
 		# Calculate Frames Per Y	
-		framesPerY = 8
+		framesPerY = 2
 		# Generate List of Positions
 		positions = []
 		
