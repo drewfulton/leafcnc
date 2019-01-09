@@ -144,18 +144,17 @@ def triggerWhiteFrame(cameraNumber):
 # 		print (filePath.name)
 		return (cameraNumber, filePath.name)
 
-def triggerImageUSB(imageData):
-		cameraNumber, rotation, positionCount, positionDegree, whiteFrameFilename = imageData
+def triggerImageUSB():
 		
 		# Connect to Camera
 		context = gp.Context()
-		camera = initCamera(cameraNumber, context)		
+		camera = initCamera(context)		
 
 		# Capture Image
 		filePath = camera.capture(gp.GP_CAPTURE_IMAGE, context)
 		
 		
-		xmlTree = xmlAddImage(cameraNumber, rotation, positionCount, positionDegree, filePath.folder, filePath.name[:-4])	
+# 		xmlTree = xmlAddImage(cameraNumber, rotation, positionCount, positionDegree, filePath.folder, filePath.name[:-4])	
 		
 		camera.exit(context)
 
@@ -267,15 +266,10 @@ def downloadImages(cameraNumber):
 
 	return
 
-def initCamera(cameraNumber, context):
-	if (config[cameraNumber]["port"] != "null"):
-		# Connect to Camera
-		camera = gp.Camera()
-		port_info_list = gp.PortInfoList()
-		port_info_list.load()
-		addr = port_info_list.lookup_path(config[cameraNumber]["port"])
-		camera.set_port_info(port_info_list[addr])
-		camera.init(context)
+def initCamera(context):
+	# Connect to Camera
+	camera = gp.Camera()
+	camera.init(context)
 	return camera
 
 def updateCameraDownloadStatus(cameraNumber, status):
@@ -711,7 +705,7 @@ class StartPage(tkinter.Frame):
 		updateConfig(config, configpath)
 
 	def test(self, event=None):
-		print("This is a test.")
+		triggerImageUSB()
 
 
 	def startSession(self, events, sessionStatus):
