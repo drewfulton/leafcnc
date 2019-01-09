@@ -469,7 +469,7 @@ def xmlImageAddDarkFrame(filename):
 		xmlDarkFrame = ET.SubElement(node, "Image")
 		xmlDarkFrame.set("Position", "darkframe")
 		xmlDFCameraFilename = ET.SubElement(xmlDarkFrame, "CameraFilename")
-		xmlDFCameraFilename.text =  str(frame[:-4])
+		xmlDFCameraFilename.text =  str(filename[:-4])
 	writeXML(xmlTree)
 	return xmlTree
 	
