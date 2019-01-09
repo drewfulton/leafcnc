@@ -18,7 +18,7 @@ Prerequisites
 	Pip3 Installs
 		pyserial
 		Pillow
-		
+		gphoto2
 		
 		
 Installed for Testing Purposes (To Be Removed Later)

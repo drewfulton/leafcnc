@@ -4,6 +4,7 @@
 
 # Import Libraries and Modules
 import tkinter, configparser, os, serial, time, threading, pygame, datetime, math
+import gphoto2 as gp
 
 from gpiozero import LED
 from tkinter import *
@@ -14,6 +15,7 @@ from lxml import etree as ET
 
 # Global Variables
 configpath = os.path.dirname(os.path.abspath(__file__))+"/config.ini"
+parser = ET.XMLParser(remove_blank_text=True)
 
 # Stores info about the status of all components of system
 systemStatus = {}
@@ -86,7 +88,147 @@ def setCNCOrigin():
 	xPos = 0
 	yPos = 0
 
+
 # Functions to Control Camera
+def listFiles(camera, context, path='/'):
+    result = []
+    # get files
+    for name, value in camera.folder_list_files(path, context):
+        result.append(os.path.join(path, name))
+    # read folders
+    folders = []
+    for name, value in camera.folder_list_folders(path, context):
+        folders.append(name)
+    # recurse over subfolders
+    for name in folders:
+        result.extend(listFiles(camera, context, os.path.join(path, name)))
+    return result
+
+def get_file_info(camera, context, path):
+    folder, name = os.path.split(path)
+    return camera.file_get_info(folder, name, context)
+
+def triggerDarkFrame():
+	# Take Sample Image from Camera
+	# Connect to Camera
+	context = gp.Context()
+	camera = initCamera(context)		
+	
+	# Get Image Size/Type Settings from Camera
+	camConfig = camera.get_config(context) 
+	camSettings = {}
+	iso = camConfig.get_child_by_name("iso") 
+	camSettings["iso"] = iso.get_value()
+	shutterspeed = camConfig.get_child_by_name("shutterspeed") 
+	camSettings["shutterspeed"] = shutterspeed.get_value()
+# 	exposurecompensation = camConfig.get_child_by_name("exposurecompensation")			
+# 	camSettings["exposurecompensation"] = exposurecompensation.get_value()
+	# Set Camera to 128000 ISO at 1" exposure with +5 exposure compensation
+	iso.set_value("100")
+	shutterspeed.set_value("1/4000")
+# 	exposurecompensation.set_value("5.0")
+	camera.set_config(camConfig, context)
+	
+	# Capture Image
+	filePath = camera.capture(gp.GP_CAPTURE_IMAGE, context)
+	
+	# Restore Original Size/Type Settings to Camera
+	iso.set_value(camSettings["iso"])
+	shutterspeed.set_value(camSettings["shutterspeed"])
+# 	exposurecompensation.set_value(camSettings["exposurecompensation"])
+	camera.set_config(camConfig, context)
+	
+	# Exit Camera
+	camera.exit(context)
+# 	print (filePath.name)
+	return (filePath.name)
+
+def triggerImageUSB():
+		
+	# Connect to Camera
+	context = gp.Context()
+	camera = initCamera(context)		
+
+	# Capture Image
+	filePath = camera.capture(gp.GP_CAPTURE_IMAGE, context)
+	
+	
+	
+	camera.exit(context)
+		
+	return (filePath)
+		
+def triggerImageCable(imageData):   
+		global focus
+		global shutter				
+		global rolledOver
+		focus.on()
+		time.sleep(0.25)
+		shutter.on()
+		time.sleep(0.5)
+		shutter.off()
+		time.sleep(0.1)
+		focus.off()
+		
+		# Calculate Filename
+		for cam in imageData:
+			cameraNumber, rotation, positionCount, positionDegree, whiteFrameFilename = cam
+			whiteFrameNumber = int(whiteFrameFilename[-8:-4])
+			if rolledOver[cameraNumber]:
+				positionCount += 1
+			currentFrameNumber = str(whiteFrameNumber + int(positionCount))[-4:].zfill(4)
+			if currentFrameNumber == "0000":
+				rolledOver[cameraNumber] = True
+				currentFrameNumber = str(int(currentFrameNumber)+1).zfill(4)
+			filename = whiteFrameFilename[:-8]+str(currentFrameNumber)	
+			
+			xmlTree = xmlAddImage(cameraNumber, rotation, positionCount, positionDegree, "", filename)	
+
+def createFolderStructure():
+	# Start File Directory Structure
+	if not os.path.exists(config["filepaths"]["imagepath"]+'/'+config["sample"]["id"]+"-"+config["sample"]["datestamp"]):
+		os.makedirs(config["filepaths"]["imagepath"]+'/'+config["sample"]["id"]+"-"+config["sample"]["datestamp"])
+	print("Downloading to "+ str(config["filepaths"]["imagepath"]+'/'+config["sample"]["id"])+"-"+config["sample"]["datestamp"])
+
+def downloadImages(imageList):
+	#Get List of Files from Camera
+	context = gp.Context()
+	camera = initCamera(context)	
+# 	files = listFiles(camera, context)	
+# 	if not files:
+# 		camStatusUpdates[cameraNumber] = updateCameraDownloadStatus(cameraNumber, "No Files Found on Camera")
+# 		print("No Files on "+str(cameraNumber))
+# 		return	
+
+	for image in imageList:
+		(file, finalfilename) = image
+		path, filename = os.path.split(file)
+		blah, ext = os.path.splitext(file)			
+		target = os.path.join(config["filepaths"]["imagepath"]+'/'+config["sample"]["id"]+"-"+config["sample"]["datestamp"],finalfilename)
+		camera_file = camera.file_get(path, filename, gp.GP_FILE_TYPE_NORMAL, context)
+		gp.gp_file_save(camera_file, target)
+		if (config["filepaths"]["delete"]):
+			gp.gp_camera_file_delete(camera, path, filename)
+		
+	return
+
+def initCamera(context):
+	# Connect to Camera
+	camera = gp.Camera()
+	camera.init(context)
+	return camera
+
+def updateCameraDownloadStatus(cameraNumber, status):
+	update = "Camera "+cameraNumber[-1:]+": "+status
+	return update
+
+def filterFilename(filelist):
+	result = []
+	for path in filelist:
+		folder, name = os.path.split(path)
+		result.append(name)
+	return result
+
 
 # Create Config File and Variables
 def createConfig(path):
@@ -94,9 +236,9 @@ def createConfig(path):
 	config = configparser.ConfigParser()
 	
 	config["cnc"] = {"port": "/dev/ttyUSB0", "xOverlap": "40", "yOverlap":"40", "pause":"1"}
-	config["camera"] = {"body": "Canon T1i", "lens": "Tokina 100mm", "trigger":"USB", "exposure":"1"}
-	config["filepaths"] = {"download":"True", "imagePath":'', "xmlPath": ''}
-	config["sample"] = {"cameraHeight":"", "id":"", "stackingMode":"None", "stackingCount":"0", "sizeX":"360","sizeY":"470"}
+	config["camera"] = {"body": "Canon T1i", "lens": "Tokina 100mm", "trigger":"USB", "exposure":"1", "format":"JPG"}
+	config["filepaths"] = {"download":"True", "imagePath":'', "xmlPath": '', "delete":"True"}
+	config["sample"] = {"cameraHeight":"", "id":"", "stackingMode":"None", "stackingCount":"0", "sizeX":"360","sizeY":"470", "datestamp":""}
 	
 	# Write Config file
 	with open(path, "w") as config_file:
@@ -152,7 +294,7 @@ def setEvent(event):
 
 # XML Management Functions
 def writeXML(xmlTree):
-	xmlTree.write(config["filepaths"]["xmlPath"]+'/'+config["sample"]["id"]+".xml", pretty_print=True)
+	xmlTree.write(config["filepaths"]["xmlPath"]+'/'+config["sample"]["id"]+"-"+config["sample"]["datestamp"]+".xml", pretty_print=True)
 
 def initXML():
 	
@@ -187,6 +329,8 @@ def initXML():
 	xmlCNCPause.text = str(config["cnc"]["pause"])
 	xmlCameraTrigger = ET.SubElement(xmlSessionDetails, "CameraTriggerMode")
 	xmlCameraTrigger.text = str(config["camera"]["trigger"])
+	xmlDateStamp = ET.SubElement(xmlSessionDetails, "SessionTimeStamp")
+	xmlDateStamp.text = str(config["sample"]["datestamp"])
 
 	# Tasks
 	xmlTasks = ET.SubElement(xmlData, "Tasks")
@@ -199,7 +343,6 @@ def initXML():
 	writeXML(xmlTree)
 	
 	return xmlTree
-
 	
 def xmlLogTime(activity, state, other=""):
 	xmlData = xmlTree.getroot()
@@ -241,13 +384,12 @@ def xmlTaskStatus(activity, state, other=""):
 					xmlStatus.text = str(state)
 	writeXML(xmlTree)
 
-
 def xmlRestart():
 	xmlData = xmlTree.getroot()
 	xmlData.clear()
 	return xmlTree
 
-def xmlAddImage(position, cameraFilename, finalFilename):
+def xmlAddImage(position, cameraFileInfo, finalFilename):
 	xmlData = xmlTree.getroot()
 	nodes = xmlData.findall("Images")
 	for node in nodes:
@@ -256,12 +398,27 @@ def xmlAddImage(position, cameraFilename, finalFilename):
 		xmlImagePositionX.text =  str(position["x"])
 		xmlImagePositionY = ET.SubElement(xmlImage, "PositionY")
 		xmlImagePositionY.text =  str(position["y"])
+		xmlImageFolder = ET.SubElement(xmlImage, "CameraFolder")
+		xmlImageFolder.text = str(cameraFileInfo.folder)
 		xmlImageFilename = ET.SubElement(xmlImage, "CameraFilename")
-		xmlImageFilename.text = str(cameraFilename)
-		xmlImageFilename = ET.SubElement(xmlImage, "FinalFilename")
-		xmlImageFilename.text = str(finalFilename)
+		xmlImageFilename.text = str(cameraFileInfo.name[:-4])
+		xmlImageFinalFilename = ET.SubElement(xmlImage, "FinalFilename")
+		xmlImageFinalFilename.text = str(finalFilename)
+		xmlImageExtension = ET.SubElement(xmlImage, "Extension")
+		xmlImageExtension.text = str(cameraFileInfo.name[-4:])
 	writeXML(xmlTree)
 	
+	return xmlTree
+	
+def xmlImageAddDarkFrame(filename):
+	xmlData = xmlTree.getroot()
+	nodes = xmlData.findall("Images")
+	for node in nodes:
+		xmlDarkFrame = ET.SubElement(node, "Image")
+		xmlDarkFrame.set("Position", "darkframe")
+		xmlDFCameraFilename = ET.SubElement(xmlDarkFrame, "CameraFilename")
+		xmlDFCameraFilename.text =  str(filename[:-4])
+	writeXML(xmlTree)
 	return xmlTree
 	
 
@@ -363,6 +520,8 @@ class StartPage(tkinter.Frame):
 		btnRunSample.grid(row=10, column=12, sticky="NEWS")
 		btnSettings = ttk.Button(self, text="Settings", command=lambda: controller.show_frame(Settings))
 		btnSettings.grid(row=10, column=14, sticky="NEWS")
+		btnTest = ttk.Button(self, text="Test Function", command=lambda: self.test())
+		btnTest.grid(row=20, column=10, sticky="NEWS")
 		
 
 		btnQuit = ttk.Button(self, text="Quit", command=lambda: controller.quitProgram(machine))
@@ -506,6 +665,9 @@ class StartPage(tkinter.Frame):
 		config['sample']['sizeY'] = str(self.sampleY.get())
 		updateConfig(config, configpath)
 
+	def test(self, event=None):
+		filename = triggerDarkFrame()
+		print("Dark Frame Filename: "+str(filename))
 
 	def startSession(self, events, sessionStatus):
 		global rolledOver
@@ -656,6 +818,10 @@ class StartPage(tkinter.Frame):
 		
 		# Start Process
 		sessionStatus.set("Initilizing XML Session")
+
+		startTimeStamp = str(datetime.datetime.now().strftime('%Y%m%d_%H%M'))
+		config["sample"]["datestamp"] = startTimeStamp
+		updateConfig(config, configpath)
 		
 		# Initiate XML Data
 		xmlTree = initXML()
@@ -665,15 +831,11 @@ class StartPage(tkinter.Frame):
 		if events["cancel"].is_set():
 			cancelSession()
 
-		# Trigger White Frame
-# 		sessionStatus.set("Capturing Initial White Frame")
-# 		threads = {}
-# 		whiteFrameFilenames = self.processParallel(connectedCamList, triggerWhiteFrame, 4)
-# 		
-# 		for cam, frame in whiteFrameFilenames:
-# 			sessionData[cam][positionofItem]["whiteframe"]=frame
-# 			xmlTree = xmlImageAddWhiteframe(positionofItem, cam, frame)
-# 		print("Session Data: "+str(sessionData))
+		# Trigger Dark Frame
+		sessionStatus.set("Capturing Initial Dark Frame")
+		darkFrameFilename = triggerDarkFrame()
+		
+		xmlTree = xmlImageAddDarkFrame(darkFrameFilename)
 		
 		
 
@@ -682,11 +844,14 @@ class StartPage(tkinter.Frame):
 		yPos = 0
 		imageCount = 1
 		positionCount = 1
+		imageList = []
+		
+		
 		
 		# Calculate Frames Per X
-		framesPerX = 4
+		framesPerX = 2
 		# Calculate Frames Per Y	
-		framesPerY = 8
+		framesPerY = 2
 		# Generate List of Positions
 		positions = []
 		
@@ -707,23 +872,23 @@ class StartPage(tkinter.Frame):
 		
 			sessionStatus.set("Capturing Image at Position #"+str(positionCount)+" of "+str(len(positions)))
 			distanceToTravel = math.sqrt((xPos-int(position["x"]))**2 + (yPos - int(position["y"]))**2)
-			print("Move From: ("+str(xPos)+", "+str(yPos)+")")
-			print("Move To: ("+str(position["x"])+", "+str(position["y"])+")")
-			print("Distance to Travel: "+str(distanceToTravel))
+# 			print("Move From: ("+str(xPos)+", "+str(yPos)+")")
+# 			print("Move To: ("+str(position["x"])+", "+str(position["y"])+")")
+# 			print("Distance to Travel: "+str(distanceToTravel))
 			
 			timetoTravel = distanceToTravel/rateOfTravel
 			responseString = moveCNCtoCoordinates(position["x"], position["y"], machine)	
 			time.sleep(timetoTravel)
 			time.sleep(int(config["cnc"]["pause"]))
 			# Trigger Camera
-			
+			cameraInfo = triggerImageUSB()
+			finalFilename = str(config["sample"]["id"])+"-"+str(config["sample"]["datestamp"])+"-"+str(imageCount).zfill(3)+str(cameraInfo.name[-4:])
+			imageList.append((cameraInfo.folder+"/"+cameraInfo.name, finalFilename))
 			time.sleep(int(config["camera"]["exposure"]))
 			imageCount +=1	
 			positionCount +=1		
-			cameraFilename = ''  	# NEED TO CALCULATE FROM WHITE FRAME FILENAME AND COUNT - BEWARE 1000 ROLLOVER
-			finalFilename = ''  	# NEED TO CALCULATE FROM BLONDER'S SYSTEM
-			xmlTree = xmlAddImage(position, cameraFilename, finalFilename)
-			
+			xmlTree = xmlAddImage(position, cameraInfo, finalFilename)
+			print("Image Captured: "+str(cameraInfo.name))
 			if events["cancel"].is_set():
 				cancelSession()
 				break
@@ -759,8 +924,8 @@ class StartPage(tkinter.Frame):
 			xmlTree = xmlTaskStatus("DownloadingImages", "Processing")
 			xmlTree = xmlLogTime("DownloadingImages", "Start")
 
-# 			createFolderStructure()
-# 			downloadImages()
+			createFolderStructure()
+			downloadImages(imageList)
 
 			xmlTree = xmlTaskStatus("DownloadingImages", "Complete")
 			xmlTree = xmlLogTime("DownloadingImages", "Complete")
@@ -801,6 +966,8 @@ class Settings(tkinter.Frame):
 		self.lens.set(config['camera']['lens'])
 		self.triggerMethod = StringVar()
 		self.triggerMethod.set(config['camera']['trigger'])
+		self.imageFormat = StringVar()
+		self.imageFormat.set(config['camera']['format'])
 		self.exposureLength = StringVar()
 		self.exposureLength.set(str(config['camera']['exposure']))
 		self.xOverlap = IntVar()
@@ -815,6 +982,8 @@ class Settings(tkinter.Frame):
 		self.imagePath.set(config['filepaths']['imagePath'])
 		self.xmlPath = StringVar()
 		self.xmlPath.set(config['filepaths']['xmlPath'])
+		self.deleteImages = BooleanVar()
+		self.deleteImages.set(config['filepaths'].getboolean('delete'))
 		
 		# Size Columns
 		self.grid_columnconfigure(1, minsize=50)
@@ -874,6 +1043,11 @@ class Settings(tkinter.Frame):
 		entryExposure = ttk.Entry(self, textvariable=self.exposureLength, width=5)
 		lblExposure.grid(row=16, column=10, sticky="WE")
 		entryExposure.grid(row=16, column=11, sticky="WE")
+		lblImageFormat = ttk.Label(self, text="Image Format", font=MED_FONT)
+		cmbImageFormat = ttk.Combobox(self, textvariable=self.imageFormat, width=10)
+		cmbImageFormat['values'] = ["JPG","RAW"]
+		lblImageFormat.grid(row=18, column=10, sticky="WE")
+		cmbImageFormat.grid(row=18, column=11, sticky="WE")
 		
 		# CNC Settings
 		lblxOverlap = ttk.Label(self, text="X-Axis Overlap (%)", font=MED_FONT)
@@ -895,20 +1069,22 @@ class Settings(tkinter.Frame):
 # 		lblDownloadFiles.grid(row=20, column=10, sticky="EW")
 		chkDownloadFiles = ttk.Checkbutton(self, var=self.download, text="Download Files from Camera", onvalue=True, offvalue=False, command=lambda: [self.updateVariable()] )
 		chkDownloadFiles.grid(row=20, column=11, sticky="EW")
+		chkDeleteFiles = ttk.Checkbutton(self, var=self.download, text="Delete Files from Camera after Download", onvalue=True, offvalue=False, command=lambda: [self.updateVariable()] )
+		chkDeleteFiles.grid(row=22, column=11, sticky="EW")
 		lblImagePath = ttk.Label(self, text="Image Storage Path", font=MED_FONT)
-		lblImagePath.grid(row=22, column=10, sticky="EW")
+		lblImagePath.grid(row=24, column=10, sticky="EW")
 		fileImagePath = ttk.Entry(self, textvariable=self.imagePath, width=30)
-		fileImagePath.grid(row=22, column=11, sticky="EW")
+		fileImagePath.grid(row=24, column=11, sticky="EW")
 		btnImagePath = ttk.Button(self, image=folderIcon, command=lambda: selectDirectory(self.imagePath))
 		btnImagePath.image = folderIcon
-		btnImagePath.grid(row=22, column=12, sticky="W")
+		btnImagePath.grid(row=24, column=12, sticky="W")
 		lblxmlPath = ttk.Label(self, text="XML Storage Path", font=SMALL_FONT)
-		lblxmlPath.grid(row=24, column=10, columnspan=2, sticky="EW")
+		lblxmlPath.grid(row=26, column=10, columnspan=2, sticky="EW")
 		filexmlPath = ttk.Entry(self, textvariable=self.xmlPath, width=30)
-		filexmlPath.grid(row=24, column=11, sticky="EW")
+		filexmlPath.grid(row=26, column=11, sticky="EW")
 		btnxmlPath = ttk.Button(self, image=folderIcon, command=lambda: selectDirectory(self.xmlPath))
 		btnxmlPath.image = folderIcon
-		btnxmlPath.grid(row=24, column=12, sticky="W")
+		btnxmlPath.grid(row=26, column=12, sticky="W")
 
 		# Save and Return 
 		btnStartPage = ttk.Button(self, text="Save", command=lambda: [self.updateVariable(), controller.show_frame(StartPage)])
