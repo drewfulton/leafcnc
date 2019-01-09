@@ -922,8 +922,8 @@ class StartPage(tkinter.Frame):
 			xmlTree = xmlTaskStatus("DownloadingImages", "Processing")
 			xmlTree = xmlLogTime("DownloadingImages", "Start")
 
- 			createFolderStructure()
- 			downloadImages(imageList)
+			createFolderStructure()
+			downloadImages(imageList)
 
 			xmlTree = xmlTaskStatus("DownloadingImages", "Complete")
 			xmlTree = xmlLogTime("DownloadingImages", "Complete")
