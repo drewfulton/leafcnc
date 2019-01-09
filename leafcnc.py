@@ -108,7 +108,7 @@ def get_file_info(camera, context, path):
     folder, name = os.path.split(path)
     return camera.file_get_info(folder, name, context)
 
-def triggerWhiteFrame():
+def triggerDarkFrame():
 	# Take Sample Image from Camera
 	# Connect to Camera
 	context = gp.Context()
@@ -140,8 +140,8 @@ def triggerWhiteFrame():
 	
 	# Exit Camera
 	camera.exit(context)
-	print (filePath.name)
-	return (cameraNumber, filePath.name)
+# 	print (filePath.name)
+	return (filePath.name)
 
 def triggerImageUSB():
 		
@@ -704,7 +704,8 @@ class StartPage(tkinter.Frame):
 		updateConfig(config, configpath)
 
 	def test(self, event=None):
-		triggerWhiteFrame()
+		filename = triggerDarkFrame()
+		print("Dark Frame Filename: "+str(filename))
 
 	def startSession(self, events, sessionStatus):
 		global rolledOver
