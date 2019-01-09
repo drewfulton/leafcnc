@@ -186,9 +186,9 @@ def triggerImageCable(imageData):
 
 def createFolderStructure():
 	# Start File Directory Structure
-	if not os.path.exists(config["filepaths"]["imagepath"]+'/'+config["sample"]["id"]):
-		os.makedirs(config["filepaths"]["imagepath"]+'/'+config["sample"]["id"])
-	print("Downloading to "+ str(config["filepaths"]["imagepath"]+'/'+config["sample"]["id"]))
+	if not os.path.exists(config["filepaths"]["imagepath"]+'/'+config["sample"]["id"]+"-"+config["sample"]["datestamp"]):
+		os.makedirs(config["filepaths"]["imagepath"]+'/'+config["sample"]["id"]+"-"+config["sample"]["datestamp"])
+	print("Downloading to "+ str(config["filepaths"]["imagepath"]+'/'+config["sample"]["id"])+"-"+config["sample"]["datestamp"])
 
 def downloadImages(imageList):
 	#Get List of Files from Camera
@@ -200,21 +200,16 @@ def downloadImages(imageList):
 # 		print("No Files on "+str(cameraNumber))
 # 		return	
 
-	for file in imageList:
+	for image in imageList:
+		(file, finalfilename) = image
 		path, filename = os.path.split(file)
 		blah, ext = os.path.splitext(file)			
-		if ext.lower() == ".jpg":
-			print("Downloading: " +filename)
-
-			target = os.path.join(config["filepaths"]["imagepath"]+'/'+config["sample"]["id"],filename)
-			camera_file = camera.file_get(path, filename, gp.GP_FILE_TYPE_NORMAL, context)
-			gp.gp_file_save(camera_file, target)
-# 			xmlTree = xmlUpdateJPGDownloaded(cameraNumber, filename[:-4], status["fileDest"])
-
-# 			progress += 1
+		target = os.path.join(config["filepaths"]["imagepath"]+'/'+config["sample"]["id"]+"-"+config["sample"]["datestamp"],finalfilename)
+		camera_file = camera.file_get(path, filename, gp.GP_FILE_TYPE_NORMAL, context)
+		gp.gp_file_save(camera_file, target)
+		if (config["filepaths"]["delete"]):
+			camera.gp_camera_file_delete(folder, name)
 		
-# 	camStatusUpdates[cameraNumber] = updateCameraDownloadStatus(cameraNumber, "Download Complete!")
-
 	return
 
 def initCamera(context):
@@ -243,7 +238,7 @@ def createConfig(path):
 	config["cnc"] = {"port": "/dev/ttyUSB0", "xOverlap": "40", "yOverlap":"40", "pause":"1"}
 	config["camera"] = {"body": "Canon T1i", "lens": "Tokina 100mm", "trigger":"USB", "exposure":"1", "format":"JPG"}
 	config["filepaths"] = {"download":"True", "imagePath":'', "xmlPath": '', "delete":"True"}
-	config["sample"] = {"cameraHeight":"", "id":"", "stackingMode":"None", "stackingCount":"0", "sizeX":"360","sizeY":"470"}
+	config["sample"] = {"cameraHeight":"", "id":"", "stackingMode":"None", "stackingCount":"0", "sizeX":"360","sizeY":"470", "datestamp":""}
 	
 	# Write Config file
 	with open(path, "w") as config_file:
@@ -299,7 +294,7 @@ def setEvent(event):
 
 # XML Management Functions
 def writeXML(xmlTree):
-	xmlTree.write(config["filepaths"]["xmlPath"]+'/'+config["sample"]["id"]+".xml", pretty_print=True)
+	xmlTree.write(config["filepaths"]["xmlPath"]+'/'+config["sample"]["id"]+"-"+config["sample"]["datestamp"]+".xml", pretty_print=True)
 
 def initXML():
 	
@@ -334,6 +329,8 @@ def initXML():
 	xmlCNCPause.text = str(config["cnc"]["pause"])
 	xmlCameraTrigger = ET.SubElement(xmlSessionDetails, "CameraTriggerMode")
 	xmlCameraTrigger.text = str(config["camera"]["trigger"])
+	xmlDateStamp = ET.SubElement(xmlSessionDetails, "SessionTimeStamp")
+	xmlDateStamp.text = str(config["sample"]["timestamp"])
 
 	# Tasks
 	xmlTasks = ET.SubElement(xmlData, "Tasks")
@@ -346,7 +343,6 @@ def initXML():
 	writeXML(xmlTree)
 	
 	return xmlTree
-
 	
 def xmlLogTime(activity, state, other=""):
 	xmlData = xmlTree.getroot()
@@ -388,7 +384,6 @@ def xmlTaskStatus(activity, state, other=""):
 					xmlStatus.text = str(state)
 	writeXML(xmlTree)
 
-
 def xmlRestart():
 	xmlData = xmlTree.getroot()
 	xmlData.clear()
@@ -407,8 +402,10 @@ def xmlAddImage(position, cameraFileInfo, finalFilename):
 		xmlImageFolder.text = str(cameraFileInfo.folder)
 		xmlImageFilename = ET.SubElement(xmlImage, "CameraFilename")
 		xmlImageFilename.text = str(cameraFileInfo.name[:-4])
-		xmlImageFilename = ET.SubElement(xmlImage, "FinalFilename")
-		xmlImageFilename.text = str(finalFilename)
+		xmlImageFinalFilename = ET.SubElement(xmlImage, "FinalFilename")
+		xmlImageFinalFilename.text = str(finalFilename)
+		xmlImageExtension = ET.SubElement(xmlImage, "Extension")
+		xmlImageExtension.text = str(cameraFileInfo.name[-4:])
 	writeXML(xmlTree)
 	
 	return xmlTree
@@ -821,6 +818,10 @@ class StartPage(tkinter.Frame):
 		
 		# Start Process
 		sessionStatus.set("Initilizing XML Session")
+
+		startTimeStamp = str(datetime.datetime.now().strftime('%Y%m%d_%H%M'))
+		config["sample"]["datestamp"] = startTimeStamp
+		updateConfig(config, configpath)
 		
 		# Initiate XML Data
 		xmlTree = initXML()
@@ -830,12 +831,11 @@ class StartPage(tkinter.Frame):
 		if events["cancel"].is_set():
 			cancelSession()
 
-		# Trigger White Frame
+		# Trigger Dark Frame
 		sessionStatus.set("Capturing Initial Dark Frame")
 		darkFrameFilename = triggerDarkFrame()
 		
 		xmlTree = xmlImageAddDarkFrame(darkFrameFilename)
-# 		print("Session Data: "+str(sessionData))
 		
 		
 
@@ -845,6 +845,8 @@ class StartPage(tkinter.Frame):
 		imageCount = 1
 		positionCount = 1
 		imageList = []
+		
+		
 		
 		# Calculate Frames Per X
 		framesPerX = 4
@@ -870,9 +872,9 @@ class StartPage(tkinter.Frame):
 		
 			sessionStatus.set("Capturing Image at Position #"+str(positionCount)+" of "+str(len(positions)))
 			distanceToTravel = math.sqrt((xPos-int(position["x"]))**2 + (yPos - int(position["y"]))**2)
-			print("Move From: ("+str(xPos)+", "+str(yPos)+")")
-			print("Move To: ("+str(position["x"])+", "+str(position["y"])+")")
-			print("Distance to Travel: "+str(distanceToTravel))
+# 			print("Move From: ("+str(xPos)+", "+str(yPos)+")")
+# 			print("Move To: ("+str(position["x"])+", "+str(position["y"])+")")
+# 			print("Distance to Travel: "+str(distanceToTravel))
 			
 			timetoTravel = distanceToTravel/rateOfTravel
 			responseString = moveCNCtoCoordinates(position["x"], position["y"], machine)	
@@ -880,11 +882,11 @@ class StartPage(tkinter.Frame):
 			time.sleep(int(config["cnc"]["pause"]))
 			# Trigger Camera
 			cameraInfo = triggerImageUSB()
-			imageList.append(cameraInfo.folder+"/"+cameraInfo.name)
+			finalFilename = config["sample"]["id"]+"_"+config["sample"]["datestamp"]+"_"+str(imageCount).zfill(3)+"_X"+str(position["x"])+"_Y"+str(position["y"]+cameraInfo.name[-4:])
+			imageList.append((cameraInfo.folder+"/"+cameraInfo.name, finalFilename))
 			time.sleep(int(config["camera"]["exposure"]))
 			imageCount +=1	
 			positionCount +=1		
-			finalFilename = ''  	# NEED TO CALCULATE FROM BLONDER'S SYSTEM
 			xmlTree = xmlAddImage(position, cameraInfo, finalFilename)
 			print("Image Captured: "+str(cameraInfo.name))
 			if events["cancel"].is_set():
