@@ -156,6 +156,9 @@ def triggerImageUSB():
 # 		xmlTree = xmlAddImage(cameraNumber, rotation, positionCount, positionDegree, filePath.folder, filePath.name[:-4])	
 		
 		camera.exit(context)
+		
+		return filePath
+		
 
 def triggerImageCable(imageData):   
 		global focus
@@ -457,6 +460,17 @@ def xmlAddImage(position, cameraFilename, finalFilename):
 		xmlImageFilename.text = str(finalFilename)
 	writeXML(xmlTree)
 	
+	return xmlTree
+	
+def xmlImageAddDarkFrame(filename):
+	xmlData = xmlTree.getroot()
+	nodes = xmlData.findall("Images")
+	for node in nodes:
+		xmlDarkFrame = ET.SubElement(node, "Image")
+		xmlarkFrame.set("Position", "darkframe")
+		xmlDFCameraFilename = ET.SubElement(xmlWhiteFrame, "CameraFilename")
+		xmlDFCameraFilename.text =  str(frame[:-4])
+	writeXML(xmlTree)
 	return xmlTree
 	
 
@@ -867,10 +881,10 @@ class StartPage(tkinter.Frame):
 
 		# Trigger White Frame
 		sessionStatus.set("Capturing Initial White Frame")
-		whiteFrameFilenames = triggerWhiteFrame
+		darkFrameFilename = triggerDarkFrame()
 		
-		xmlTree = xmlImageAddWhiteframe(positionofItem, cam, frame)
-		print("Session Data: "+str(sessionData))
+		xmlTree = xmlImageAddDarkFrame(darkFrameFilename)
+# 		print("Session Data: "+str(sessionData))
 		
 		
 
@@ -913,11 +927,10 @@ class StartPage(tkinter.Frame):
 			time.sleep(timetoTravel)
 			time.sleep(int(config["cnc"]["pause"]))
 			# Trigger Camera
-			
+			cameraFilename = triggerImageUSB()
 			time.sleep(int(config["camera"]["exposure"]))
 			imageCount +=1	
 			positionCount +=1		
-			cameraFilename = ''  	# NEED TO CALCULATE FROM WHITE FRAME FILENAME AND COUNT - BEWARE 1000 ROLLOVER
 			finalFilename = ''  	# NEED TO CALCULATE FROM BLONDER'S SYSTEM
 			xmlTree = xmlAddImage(position, cameraFilename, finalFilename)
 			
