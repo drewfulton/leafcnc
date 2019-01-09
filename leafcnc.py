@@ -156,9 +156,8 @@ def triggerImageUSB():
 	
 	camera.exit(context)
 		
-	return (filePath.name)
+	return (filePath)
 		
-
 def triggerImageCable(imageData):   
 		global focus
 		global shutter				
@@ -185,85 +184,36 @@ def triggerImageCable(imageData):
 			
 			xmlTree = xmlAddImage(cameraNumber, rotation, positionCount, positionDegree, "", filename)	
 
-def triggerImageTest():
-		global focus
-		global shutter				
-		global rolledOver
-		focus.on()
-		time.sleep(0.25)
-		shutter.on()
-		time.sleep(0.25)
-		shutter.off()
-		focus.off()
+def createFolderStructure():
+	# Start File Directory Structure
+	if not os.path.exists(config["filepaths"]["imagepath"]+'/'+config["sample"]["id"]):
+		os.makedirs(config["filepaths"]["imagepath"]+'/'+config["sample"]["id"])
+	print("Downloading to "+ str(config["filepaths"]["imagepath"]+'/'+config["sample"]["id"]))
 
-		
-def triggerImageUSBSeries(cameraNumber, rotation, positionCount, positionDegree, whiteFrameFilename):
-# 		cameraNumber, rotation, positionCount, positionDegree, whiteFrameFilename = imageData
-		
-		# Connect to Camera
-		context = gp.Context()
-		camera = initCamera(cameraNumber, context)		
-
-		# Capture Image
-		filePath = camera.capture(gp.GP_CAPTURE_IMAGE, context)
-		
-		
-		xmlTree = xmlAddImage(cameraNumber, rotation, positionCount, positionDegree, filePath.folder, filePath.name[:-4])	
-		
-		camera.exit(context)
-
-def downloadImages(cameraNumber):
-	if status["fileDest"] == "remote":
-		storagePath = config["generalSettings"]["genRemoteStoragePath"]+config["itemDetails"]["itemProject"]+"/"
-	elif status["fileDest"] == "local":
-		storagePath = config["generalSettings"]["genLocalStoragePath"]+config["itemDetails"]["itemProject"]+"/"
-
-	if not os.path.exists(storagePath+config["itemDetails"]["itemNumber"]+"/"+str(cameraNumber)):
-		os.makedirs(storagePath+config["itemDetails"]["itemNumber"]+"/"+str(cameraNumber))
-	
-	camStatusUpdates[cameraNumber] = updateCameraDownloadStatus(cameraNumber, "Getting File List")
+def downloadImages(imageList):
 	#Get List of Files from Camera
 	context = gp.Context()
-	camera = initCamera(cameraNumber, context)	
-	files = listFiles(camera, context)	
-	if not files:
-		camStatusUpdates[cameraNumber] = updateCameraDownloadStatus(cameraNumber, "No Files Found on Camera")
-		print("No Files on "+str(cameraNumber))
-		return	
+	camera = initCamera(context)	
+# 	files = listFiles(camera, context)	
+# 	if not files:
+# 		camStatusUpdates[cameraNumber] = updateCameraDownloadStatus(cameraNumber, "No Files Found on Camera")
+# 		print("No Files on "+str(cameraNumber))
+# 		return	
 
-	# Download Files for each Position
-	totalPositions = len(sessionData[cameraNumber])
-	for position in sessionData[cameraNumber]:	
-		tempPath = storagePath+config["itemDetails"]["itemNumber"]+"/"+str(cameraNumber)+"/Position "+str(position)+"/jpg"
-		if not os.path.exists(tempPath):
-			os.makedirs(tempPath)
-		print("Downloading Files from "+str(cameraNumber)+" and position "+str(position)+".")
-		filenames = filterFilename(files)
-		startPoint = filenames.index(sessionData[cameraNumber][position]["whiteframe"])
-		filesToDownloadAll = files[startPoint-1:(startPoint-1)+int(sessionData[cameraNumber][position]["imageCount"])*2]
-		filesToDownloadJPG = []
-		for file in filesToDownloadAll:
-			if file[-4:].lower() == ".jpg":
-				filesToDownloadJPG.append(file)
-		print("Files to Download: "+str(filesToDownloadJPG))
-		totalfiles = int(len(filesToDownloadJPG))
-		progress = 1
-		camStatusUpdates[cameraNumber] = updateCameraDownloadStatus(cameraNumber, "Position "+str(position)+"/"+str(totalPositions)+". Found "+str(totalfiles)+" to download.")
-		for file in filesToDownloadJPG:
-			path, filename = os.path.split(file)
-			blah, ext = os.path.splitext(file)			
-			if ext.lower() == ".jpg":
-				camStatusUpdates[cameraNumber] = updateCameraDownloadStatus(cameraNumber, "Position "+str(position)+"/"+str(totalPositions)+". Downloading File "+str(progress)+"/"+str(totalfiles)+". Filename: "+str(filename))		
-				print("Downloading: " +filename)
+	for file in imageList:
+		path, filename = os.path.split(file)
+		blah, ext = os.path.splitext(file)			
+		if ext.lower() == ".jpg":
+			print("Downloading: " +filename)
 
-				target = os.path.join(tempPath,filename)
-				camera_file = camera.file_get(path, filename, gp.GP_FILE_TYPE_NORMAL, context)
-				gp.gp_file_save(camera_file, target)
-				xmlTree = xmlUpdateJPGDownloaded(cameraNumber, filename[:-4], status["fileDest"])
+			target = os.path.join(config["filepaths"]["imagepath"]+'/'+config["sample"]["id"],filename)
+			camera_file = camera.file_get(path, filename, gp.GP_FILE_TYPE_NORMAL, context)
+			gp.gp_file_save(camera_file, target)
+# 			xmlTree = xmlUpdateJPGDownloaded(cameraNumber, filename[:-4], status["fileDest"])
 
-				progress += 1
+			progress += 1
 		
-	camStatusUpdates[cameraNumber] = updateCameraDownloadStatus(cameraNumber, "Download Complete!")
+# 	camStatusUpdates[cameraNumber] = updateCameraDownloadStatus(cameraNumber, "Download Complete!")
 
 	return
 
@@ -444,7 +394,7 @@ def xmlRestart():
 	xmlData.clear()
 	return xmlTree
 
-def xmlAddImage(position, cameraFilename, finalFilename):
+def xmlAddImage(position, cameraFileInfo, finalFilename):
 	xmlData = xmlTree.getroot()
 	nodes = xmlData.findall("Images")
 	for node in nodes:
@@ -453,8 +403,10 @@ def xmlAddImage(position, cameraFilename, finalFilename):
 		xmlImagePositionX.text =  str(position["x"])
 		xmlImagePositionY = ET.SubElement(xmlImage, "PositionY")
 		xmlImagePositionY.text =  str(position["y"])
+		xmlImageFolder = ET.SubElement(xmlImage, "CameraFolder")
+		xmlImageFolder.text = str(cameraFileInfo.folder])
 		xmlImageFilename = ET.SubElement(xmlImage, "CameraFilename")
-		xmlImageFilename.text = str(cameraFilename[:-4])
+		xmlImageFilename.text = str(cameraFileInfo.name[:-4])
 		xmlImageFilename = ET.SubElement(xmlImage, "FinalFilename")
 		xmlImageFilename.text = str(finalFilename)
 	writeXML(xmlTree)
@@ -892,6 +844,7 @@ class StartPage(tkinter.Frame):
 		yPos = 0
 		imageCount = 1
 		positionCount = 1
+		imageList = []
 		
 		# Calculate Frames Per X
 		framesPerX = 4
@@ -926,13 +879,14 @@ class StartPage(tkinter.Frame):
 			time.sleep(timetoTravel)
 			time.sleep(int(config["cnc"]["pause"]))
 			# Trigger Camera
-			cameraFilename = triggerImageUSB()
+			cameraInfo = triggerImageUSB()
+			imageList.append(cameraInfo.folder+"/"+cameraInfo.name)
 			time.sleep(int(config["camera"]["exposure"]))
 			imageCount +=1	
 			positionCount +=1		
 			finalFilename = ''  	# NEED TO CALCULATE FROM BLONDER'S SYSTEM
-			xmlTree = xmlAddImage(position, cameraFilename, finalFilename)
-			print("Image Captured: "+str(cameraFilename))
+			xmlTree = xmlAddImage(position, cameraInfo, finalFilename)
+			print("Image Captured: "+str(cameraInfo.name))
 			if events["cancel"].is_set():
 				cancelSession()
 				break
@@ -968,8 +922,8 @@ class StartPage(tkinter.Frame):
 			xmlTree = xmlTaskStatus("DownloadingImages", "Processing")
 			xmlTree = xmlLogTime("DownloadingImages", "Start")
 
-# 			createFolderStructure()
-# 			downloadImages()
+ 			createFolderStructure()
+ 			downloadImages(imageList)
 
 			xmlTree = xmlTaskStatus("DownloadingImages", "Complete")
 			xmlTree = xmlLogTime("DownloadingImages", "Complete")
