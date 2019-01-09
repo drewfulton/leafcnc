@@ -705,8 +705,13 @@ class StartPage(tkinter.Frame):
 		updateConfig(config, configpath)
 
 	def test(self, event=None):
-		triggerImageUSB()
-
+		context = gp.Context()
+		camera = initCamera(context)
+		text = camera.get_summary()
+		print('Summary')
+		print('=======')
+		print(str(text))
+		camera.exit()
 
 	def startSession(self, events, sessionStatus):
 		global rolledOver
