@@ -121,12 +121,12 @@ def triggerWhiteFrame():
 	camSettings["iso"] = iso.get_value()
 	shutterspeed = camConfig.get_child_by_name("shutterspeed") 
 	camSettings["shutterspeed"] = shutterspeed.get_value()
-	exposurecompensation = camConfig.get_child_by_name("exposurecompensation")			
-	camSettings["exposurecompensation"] = exposurecompensation.get_value()
+# 	exposurecompensation = camConfig.get_child_by_name("exposurecompensation")			
+# 	camSettings["exposurecompensation"] = exposurecompensation.get_value()
 	# Set Camera to 128000 ISO at 1" exposure with +5 exposure compensation
 	iso.set_value("100")
 	shutterspeed.set_value("1/4000")
-	exposurecompensation.set_value("5.0")
+# 	exposurecompensation.set_value("5.0")
 	camera.set_config(camConfig, context)
 	
 	# Capture Image
@@ -135,7 +135,7 @@ def triggerWhiteFrame():
 	# Restore Original Size/Type Settings to Camera
 	iso.set_value(camSettings["iso"])
 	shutterspeed.set_value(camSettings["shutterspeed"])
-	exposurecompensation.set_value(camSettings["exposurecompensation"])
+# 	exposurecompensation.set_value(camSettings["exposurecompensation"])
 	camera.set_config(camConfig, context)
 	
 	# Exit Camera
