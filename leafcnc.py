@@ -208,7 +208,7 @@ def downloadImages(imageList):
 		camera_file = camera.file_get(path, filename, gp.GP_FILE_TYPE_NORMAL, context)
 		gp.gp_file_save(camera_file, target)
 		if (config["filepaths"]["delete"]):
-			camera.gp_camera_file_delete(folder, name)
+			gp.gp_camera_file_delete(folder, name)
 		
 	return
 
@@ -882,7 +882,7 @@ class StartPage(tkinter.Frame):
 			time.sleep(int(config["cnc"]["pause"]))
 			# Trigger Camera
 			cameraInfo = triggerImageUSB()
-			finalFilename = str(config["sample"]["id"])+"_"+str(config["sample"]["datestamp"])+"_"+str(imageCount).zfill(3)+"_X"+str(position["x"])+"_Y"+str(position["y"])+str(cameraInfo.name[-4:])
+			finalFilename = str(config["sample"]["id"])+"-"+str(config["sample"]["datestamp"])+"-"+str(imageCount).zfill(3)+str(cameraInfo.name[-4:])
 			imageList.append((cameraInfo.folder+"/"+cameraInfo.name, finalFilename))
 			time.sleep(int(config["camera"]["exposure"]))
 			imageCount +=1	
