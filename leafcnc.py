@@ -694,6 +694,9 @@ class StartPage(tkinter.Frame):
 # 			print("FilePath: "+str(previewPath))
 # 			print("FilePath.name: "+str(previewPath.name))
 # 			print("FilePath.folder: "+str(previewPath.folder))
+			data = memoryview(imageData)
+			print(type(data), len(data))
+			print(data[:10].tolist())			
 			imgLiveView = ImageTk.PhotoImage(Image.open(imageData))
 			btnLiveView.image = imgLiveView
 			btnLiveView.config(text="", image=imgLiveView)
