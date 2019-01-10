@@ -976,7 +976,7 @@ class StartPage(tkinter.Frame):
 			
 		return
 			
-	def capturePreview():
+	def capturePreview(self, event=None):
 		#Capture Preview
 		print("Capturing Image")
 		OK, camera_file = gp.gp_camera_capture_preview(camera)
