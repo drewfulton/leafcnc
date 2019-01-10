@@ -697,7 +697,7 @@ class StartPage(tkinter.Frame):
 # 			data = memoryview(previewPath)
 # 			print(type(data), len(data))
 # 			print(data[:10].tolist())			
-			imgLiveView = ImageTk.PhotoImage(Image.open(imageData))
+			imgLiveView = ImageTk.PhotoImage(Image.open(io.BytesIO(imageData)))
 			btnLiveView.image = imgLiveView
 			btnLiveView.config(text="", image=imgLiveView)
 			#Pause
