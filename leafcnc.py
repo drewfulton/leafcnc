@@ -535,7 +535,7 @@ class StartPage(tkinter.Frame):
 		btnTest2 = ttk.Button(self, text="Test Function 2", command=lambda: self.test2())
 		btnTest2.grid(row=20, column=11, sticky="NEWS")
 		
-		self.btnLiveView = ttk.Button(self, text="Live View", command=:lambda: startLivewViewThreading(); self.toggleLiveView())
+		self.btnLiveView = ttk.Button(self, text="Live View", command=lambda: [startLivewViewThreading(), self.toggleLiveView()])
 		self.btnLiveView.grid(row=30, column=10, sticky="NEWS")
 		
 		btnQuit = ttk.Button(self, text="Quit", command=lambda: controller.quitProgram(machine))
