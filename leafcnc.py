@@ -1010,8 +1010,6 @@ class StartPage(tkinter.Frame):
 		return
 			
 	def capturePreview(self, camera, event=None ):
-		#Capture Preview
-		print("Capturing Image")
 		OK, camera_file = gp.gp_camera_capture_preview(camera)
 		imageData = camera_file.get_data_and_size()			
 		imgLiveView = ImageTk.PhotoImage(Image.open(io.BytesIO(imageData)))
