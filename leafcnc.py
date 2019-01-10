@@ -687,7 +687,9 @@ class StartPage(tkinter.Frame):
 	
 	
 		while liveViewActive:	
-			self.capturePreview()
+			self.capturePreview(camera)
+		
+		camera.exit(context)
 			
 	def test2(self, event=None):
 		# Live View Testing - Stop
@@ -976,7 +978,7 @@ class StartPage(tkinter.Frame):
 			
 		return
 			
-	def capturePreview(self, event=None):
+	def capturePreview(self, event=None, camera):
 		#Capture Preview
 		print("Capturing Image")
 		OK, camera_file = gp.gp_camera_capture_preview(camera)
