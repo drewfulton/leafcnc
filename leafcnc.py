@@ -703,7 +703,7 @@ class StartPage(tkinter.Frame):
 			self.btnLiveView.config(text="", image=imgLiveView)
 			#Pause
 
- 			time.sleep()
+#  			time.sleep(1)
 	def test2(self, event=None):
 		# Live View Testing - Stop
 		global liveViewActive
