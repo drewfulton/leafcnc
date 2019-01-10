@@ -236,6 +236,7 @@ def focusCloserLarge():
 	focusmode = camConfig.get_child_by_name("manualfocusdrive") 
 	focusmode.set_value("Near1")
 	camera.set_config(camConfig)
+	print(str(camConfig))
 
 
 
