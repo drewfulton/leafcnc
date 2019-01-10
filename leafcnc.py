@@ -542,7 +542,7 @@ class StartPage(tkinter.Frame):
 		btnStopLivewView = ttk.Button(self, text="Stop Liveview", command=lambda: self.stopLiveView())
 		btnStopLivewView.grid(row=30, column=11, sticky="NEWS")
 		
-		self.btnLiveView = ttk.Label(self, text="", width=200)
+		self.btnLiveView = ttk.Label(self, text="", width=150)
 		self.btnLiveView.grid(row=31, column=10, sticky="NEWS", columnspan=20)
 		
 		btnQuit = ttk.Button(self, text="Quit", command=lambda: controller.quitProgram(machine))
