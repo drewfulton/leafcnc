@@ -245,7 +245,7 @@ def createConfig(path):
 	config = configparser.ConfigParser()
 	
 	config["cnc"] = {"port": "/dev/ttyUSB0", "xOverlap": "40", "yOverlap":"40", "pause":"1"}
-	config["camera"] = {"body": "Canon T1i", "lens": "Tokina 100mm", "trigger":"USB", "exposure":"1", "format":"JPG"}
+	config["camera"] = {"body": "Canon T2i", "lens": "Tokina 100mm", "trigger":"USB", "exposure":"1", "format":"JPG"}
 	config["filepaths"] = {"download":"True", "imagePath":'', "xmlPath": '', "delete":"True"}
 	config["sample"] = {"cameraHeight":"", "id":"", "stackingMode":"None", "stackingCount":"0", "sizeX":"360","sizeY":"470", "datestamp":""}
 	
@@ -1096,7 +1096,7 @@ class Settings(tkinter.Frame):
 		# Camera Settings
 		lblCameraBody = ttk.Label(self, text="Camera Body", font=MED_FONT)
 		cmbCameraBody = ttk.Combobox(self, textvariable=self.cameraBody, width=10)
-		cmbCameraBody['values'] = ["Canon T1i"]
+		cmbCameraBody['values'] = ["Canon T2i"]
 		lblCameraBody.grid(row=10, column=10, sticky="WE")
 		cmbCameraBody.grid(row=10, column=11, sticky="WE")
 		lblLens = ttk.Label(self, text="Lens", font=MED_FONT)
