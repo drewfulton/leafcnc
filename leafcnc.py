@@ -687,7 +687,8 @@ class StartPage(tkinter.Frame):
 	
 	
 		while liveViewActive:	
-			capturePreview()
+			self.capturePreview()
+			
 	def test2(self, event=None):
 		# Live View Testing - Stop
 		global liveViewActive
