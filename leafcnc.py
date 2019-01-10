@@ -519,6 +519,7 @@ class StartPage(tkinter.Frame):
 		self.grid_rowconfigure(2, minsize=100)
 		self.grid_rowconfigure(10, minsize=50)
 		self.grid_rowconfigure(99, minsize=20)
+		self.grid_rowconfigure(31, minsize=700)
 
 		# Page Title
 		pageTitle = ttk.Label(self, text="Leaf CNC Controller", font=LARGE_FONT)
@@ -541,8 +542,8 @@ class StartPage(tkinter.Frame):
 		btnStopLivewView = ttk.Button(self, text="Stop Liveview", command=lambda: self.stopLiveView())
 		btnStopLivewView.grid(row=30, column=11, sticky="NEWS")
 		
-		self.btnLiveView = ttk.Button(self, text="Live View", command=lambda: [startLiveViewThreading()])
-		self.btnLiveView.grid(row=31, column=10, sticky="NEWS")
+		self.btnLiveView = ttk.Button(self, text="Live View"])
+		self.btnLiveView.grid(row=31, column=10, sticky="NEWS", columnspan=20)
 		
 		btnQuit = ttk.Button(self, text="Quit", command=lambda: controller.quitProgram(machine))
 		btnQuit.grid(row=100, column=6, sticky="EW")
