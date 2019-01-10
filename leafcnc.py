@@ -229,6 +229,13 @@ def filterFilename(filelist):
 		result.append(name)
 	return result
 
+def focusCloserLarge(camera):
+	camConfig = camera.get_config() 
+	focusmode = camConfig.get_child_by_name("manualfocusdrive") 
+	focusmode.set_value("Near3")
+	camera.set_config(camConfig)
+
+
 
 # Create Config File and Variables
 def createConfig(path):
@@ -479,6 +486,7 @@ class LeafCNC:
 class StartPage(tkinter.Frame):
 	def __init__(self, parent, controller):
 		global machine
+		global camera
 		
 		tkinter.Frame.__init__(self,parent)
 
@@ -522,7 +530,7 @@ class StartPage(tkinter.Frame):
 		btnRunSample.grid(row=10, column=12, sticky="NEWS")
 		btnSettings = ttk.Button(self, text="Settings", command=lambda: controller.show_frame(Settings))
 		btnSettings.grid(row=10, column=14, sticky="NEWS")
-		btnTest = ttk.Button(self, text="Test Function", command=lambda: startLiveViewThreading())
+		btnTest = ttk.Button(self, text="Test Function", command=lambda: self.test())
 		btnTest.grid(row=20, column=10, sticky="NEWS")
 		btnTest2 = ttk.Button(self, text="Test Function 2", command=lambda: self.test2())
 		btnTest2.grid(row=20, column=11, sticky="NEWS")
@@ -665,8 +673,19 @@ class StartPage(tkinter.Frame):
 		def startLiveViewThreading():
 			liveViewEvents = {}
 			liveViewEvents["close"] = threading.Event()
-			liveViewThread = threading.Thread(target=self.test, args=( liveViewEvents))
+			liveViewThread = threading.Thread(target=self.startLiveView, args=( liveViewEvents))
 			liveViewThread.start()
+	
+	
+	def test(self):
+		global camera
+		camera = focusCloserLarge(camera)
+		
+		pass
+		
+	def test2(self):
+		pass
+	
 		
 	def updateSampleInfo(self, event=None):
 		config['sample']['id'] = str(self.sampleID.get())
@@ -677,9 +696,10 @@ class StartPage(tkinter.Frame):
 		config['sample']['sizeY'] = str(self.sampleY.get())
 		updateConfig(config, configpath)
 
-	def test(self, liveViewEvents):
+	def startLiveView(self, liveViewEvents):
 		# Live View Testing - Start
 		global liveViewActive
+		global camera
 		liveViewActive = True
 
 		# Connect to Camera
@@ -687,17 +707,12 @@ class StartPage(tkinter.Frame):
 		camera = gp.Camera()
 		camera.init(context)
 
-		# Capture Image
-# 		filePath = camera.capture_preview(context)
-	
-	
-	
 		while liveViewActive:	
 			self.capturePreview(camera)
-			time.sleep(.1)
+			time.sleep(.05)
 		camera.exit(context)
 			
-	def test2(self, event=None):
+	def stopLiveView(self, event=None):
 		# Live View Testing - Stop
 		global liveViewActive
 		liveViewActive = False
