@@ -527,8 +527,8 @@ class StartPage(tkinter.Frame):
 		btnTest2 = ttk.Button(self, text="Test Function 2", command=lambda: self.test2())
 		btnTest2.grid(row=20, column=11, sticky="NEWS")
 		
-		btnLiveView = ttk.Button(self, text="Live View")
-		btnLiveView.grid(row=30, column=10, sticky="NEWS")
+		self.btnLiveView = ttk.Button(self, text="Live View")
+		self.btnLiveView.grid(row=30, column=10, sticky="NEWS")
 		
 		btnQuit = ttk.Button(self, text="Quit", command=lambda: controller.quitProgram(machine))
 		btnQuit.grid(row=100, column=6, sticky="EW")
@@ -698,8 +698,8 @@ class StartPage(tkinter.Frame):
 # 			print(type(data), len(data))
 # 			print(data[:10].tolist())			
 			imgLiveView = ImageTk.PhotoImage(Image.open(io.BytesIO(imageData)))
-			btnLiveView.image = imgLiveView
-			btnLiveView.config(text="", image=imgLiveView)
+			self.btnLiveView.image = imgLiveView
+			self.btnLiveView.config(text="", image=imgLiveView)
 			#Pause
 # 			time.sleep(50)
 	def test2(self, event=None):
