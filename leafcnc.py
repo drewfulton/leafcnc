@@ -234,7 +234,7 @@ def focusCloserLarge():
 	print("Focus Nearer")
 	camConfig = camera.get_config() 
 	focusmode = camConfig.get_child_by_name("manualfocusdrive") 
-	focusmode.set_value("Near3")
+	focusmode.set_value("Near1")
 	camera.set_config(camConfig)
 
 
@@ -682,6 +682,9 @@ class StartPage(tkinter.Frame):
 			liveViewEvents["focusCloserLarge"] = threading.Event()
 			liveViewEvents["focusCloserMed"] = threading.Event()
 			liveViewEvents["focusCloserSmall"] = threading.Event()
+			liveViewEvents["focusFartherLarge"] = threading.Event()
+			liveViewEvents["focusFartherMed"] = threading.Event()
+			liveViewEvents["focusFartherSmall"] = threading.Event()
 			liveViewThread = threading.Thread(target=self.startLiveView, args=( liveViewEvents,))
 			liveViewThread.start()
 	
