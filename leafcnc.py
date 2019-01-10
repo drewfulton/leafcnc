@@ -534,9 +534,13 @@ class StartPage(tkinter.Frame):
 		btnTest.grid(row=20, column=10, sticky="NEWS")
 		btnTest2 = ttk.Button(self, text="Test Function 2", command=lambda: self.test2())
 		btnTest2.grid(row=20, column=11, sticky="NEWS")
+		btnStartLiveView = ttk.Button(self, text="Test Function", command=lambda: startLiveViewThreading())
+		btnStartLiveView.grid(row=30, column=10, sticky="NEWS")
+		btnStopLivewView = ttk.Button(self, text="Test Function 2", command=lambda: self.stopLiveView())
+		btnStopLivewView.grid(row=30, column=11, sticky="NEWS")
 		
-		self.btnLiveView = ttk.Button(self, text="Live View", command=lambda: [startLiveViewThreading(), self.toggleLiveView()])
-		self.btnLiveView.grid(row=30, column=10, sticky="NEWS")
+		self.btnLiveView = ttk.Button(self, text="Live View", command=lambda: [startLiveViewThreading()])
+		self.btnLiveView.grid(row=31, column=10, sticky="NEWS")
 		
 		btnQuit = ttk.Button(self, text="Quit", command=lambda: controller.quitProgram(machine))
 		btnQuit.grid(row=100, column=6, sticky="EW")
@@ -712,10 +716,10 @@ class StartPage(tkinter.Frame):
 			time.sleep(.05)
 		camera.exit(context)
 			
-	def toggleLiveView(self, event=None):
+	def stopLiveView(self, event=None):
 		# Live View Testing - Stop
 		global liveViewActive
-		liveViewActive = not liveViewActive
+		liveViewActive = False
 
 	def startSession(self, events, sessionStatus):
 		global rolledOver
