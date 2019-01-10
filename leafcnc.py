@@ -686,24 +686,8 @@ class StartPage(tkinter.Frame):
 	
 	
 	
-		while liveViewActive:
-			#Capture Preview
-			print("Capturing Image")
-			OK, camera_file = gp.gp_camera_capture_preview(camera)
-			imageData = camera_file.get_data_and_size()			
-			#Update Display
-# 			print("FilePath: "+str(previewPath))
-# 			print("FilePath.name: "+str(previewPath.name))
-# 			print("FilePath.folder: "+str(previewPath.folder))
-# 			data = memoryview(previewPath)
-# 			print(type(data), len(data))
-# 			print(data[:10].tolist())			
-			imgLiveView = ImageTk.PhotoImage(Image.open(io.BytesIO(imageData)))
-			self.btnLiveView.image = imgLiveView
-			self.btnLiveView.config(text="", image=imgLiveView)
-			#Pause
-
-#  			time.sleep(1)
+		while liveViewActive:	
+			capturePreview()
 	def test2(self, event=None):
 		# Live View Testing - Stop
 		global liveViewActive
@@ -991,6 +975,24 @@ class StartPage(tkinter.Frame):
 			
 		return
 			
+	def capturePreview():
+		#Capture Preview
+		print("Capturing Image")
+		OK, camera_file = gp.gp_camera_capture_preview(camera)
+		imageData = camera_file.get_data_and_size()			
+		#Update Display
+# 			print("FilePath: "+str(previewPath))
+# 			print("FilePath.name: "+str(previewPath.name))
+# 			print("FilePath.folder: "+str(previewPath.folder))
+# 			data = memoryview(previewPath)
+# 			print(type(data), len(data))
+# 			print(data[:10].tolist())			
+		imgLiveView = ImageTk.PhotoImage(Image.open(io.BytesIO(imageData)))
+		self.btnLiveView.image = imgLiveView
+		self.btnLiveView.config(text="", image=imgLiveView)
+		#Pause
+
+#  			time.sleep(1)
 
 
 
