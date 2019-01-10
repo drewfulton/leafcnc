@@ -691,9 +691,9 @@ class StartPage(tkinter.Frame):
 			#Capture Preview
 			filePath = camera.capture(gp.GP_CAPTURE_PREVIEW, context)
 			#Update Display
-					imgLiveView = ImageTk.PhotoImage(Image.open(filePath))
-					btnLiveView.image = imgLiveView
-					btnLiveView.config(text="", image=imgLiveView)
+			imgLiveView = ImageTk.PhotoImage(Image.open(filePath))
+			btnLiveView.image = imgLiveView
+			btnLiveView.config(text="", image=imgLiveView)
 			#Pause
 # 			time.sleep(50)
 		
