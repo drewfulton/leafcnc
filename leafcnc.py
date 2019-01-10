@@ -678,6 +678,8 @@ class StartPage(tkinter.Frame):
 		def startLiveViewThreading():
 			liveViewEvents = {}
 			liveViewEvents["focusCloserLarge"] = threading.Event()
+			liveViewEvents["focusCloserMed"] = threading.Event()
+			liveViewEvents["focusCloserSmall"] = threading.Event()
 			liveViewThread = threading.Thread(target=self.startLiveView, args=( liveViewEvents))
 			liveViewThread.start()
 	
@@ -1012,19 +1014,9 @@ class StartPage(tkinter.Frame):
 		print("Capturing Image")
 		OK, camera_file = gp.gp_camera_capture_preview(camera)
 		imageData = camera_file.get_data_and_size()			
-		#Update Display
-# 			print("FilePath: "+str(previewPath))
-# 			print("FilePath.name: "+str(previewPath.name))
-# 			print("FilePath.folder: "+str(previewPath.folder))
-# 			data = memoryview(previewPath)
-# 			print(type(data), len(data))
-# 			print(data[:10].tolist())			
 		imgLiveView = ImageTk.PhotoImage(Image.open(io.BytesIO(imageData)))
 		self.btnLiveView.image = imgLiveView
 		self.btnLiveView.config(text="", image=imgLiveView)
-		#Pause
-
-#  			time.sleep(1)
 
 
 
