@@ -694,7 +694,7 @@ class StartPage(tkinter.Frame):
 	
 		while liveViewActive:	
 			self.capturePreview(camera)
-		
+			time.sleep(.05)
 		camera.exit(context)
 			
 	def test2(self, event=None):
