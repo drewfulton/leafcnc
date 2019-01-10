@@ -682,7 +682,7 @@ class StartPage(tkinter.Frame):
 		camera.init(context)
 
 		# Capture Image
-		filePath = camera.capture(gp.gp_camera_capture_preview)
+		filePath = camera.capture_preview(gp.GP_CAPTURE_IMAGE, context)
 		self.previewPath.set(filePath)
 	
 	
