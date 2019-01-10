@@ -683,7 +683,7 @@ class StartPage(tkinter.Frame):
 	
 	
 	def test(self):
-		focusCloserLarge()
+		liveViewEvents["focusCloserLarge"].set()
 		
 		pass
 		
@@ -712,7 +712,10 @@ class StartPage(tkinter.Frame):
 		camera = gp.Camera()
 		camera.init(context)
 
-		while liveViewActive:	
+		while liveViewActive:
+			if liveViewEvents["focusCloserLarge"].is_set():
+				focusCloserLarge()	
+				liveViewEvents["focusCloserLarge"].clear()
 			self.capturePreview(camera)
 			time.sleep(.05)
 		camera.exit(context)
