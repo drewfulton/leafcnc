@@ -3,7 +3,7 @@
 # LeafCNC Application
 
 # Import Libraries and Modules
-import tkinter, configparser, os, serial, time, threading, pygame, datetime, math
+import tkinter, configparser, os, serial, time, threading, pygame, datetime, math, io
 import gphoto2 as gp
 
 from gpiozero import LED
@@ -20,7 +20,7 @@ parser = ET.XMLParser(remove_blank_text=True)
 # Stores info about the status of all components of system
 systemStatus = {}
 status = {}
-
+liveViewActive = False
 # Stores details about active sessionData
 sessionData = {}  
 
@@ -229,6 +229,15 @@ def filterFilename(filelist):
 		result.append(name)
 	return result
 
+def focusCloserLarge():
+	global camera
+	print("Focus Nearer")
+	camConfig = camera.get_config() 
+	focusmode = camConfig.get_child_by_name("manualfocusdrive") 
+	focusmode.set_value("Near1")
+	camera.set_config(camConfig)
+
+
 
 # Create Config File and Variables
 def createConfig(path):
@@ -236,7 +245,7 @@ def createConfig(path):
 	config = configparser.ConfigParser()
 	
 	config["cnc"] = {"port": "/dev/ttyUSB0", "xOverlap": "40", "yOverlap":"40", "pause":"1"}
-	config["camera"] = {"body": "Canon T1i", "lens": "Tokina 100mm", "trigger":"USB", "exposure":"1", "format":"JPG"}
+	config["camera"] = {"body": "Canon T2i", "lens": "Tokina 100mm", "trigger":"USB", "exposure":"1", "format":"JPG"}
 	config["filepaths"] = {"download":"True", "imagePath":'', "xmlPath": '', "delete":"True"}
 	config["sample"] = {"cameraHeight":"", "id":"", "stackingMode":"None", "stackingCount":"0", "sizeX":"360","sizeY":"470", "datestamp":""}
 	
@@ -479,6 +488,7 @@ class LeafCNC:
 class StartPage(tkinter.Frame):
 	def __init__(self, parent, controller):
 		global machine
+		global camera
 		
 		tkinter.Frame.__init__(self,parent)
 
@@ -496,6 +506,8 @@ class StartPage(tkinter.Frame):
 		self.sampleY = IntVar()
 		self.sampleY.set(int(config["sample"]["sizeY"]))
 		self.sessionStatus = StringVar()
+		self.previewPath = StringVar()
+		self.previewPath.set('')
 		
 		# Size Columns
 		self.grid_columnconfigure(1, minsize=34)
@@ -507,6 +519,7 @@ class StartPage(tkinter.Frame):
 		self.grid_rowconfigure(2, minsize=100)
 		self.grid_rowconfigure(10, minsize=50)
 		self.grid_rowconfigure(99, minsize=20)
+		self.grid_rowconfigure(31, minsize=700)
 
 		# Page Title
 		pageTitle = ttk.Label(self, text="Leaf CNC Controller", font=LARGE_FONT)
@@ -522,8 +535,16 @@ class StartPage(tkinter.Frame):
 		btnSettings.grid(row=10, column=14, sticky="NEWS")
 		btnTest = ttk.Button(self, text="Test Function", command=lambda: self.test())
 		btnTest.grid(row=20, column=10, sticky="NEWS")
+		btnTest2 = ttk.Button(self, text="Test Function 2", command=lambda: self.test2())
+		btnTest2.grid(row=20, column=11, sticky="NEWS")
+		btnStartLiveView = ttk.Button(self, text="Start Liveview", command=lambda: startLiveViewThreading())
+		btnStartLiveView.grid(row=30, column=10, sticky="NEWS")
+		btnStopLivewView = ttk.Button(self, text="Stop Liveview", command=lambda: self.stopLiveView())
+		btnStopLivewView.grid(row=30, column=11, sticky="NEWS")
 		
-
+		self.btnLiveView = ttk.Label(self, text="", width=150)
+		self.btnLiveView.grid(row=31, column=10, sticky="NEWS", columnspan=20)
+		
 		btnQuit = ttk.Button(self, text="Quit", command=lambda: controller.quitProgram(machine))
 		btnQuit.grid(row=100, column=6, sticky="EW")
 
@@ -655,6 +676,29 @@ class StartPage(tkinter.Frame):
 			self.sessionStatus.set("")
 			events["complete"].clear()
 			playSound("complete")
+	
+		def startLiveViewThreading():
+			global liveViewEvents
+			liveViewEvents = {}
+			liveViewEvents["focusCloserLarge"] = threading.Event()
+			liveViewEvents["focusCloserMed"] = threading.Event()
+			liveViewEvents["focusCloserSmall"] = threading.Event()
+			liveViewEvents["focusFartherLarge"] = threading.Event()
+			liveViewEvents["focusFartherMed"] = threading.Event()
+			liveViewEvents["focusFartherSmall"] = threading.Event()
+			liveViewThread = threading.Thread(target=self.startLiveView, args=( liveViewEvents,))
+			liveViewThread.start()
+	
+	
+	def test(self):
+		global liveViewEvents
+		liveViewEvents["focusCloserLarge"].set()
+		
+		pass
+		
+	def test2(self):
+		pass
+	
 		
 	def updateSampleInfo(self, event=None):
 		config['sample']['id'] = str(self.sampleID.get())
@@ -665,9 +709,32 @@ class StartPage(tkinter.Frame):
 		config['sample']['sizeY'] = str(self.sampleY.get())
 		updateConfig(config, configpath)
 
-	def test(self, event=None):
-		filename = triggerDarkFrame()
-		print("Dark Frame Filename: "+str(filename))
+	def startLiveView(self, liveViewEvents):
+		# Live View Testing - Start
+		global liveViewActive
+		global camera
+		global context
+		liveViewActive = True
+
+		# Connect to Camera
+		context = gp.Context()
+		camera = gp.Camera()
+		camera.init(context)
+
+		while liveViewActive:
+			if liveViewEvents["focusCloserLarge"].is_set():
+				focusCloserLarge()	
+				liveViewEvents["focusCloserLarge"].clear()
+			self.capturePreview(camera)
+			time.sleep(.05)
+		camera.exit(context)
+		self.btnLiveView.image = None
+		self.btnLiveView.config(text="", image="")
+
+	def stopLiveView(self, event=None):
+		# Live View Testing - Stop
+		global liveViewActive
+		liveViewActive = False
 
 	def startSession(self, events, sessionStatus):
 		global rolledOver
@@ -951,6 +1018,12 @@ class StartPage(tkinter.Frame):
 			
 		return
 			
+	def capturePreview(self, camera, event=None ):
+		OK, camera_file = gp.gp_camera_capture_preview(camera)
+		imageData = camera_file.get_data_and_size()			
+		imgLiveView = ImageTk.PhotoImage(Image.open(io.BytesIO(imageData)))
+		self.btnLiveView.image = imgLiveView
+		self.btnLiveView.config(text="", image=imgLiveView)
 
 
 
@@ -1026,7 +1099,7 @@ class Settings(tkinter.Frame):
 		# Camera Settings
 		lblCameraBody = ttk.Label(self, text="Camera Body", font=MED_FONT)
 		cmbCameraBody = ttk.Combobox(self, textvariable=self.cameraBody, width=10)
-		cmbCameraBody['values'] = ["Canon T1i"]
+		cmbCameraBody['values'] = ["Canon T2i"]
 		lblCameraBody.grid(row=10, column=10, sticky="WE")
 		cmbCameraBody.grid(row=10, column=11, sticky="WE")
 		lblLens = ttk.Label(self, text="Lens", font=MED_FONT)
