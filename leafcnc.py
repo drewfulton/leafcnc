@@ -688,7 +688,7 @@ class StartPage(tkinter.Frame):
 	
 		while liveViewActive:
 			#Capture Preview
-			previewPath = camera.capture_preview(context)
+			ok, previewPath = camera.capture_preview(context)
 			imageData = gp.gp_file_get_data_and_size(previewPath)			
 			#Update Display
 # 			print("FilePath: "+str(previewPath))
