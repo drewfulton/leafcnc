@@ -688,6 +688,7 @@ class StartPage(tkinter.Frame):
 	
 		while liveViewActive:
 			#Capture Preview
+			print("Capturing Image")
 			OK, camera_file = gp.gp_camera_capture_preview(camera)
 			imageData = camera_file.get_data_and_size()			
 			#Update Display
@@ -701,7 +702,8 @@ class StartPage(tkinter.Frame):
 			self.btnLiveView.image = imgLiveView
 			self.btnLiveView.config(text="", image=imgLiveView)
 			#Pause
-# 			time.sleep(50)
+
+ 			time.sleep()
 	def test2(self, event=None):
 		# Live View Testing - Stop
 		global liveViewActive
