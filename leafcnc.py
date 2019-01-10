@@ -733,6 +733,7 @@ class StartPage(tkinter.Frame):
 		# Live View Testing - Stop
 		global liveViewActive
 		liveViewActive = False
+		self.btnLiveView.config(text="", image="")
 
 	def startSession(self, events, sessionStatus):
 		global rolledOver
