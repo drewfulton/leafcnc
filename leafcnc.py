@@ -688,11 +688,11 @@ class StartPage(tkinter.Frame):
 	
 		while liveViewActive:
 			#Capture Preview
-			filePath = camera.gp_camera_capture_preview(context)
+			previewPath = camera.capture_preview(context)
 			#Update Display
-			print("FilePath: "+str(filePath))
-			print("FilePath.name: "+str(filePath.name))
-			print("FilePath.folder: "+str(filePath.folder))
+			print("FilePath: "+str(previewPath))
+			print("FilePath.name: "+str(previewPath.name))
+			print("FilePath.folder: "+str(previewPath.folder))
 			imgLiveView = ImageTk.PhotoImage(Image.open(filePath.folder+"/".filePath.name))
 			btnLiveView.image = imgLiveView
 			btnLiveView.config(text="", image=imgLiveView)
