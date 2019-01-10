@@ -231,9 +231,10 @@ def filterFilename(filelist):
 
 def focusCloserLarge():
 	global camera
+	print("Focus Nearer")
 	camConfig = camera.get_config() 
 	focusmode = camConfig.get_child_by_name("manualfocusdrive") 
-	focusmode.set_value("Near3")
+	focusmode.set_value("Near1")
 	camera.set_config(camConfig)
 
 
