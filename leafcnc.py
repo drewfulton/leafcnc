@@ -20,7 +20,7 @@ parser = ET.XMLParser(remove_blank_text=True)
 # Stores info about the status of all components of system
 systemStatus = {}
 status = {}
-
+liveViewActive = False
 # Stores details about active sessionData
 sessionData = {}  
 
@@ -496,6 +496,8 @@ class StartPage(tkinter.Frame):
 		self.sampleY = IntVar()
 		self.sampleY.set(int(config["sample"]["sizeY"]))
 		self.sessionStatus = StringVar()
+		self.previewPath = StringVar()
+		self.previewPath.set('')
 		
 		# Size Columns
 		self.grid_columnconfigure(1, minsize=34)
@@ -522,8 +524,12 @@ class StartPage(tkinter.Frame):
 		btnSettings.grid(row=10, column=14, sticky="NEWS")
 		btnTest = ttk.Button(self, text="Test Function", command=lambda: self.test())
 		btnTest.grid(row=20, column=10, sticky="NEWS")
+		btnTest2 = ttk.Button(self, text="Test Function 2", command=lambda: self.test2())
+		btnTest2.grid(row=20, column=11, sticky="NEWS")
 		
-
+		btnLiveView = ttk.Button(self, text="Live View")
+		btnLiveView.grid(row=30, column=10, sticky="NEWS")
+		
 		btnQuit = ttk.Button(self, text="Quit", command=lambda: controller.quitProgram(machine))
 		btnQuit.grid(row=100, column=6, sticky="EW")
 
@@ -666,8 +672,35 @@ class StartPage(tkinter.Frame):
 		updateConfig(config, configpath)
 
 	def test(self, event=None):
-		filename = triggerDarkFrame()
-		print("Dark Frame Filename: "+str(filename))
+		# Live View Testing - Start
+		global liveViewActive
+		liveViewActive = True
+
+		# Connect to Camera
+		context = gp.Context()
+		camera = gp.Camera()
+		camera.init(context)
+
+		# Capture Image
+		filePath = camera.capture(gp.GP_CAPTURE_PREVIEW, context)
+		self.previewPath.set(filePath)
+	
+	
+	
+		while liveViewActive:
+			#Capture Preview
+			filePath = camera.capture(gp.GP_CAPTURE_PREVIEW, context)
+			#Update Display
+					imgLiveView = ImageTk.PhotoImage(Image.open(filePath))
+					btnLiveView.image = imgLiveView
+					btnLiveView.config(text="", image=imgLiveView)
+			#Pause
+# 			time.sleep(50)
+		
+	def test2(self, event=None):
+		# Live View Testing - Stop
+		global liveViewActive
+		liveViewActive = False
 
 	def startSession(self, events, sessionStatus):
 		global rolledOver
