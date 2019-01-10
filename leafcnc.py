@@ -736,7 +736,7 @@ class StartPage(tkinter.Frame):
 		time.sleep(1)
 		print("Clear Image")
 		self.btnLiveView.image = None
-		self.btnLiveView.config(text="", image=imgLiveView)
+		self.btnLiveView.config(text="", image="")
 
 	def startSession(self, events, sessionStatus):
 		global rolledOver
