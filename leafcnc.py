@@ -3,7 +3,7 @@
 # LeafCNC Application
 
 # Import Libraries and Modules
-import tkinter, configparser, os, serial, time, threading, pygame, datetime, math
+import tkinter, configparser, os, serial, time, threading, pygame, datetime, math, io
 import gphoto2 as gp
 
 from gpiozero import LED
@@ -689,11 +689,12 @@ class StartPage(tkinter.Frame):
 		while liveViewActive:
 			#Capture Preview
 			previewPath = camera.capture_preview(context)
+			imageData = gp.gp_file_get_data_and_size(previewPath)			
 			#Update Display
 # 			print("FilePath: "+str(previewPath))
 # 			print("FilePath.name: "+str(previewPath.name))
 # 			print("FilePath.folder: "+str(previewPath.folder))
-			imgLiveView = ImageTk.PhotoImage(image=previewPath)
+			imgLiveView = ImageTk.PhotoImage(Image.open(io.BytesIO(imageData)))
 			btnLiveView.image = imgLiveView
 			btnLiveView.config(text="", image=imgLiveView)
 			#Pause
