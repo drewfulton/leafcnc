@@ -690,12 +690,14 @@ class StartPage(tkinter.Frame):
 			#Capture Preview
 			filePath = camera.capture_preview(context)
 			#Update Display
-			imgLiveView = ImageTk.PhotoImage(Image.open(filePath))
+			print("FilePath: "+str(filePath))
+			print("FilePath.name: "+str(filePath.name))
+			print("FilePath.folder: "+str(filePath.folder))
+			imgLiveView = ImageTk.PhotoImage(Image.open(filePath.folder+"/".filePath.name))
 			btnLiveView.image = imgLiveView
 			btnLiveView.config(text="", image=imgLiveView)
 			#Pause
 # 			time.sleep(50)
-		
 	def test2(self, event=None):
 		# Live View Testing - Stop
 		global liveViewActive
