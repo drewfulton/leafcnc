@@ -676,6 +676,7 @@ class StartPage(tkinter.Frame):
 			playSound("complete")
 	
 		def startLiveViewThreading():
+			global liveViewEvents
 			liveViewEvents = {}
 			liveViewEvents["focusCloserLarge"] = threading.Event()
 			liveViewEvents["focusCloserMed"] = threading.Event()
@@ -685,6 +686,7 @@ class StartPage(tkinter.Frame):
 	
 	
 	def test(self):
+		global liveViewEvents
 		liveViewEvents["focusCloserLarge"].set()
 		
 		pass
