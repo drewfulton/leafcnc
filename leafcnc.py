@@ -522,7 +522,7 @@ class StartPage(tkinter.Frame):
 		btnRunSample.grid(row=10, column=12, sticky="NEWS")
 		btnSettings = ttk.Button(self, text="Settings", command=lambda: controller.show_frame(Settings))
 		btnSettings.grid(row=10, column=14, sticky="NEWS")
-		btnTest = ttk.Button(self, text="Test Function", command=lambda: self.test())
+		btnTest = ttk.Button(self, text="Test Function", command=lambda: startLiveViewThreading())
 		btnTest.grid(row=20, column=10, sticky="NEWS")
 		btnTest2 = ttk.Button(self, text="Test Function 2", command=lambda: self.test2())
 		btnTest2.grid(row=20, column=11, sticky="NEWS")
@@ -661,6 +661,12 @@ class StartPage(tkinter.Frame):
 			self.sessionStatus.set("")
 			events["complete"].clear()
 			playSound("complete")
+	
+		def startLiveViewThreading():
+			liveViewEvents = {}
+			liveViewEvents["close"] = threading.Event()
+			liveViewThread = threading.Thread(target=self.test, args=( liveViewEvents))
+			liveViewThread.start()
 		
 	def updateSampleInfo(self, event=None):
 		config['sample']['id'] = str(self.sampleID.get())
@@ -671,7 +677,7 @@ class StartPage(tkinter.Frame):
 		config['sample']['sizeY'] = str(self.sampleY.get())
 		updateConfig(config, configpath)
 
-	def test(self, event=None):
+	def test(self, liveViewEvents):
 		# Live View Testing - Start
 		global liveViewActive
 		liveViewActive = True
