@@ -229,7 +229,8 @@ def filterFilename(filelist):
 		result.append(name)
 	return result
 
-def focusCloserLarge(camera):
+def focusCloserLarge():
+	global camera
 	camConfig = camera.get_config() 
 	focusmode = camConfig.get_child_by_name("manualfocusdrive") 
 	focusmode.set_value("Near3")
@@ -534,9 +535,9 @@ class StartPage(tkinter.Frame):
 		btnTest.grid(row=20, column=10, sticky="NEWS")
 		btnTest2 = ttk.Button(self, text="Test Function 2", command=lambda: self.test2())
 		btnTest2.grid(row=20, column=11, sticky="NEWS")
-		btnStartLiveView = ttk.Button(self, text="Test Function", command=lambda: startLiveViewThreading())
+		btnStartLiveView = ttk.Button(self, text="Start Liveview", command=lambda: startLiveViewThreading())
 		btnStartLiveView.grid(row=30, column=10, sticky="NEWS")
-		btnStopLivewView = ttk.Button(self, text="Test Function 2", command=lambda: self.stopLiveView())
+		btnStopLivewView = ttk.Button(self, text="Stop Liveview", command=lambda: self.stopLiveView())
 		btnStopLivewView.grid(row=30, column=11, sticky="NEWS")
 		
 		self.btnLiveView = ttk.Button(self, text="Live View", command=lambda: [startLiveViewThreading()])
@@ -682,8 +683,7 @@ class StartPage(tkinter.Frame):
 	
 	
 	def test(self):
-		global camera
-		camera = focusCloserLarge(camera)
+		focusCloserLarge()
 		
 		pass
 		
@@ -704,6 +704,7 @@ class StartPage(tkinter.Frame):
 		# Live View Testing - Start
 		global liveViewActive
 		global camera
+		global context
 		liveViewActive = True
 
 		# Connect to Camera
