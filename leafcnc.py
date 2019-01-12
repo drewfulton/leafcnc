@@ -797,7 +797,7 @@ class StartPage(tkinter.Frame):
 					btnFocusCloserLarge.grid(row=9, column=2, sticky="NEWS")
 					lblFocusFarther = ttk.Label(manualFocusStackingWindow, text="Move Focus Up", font=MED_FONT)
 					lblFocusFarther.grid(row=6, column=4, sticky="NEWS")
-					btnFocusFartherSmall = ttk.Button(manualFocusStackingWindow, text="Small", width=5, command=lambda: [liveViewEvents["focusFartherSmall"].set()]))
+					btnFocusFartherSmall = ttk.Button(manualFocusStackingWindow, text="Small", width=5, command=lambda: [liveViewEvents["focusFartherSmall"].set()])
 					btnFocusFartherSmall.grid(row=7, column=4, sticky="NEWS")
 					btnFocusFartherMedium = ttk.Button(manualFocusStackingWindow, text="Medium", width=10, command=lambda: [liveViewEvents["focusFartherMedium"].set()])
 					btnFocusFartherMedium.grid(row=8, column=4, sticky="NEWS")
