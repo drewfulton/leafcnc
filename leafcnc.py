@@ -828,7 +828,7 @@ class StartPage(tkinter.Frame):
 			liveViewEvents["focusFartherMedium"] = threading.Event()
 			liveViewEvents["focusFartherSmall"] = threading.Event()
 			liveViewEvents["capturingImage"] = threading.Event()
-			liveViewThread = threading.Thread(target=self.startLiveView, args=( target))
+			liveViewThread = threading.Thread(target=self.startLiveView, args=( target,))
 			liveViewThread.start()
 	
 	
