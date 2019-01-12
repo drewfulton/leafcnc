@@ -784,7 +784,7 @@ class StartPage(tkinter.Frame):
 					
 					self.btnLiveViewFocusStacking = ttk.Label(self, text="", width=150)
 					self.btnLiveViewFocusStacking.grid(row=6, column=10, sticky="NEWS", rowspan=5)
-					imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"backend/LiveviewTemplate.jpg"))
+					imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
 					self.btnLiveViewFocusStacking.image = imgLiveView
 					self.btnLiveViewFocusStacking.config(text="", image=imgLiveView)
 					lblFocusCloser = ttk.Label(manualFocusStackingWindow, text="Move Focus Up", font=MED_FONT)
@@ -870,8 +870,8 @@ class StartPage(tkinter.Frame):
 
 		while liveViewActive:
 			if liveViewEvents["capturingImage"].is_set():
-				target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"backend/CapturingImage.jpg"))
-				img = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"backend/CapturingImage.jpg"))
+				target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/CapturingImage.jpg"))
+				img = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/CapturingImage.jpg"))
 				target.config(text="", image=img)
 				camera.exit(context)
 				cameraInfo = triggerImageUSB()
@@ -906,8 +906,8 @@ class StartPage(tkinter.Frame):
 				self.capturePreview(camera, target)
 				time.sleep(.05)
 		camera.exit(context)
-		target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"backend/LiveviewTemplate.jpg"))
-		img = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"backend/LiveviewTemplate.jpg"))
+		target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
+		img = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
 		target.config(text="", image=img)
 
 	def stopLiveView(self, event=None):
