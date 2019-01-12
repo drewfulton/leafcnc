@@ -620,11 +620,6 @@ class StartPage(tkinter.Frame):
 		btnStopLivewView = ttk.Button(self, text="Stop Liveview", command=lambda: self.stopLiveView())
 		btnStopLivewView.grid(row=30, column=11, sticky="NEWS")
 		
-		self.btnLiveView = ttk.Label(self, text="")
-		self.btnLiveView.grid(row=31, column=10, sticky="NEWS", columnspan=20)
-		imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
-		self.btnLiveView.image = imgLiveView
-		self.btnLiveView.config(text="", image=imgLiveView)
 		btnQuit = ttk.Button(self, text="Quit", command=lambda: controller.quitProgram(machine))
 		btnQuit.grid(row=100, column=6, sticky="EW")
 
