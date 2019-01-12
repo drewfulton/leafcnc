@@ -1140,7 +1140,7 @@ class StartPage(tkinter.Frame):
 					break
 			elif config["sample"]["stackingMode"] == "Auto":
 				stackCount = 0
-				while stackCount < int(config["sample"]["stackingCount"])
+				while stackCount < int(config["sample"]["stackingCount"]):
 					cameraInfo = triggerImageUSB()
 					finalFilename = str(config["sample"]["id"])+"-"+str(config["sample"]["datestamp"])+"-"+str(imageCount).zfill(3)+str(cameraInfo.name[-4:])
 					imageList.append((cameraInfo.folder+"/"+cameraInfo.name, finalFilename))
