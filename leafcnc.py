@@ -610,6 +610,11 @@ class StartPage(tkinter.Frame):
 		btnTest.grid(row=20, column=10, sticky="NEWS")
 		btnTest2 = ttk.Button(self, text="Test Function 2", command=lambda: self.test2())
 		btnTest2.grid(row=20, column=11, sticky="NEWS")
+		self.btnLiveView = ttk.Label(self, text="")
+		self.btnLiveView.grid(row=31, column=10, sticky="NEWS", columnspan=20)
+		imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
+		self.btnLiveView.image = imgLiveView
+		self.btnLiveView.config(text="", image=imgLiveView)
 		btnStartLiveView = ttk.Button(self, text="Start Liveview", command=lambda: startLiveViewThreading(self.btnLiveView))
 		btnStartLiveView.grid(row=30, column=10, sticky="NEWS")
 		btnStopLivewView = ttk.Button(self, text="Stop Liveview", command=lambda: self.stopLiveView())
