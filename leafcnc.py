@@ -829,7 +829,6 @@ class StartPage(tkinter.Frame):
 			liveViewEvents["focusFartherSmall"] = threading.Event()
 			liveViewEvents["capturingImage"] = threading.Event()
 			liveViewThread = threading.Thread(target=self.startLiveView, args=( target))
-			print("STarting")
 			liveViewThread.start()
 	
 	
@@ -867,6 +866,7 @@ class StartPage(tkinter.Frame):
 		context = gp.Context()
 		camera = gp.Camera()
 		camera.init(context)
+		print("STarting")
 
 		while liveViewActive:
 			if liveViewEvents["capturingImage"].is_set():
