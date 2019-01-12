@@ -821,7 +821,7 @@ class StartPage(tkinter.Frame):
 	
 		def startLiveViewThreading(target):
 			global liveViewEvents
-			liveViewEvents = {}
+			print("STarting")
 			liveViewEvents["focusCloserLarge"] = threading.Event()
 			liveViewEvents["focusCloserMedium"] = threading.Event()
 			liveViewEvents["focusCloserSmall"] = threading.Event()
@@ -862,7 +862,6 @@ class StartPage(tkinter.Frame):
 		global liveViewEvents
 		liveViewActive = True
 		
-		print("STarting")
 
 		# Connect to Camera
 		context = gp.Context()
