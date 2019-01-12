@@ -862,6 +862,7 @@ class StartPage(tkinter.Frame):
 		global liveViewEvents
 		liveViewActive = True
 		
+		print("STarting")
 
 		# Connect to Camera
 		context = gp.Context()
