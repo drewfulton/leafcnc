@@ -853,6 +853,7 @@ class StartPage(tkinter.Frame):
 
 	def startLiveView(self, target):
 		# Live View Testing - Start
+		print("STarting")
 		global liveViewActive
 		global camera
 		global context
@@ -866,7 +867,6 @@ class StartPage(tkinter.Frame):
 		context = gp.Context()
 		camera = gp.Camera()
 		camera.init(context)
-		print("STarting")
 
 		while liveViewActive:
 			if liveViewEvents["capturingImage"].is_set():
