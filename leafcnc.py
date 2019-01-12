@@ -853,7 +853,6 @@ class StartPage(tkinter.Frame):
 
 	def startLiveView(self, target):
 		# Live View Testing - Start
-		print("STarting")
 		global liveViewActive
 		global camera
 		global context
