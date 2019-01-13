@@ -154,7 +154,7 @@ def triggerImageUSB():
 	camera.init(context)
 
 	# Capture Image
-	filePath = camera.capture(gp.GP_CAPTURE_IMAGE, context)
+	filePath = camera.capture(gp.GP_CAPTURE_IMAGE)
 	
 	
 	
@@ -836,11 +836,8 @@ class StartPage(tkinter.Frame):
 	
 	
 	def test(self):
-		global liveViewEvents
-		liveViewEvents["focusCloserLarge"].set()
-		
-		pass
-		
+		triggerImageUSB()		
+
 	def test2(self):
 		pass
 	
