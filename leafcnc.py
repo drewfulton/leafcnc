@@ -906,6 +906,7 @@ class StartPage(tkinter.Frame):
 				self.capturePreview(camera, target)
 				time.sleep(.05)
 		camera.exit(context)
+		time.sleep(.1)
 		target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
 		self.imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
 		target.config(text="", image=self.imgLiveView)
