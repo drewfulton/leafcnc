@@ -612,9 +612,9 @@ class StartPage(tkinter.Frame):
 		btnTest2.grid(row=20, column=11, sticky="NEWS")
 		self.btnLiveView = ttk.Label(self, text="")
 		self.btnLiveView.grid(row=31, column=10, sticky="NEWS", columnspan=20)
-		imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
-		self.btnLiveView.image = imgLiveView
-		self.btnLiveView.config(text="", image=imgLiveView)
+		self.imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
+		self.btnLiveView.image = self.imgLiveView
+		self.btnLiveView.config(text="", image=self.imgLiveView)
 		btnStartLiveView = ttk.Button(self, text="Start Liveview", command=lambda: startLiveViewThreading(self.btnLiveView))
 		btnStartLiveView.grid(row=30, column=10, sticky="NEWS")
 		btnStopLivewView = ttk.Button(self, text="Stop Liveview", command=lambda: self.stopLiveView())
@@ -907,8 +907,8 @@ class StartPage(tkinter.Frame):
 				time.sleep(.05)
 		camera.exit(context)
 		target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
-		img = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
-		target.config(text="", image=img)
+		self.imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
+		target.config(text="", image=self.imgLiveView)
 
 	def stopLiveView(self, event=None):
 		# Live View Testing - Stop
