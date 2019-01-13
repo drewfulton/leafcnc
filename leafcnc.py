@@ -115,7 +115,6 @@ def triggerDarkFrame():
 	# Connect to Camera
 	context = gp.Context()
 	camera = initCamera(context)		
-	print("test")
 	# Get Image Size/Type Settings from Camera
 	camConfig = camera.get_config(context) 
 	camSettings = {}
@@ -130,10 +129,8 @@ def triggerDarkFrame():
 	shutterspeed.set_value("1/4000")
 # 	exposurecompensation.set_value("5.0")
 	camera.set_config(camConfig, context)
-	print("test2")
 	# Capture Image
 	filePath = camera.capture(gp.GP_CAPTURE_IMAGE, context)
-	print("test3")
 	# Restore Original Size/Type Settings to Camera
 	iso.set_value(camSettings["iso"])
 	shutterspeed.set_value(camSettings["shutterspeed"])
@@ -284,6 +281,7 @@ def moveFocusCloser(stepSize):
 	focusmode.set_value(step)
 	camera.set_config(camConfig)
 	camera.exit(context)
+	print("Focus Closer")
 
 def moveFocusFarther(stepSize):
 	if stepSize == "Small":
@@ -305,6 +303,7 @@ def moveFocusFarther(stepSize):
 	focusmode.set_value(step)
 	camera.set_config(camConfig)
 	camera.exit(context)
+	print("Focus Farther")
 
 
 # Create Config File and Variables
@@ -1143,6 +1142,7 @@ class StartPage(tkinter.Frame):
 				stackCount = 0
 				while stackCount < int(config["sample"]["stackingCount"]):
 					cameraInfo = triggerImageUSB()
+					print("Captured: "+cameraInfo.name)
 					finalFilename = str(config["sample"]["id"])+"-"+str(config["sample"]["datestamp"])+"-"+str(imageCount).zfill(3)+str(cameraInfo.name[-4:])
 					imageList.append((cameraInfo.folder+"/"+cameraInfo.name, finalFilename))
 					time.sleep(int(config["camera"]["exposure"]))
