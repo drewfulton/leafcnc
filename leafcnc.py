@@ -261,7 +261,7 @@ def livewviewFocusFarther(stepSize):
 	focusmode.set_value("step")
 	camera.set_config(camConfig)
 
-def moveFocusCloser(stepSize):
+def moveFocusCloser(stepSize, count=1):
 	if stepSize == "Small":
 		step = "Near1"
 	elif stepSize == "Medium":
@@ -280,10 +280,14 @@ def moveFocusCloser(stepSize):
 	focusmode = camConfig.get_child_by_name("manualfocusdrive") 
 	focusmode.set_value(step)
 	camera.set_config(camConfig)
+	focusRound = 0
+	while focuRound < count:
+		camera.set_config(camConfig)
+	camera.exit(context)
 	camera.exit(context)
 	print("Focus Closer")
 
-def moveFocusFarther(stepSize):
+def moveFocusFarther(stepSize, count=1):
 	if stepSize == "Small":
 		step = "Far1"
 	elif stepSize == "Medium":
@@ -301,7 +305,10 @@ def moveFocusFarther(stepSize):
 	camConfig = camera.get_config() 
 	focusmode = camConfig.get_child_by_name("manualfocusdrive") 
 	focusmode.set_value(step)
-	camera.set_config(camConfig)
+	focusRound = 0
+	while focusRound < count:
+		camera.set_config(camConfig)
+		print("Focus Farther")
 	camera.exit(context)
 	print("Focus Farther")
 
@@ -1156,9 +1163,8 @@ class StartPage(tkinter.Frame):
 					
 					# move focus closer one step
 					moveFocusCloser(config["cnc"]["stackingSize"])
-				while stackCount > 0:
-					moveFocusFarther(config["cnc"]["stackingSize"])
-					stackCount -= 1
+
+				moveFocusFarther(config["cnc"]["stackingSize"], count=stackCount)
 				
 			elif config["sample"]["stackingMode"] == "Manual":
 				# Launch Live View/Manual Window
