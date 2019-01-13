@@ -114,9 +114,8 @@ def triggerDarkFrame():
 	# Take Sample Image from Camera
 	# Connect to Camera
 	context = gp.Context()
-	camera = gp.Camera()
-	camera.init(context)
-	print("test1")
+	camera = initCamera(context)		
+	print("test")
 	# Get Image Size/Type Settings from Camera
 	camConfig = camera.get_config(context) 
 	camSettings = {}
@@ -150,11 +149,10 @@ def triggerImageUSB():
 		
 	# Connect to Camera
 	context = gp.Context()
-	camera = gp.Camera()
-	camera.init(context)
+	camera = initCamera(context)		
 
 	# Capture Image
-	filePath = camera.capture(gp.GP_CAPTURE_IMAGE)
+	filePath = camera.capture(gp.GP_CAPTURE_IMAGE, context)
 	
 	
 	
@@ -655,7 +653,7 @@ class StartPage(tkinter.Frame):
 			sessionWindow.grid_rowconfigure(4, minsize=30)
 			sessionWindow.grid_rowconfigure(5, minsize=30)
 			sessionWindow.grid_rowconfigure(6, minsize=30)
-			sessionWindow.grid_rowconfigure(6, minsize=30)
+			sessionWindow.grid_rowconfigure(7, minsize=30)
 			sessionWindow.grid_columnconfigure(3, minsize=350)
 
 
@@ -836,8 +834,11 @@ class StartPage(tkinter.Frame):
 	
 	
 	def test(self):
-		triggerImageUSB()		
-
+		global liveViewEvents
+		liveViewEvents["focusCloserLarge"].set()
+		
+		pass
+		
 	def test2(self):
 		pass
 	
