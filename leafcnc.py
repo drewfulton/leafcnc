@@ -285,8 +285,6 @@ def moveFocusCloser(stepSize, count=1):
 		camera.set_config(camConfig)
 		focusRound += 1
 	camera.exit(context)
-	camera.exit(context)
-	print("Focus Closer")
 
 def moveFocusFarther(stepSize, count=1):
 	if stepSize == "Small":
@@ -307,14 +305,11 @@ def moveFocusFarther(stepSize, count=1):
 	focusmode = camConfig.get_child_by_name("manualfocusdrive") 
 	focusmode.set_value(step)
 	focusRound = 0
-	print("Count: "+str(count))
 	while focusRound < count:
 		camera.set_config(camConfig)
-		print("Focus Farther")
 		focusRound += 1
 		
 	camera.exit(context)
-	print("Focus Farther")
 
 
 # Create Config File and Variables
