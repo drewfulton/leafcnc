@@ -114,7 +114,8 @@ def triggerDarkFrame():
 	# Take Sample Image from Camera
 	# Connect to Camera
 	context = gp.Context()
-	camera = initCamera(context)		
+	camera = gp.Camera()
+	camera.init(context)
 	print("test1")
 	# Get Image Size/Type Settings from Camera
 	camConfig = camera.get_config(context) 
@@ -149,7 +150,8 @@ def triggerImageUSB():
 		
 	# Connect to Camera
 	context = gp.Context()
-	camera = initCamera(context)		
+	camera = gp.Camera()
+	camera.init(context)
 
 	# Capture Image
 	filePath = camera.capture(gp.GP_CAPTURE_IMAGE, context)
