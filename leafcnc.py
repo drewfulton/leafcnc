@@ -633,6 +633,7 @@ class StartPage(tkinter.Frame):
 			events["filePathProblem"] = threading.Event()
 			events["xmlPathProblem"] = threading.Event()
 			events["xmlWarning"] = threading.Event()
+			events["manualFocusStacking"] = threading.Event()
 			sessionThread = threading.Thread(target=self.startSession, args=( events, sessionStatus))
 			interfaceThread = threading.Thread(target=sessionWindow, args=( events, sessionStatus))
 			interfaceThread.start()
