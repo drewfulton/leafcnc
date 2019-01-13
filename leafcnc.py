@@ -115,7 +115,7 @@ def triggerDarkFrame():
 	# Connect to Camera
 	context = gp.Context()
 	camera = initCamera(context)		
-	print("test")
+	print("test1")
 	# Get Image Size/Type Settings from Camera
 	camConfig = camera.get_config(context) 
 	camSettings = {}
@@ -130,10 +130,10 @@ def triggerDarkFrame():
 	shutterspeed.set_value("1/4000")
 # 	exposurecompensation.set_value("5.0")
 	camera.set_config(camConfig, context)
-	
+	print("test2")
 	# Capture Image
 	filePath = camera.capture(gp.GP_CAPTURE_IMAGE, context)
-	
+	print("test3")
 	# Restore Original Size/Type Settings to Camera
 	iso.set_value(camSettings["iso"])
 	shutterspeed.set_value(camSettings["shutterspeed"])
