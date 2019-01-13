@@ -115,7 +115,7 @@ def triggerDarkFrame():
 	# Connect to Camera
 	context = gp.Context()
 	camera = initCamera(context)		
-	
+	print("test")
 	# Get Image Size/Type Settings from Camera
 	camConfig = camera.get_config(context) 
 	camSettings = {}
