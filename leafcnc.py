@@ -1160,12 +1160,10 @@ class StartPage(tkinter.Frame):
 				pos = {}
 				pos["x"] = calcX
 				pos["y"] = calcY
-				print("Pos: "+str(pos))
 				positions.append(pos)
 				calcY = calcY + (YMAX/framesPerY)
 			calcX = calcX + (XMAX/framesPerX)
 			calcY = 0
-		print("Positions: "+str(positions))
 		for position in positions:
 		
 			sessionStatus.set("Capturing Image at Position #"+str(positionCount)+" of "+str(len(positions)))
