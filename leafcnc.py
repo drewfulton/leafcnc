@@ -788,7 +788,7 @@ class StartPage(tkinter.Frame):
 # 					btnStopLivewView.grid(row=5, column=3, sticky="NES")
 					
 					self.btnLiveViewFocusStacking = ttk.Label(manualFocusStackingWindow, text="", width=150)
-					self.btnLiveViewFocusStacking.grid(row=6, column=10, sticky="NEWS", rowspan=5)
+					self.btnLiveViewFocusStacking.grid(row=6, column=3, sticky="NEWS", rowspan=5)
 					imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
 					self.btnLiveViewFocusStacking.image = imgLiveView
 					self.btnLiveViewFocusStacking.config(text="", image=imgLiveView)
