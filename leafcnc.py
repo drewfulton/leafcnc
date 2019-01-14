@@ -37,7 +37,7 @@ YMAX = 470
 
 rateOfTravel = 100 #mm/s
 # Display Constants
-LARGE_FONT = ("Verdana", 16)
+LARGE_FONT = ("Verdana", 20)
 MED_FONT = ("Verdana", 12)
 SMALL_FONT = ("Verdana", 9)
 
@@ -516,7 +516,7 @@ def xmlImageAddDarkFrame(filename):
 class LeafCNC:
 	def __init__(self):
 		self.tk = Tk()
-# 		self.tk.attributes('-fullscreen',True)
+		self.tk.attributes('-fullscreen',True)
 		self.tk.title("LeafCNC Controller")
 		self.frame = Frame(self.tk)
 		self.frame.pack(side="top", fill="both", expand = True)
@@ -606,7 +606,9 @@ class StartPage(tkinter.Frame):
 		self.grid_columnconfigure(99, minsize=34)
 
 		# Size Rows
+		self.grid_rowconfigure(0, minsize=20)
 		self.grid_rowconfigure(2, minsize=50)
+		self.grid_rowconfigure(3, minsize=20)
 		self.grid_rowconfigure(10, minsize=50)
 		self.grid_rowconfigure(20, minsize=50)
 		self.grid_rowconfigure(31, minsize=50)
@@ -614,14 +616,14 @@ class StartPage(tkinter.Frame):
 		self.grid_rowconfigure(99, minsize=20)
  
 		# Page Title
-		pageTitle = ttk.Label(self, text="Leaf CNC Controller", font=LARGE_FONT)
-		pageTitle.grid(row=0, columnspan=100, column=1, sticky="WE")
+		pageTitle = ttk.Label(self, text="Leaf CNC Controller", font=LARGE_FONT, anchor=CENTER)
+		pageTitle.grid(row=2, columnspan=100, column=1, sticky="WE")
 		
 		
 		# Buttons
 		btnInit = ttk.Button(self, text="Table Initilization", command=lambda: controller.show_frame(Initilization))
 		btnInit.grid(row=10, column=12, sticky="NEWS")
-		btnRunSample = ttk.Button(self, text="Run Sample", command=lambda: startSessionThreading(self.sessionStatus))
+		btnRunSample = ttk.Button(self, text="Run Sample", command=lambda: [startSessionThreading(self.sessionStatus)])
 		btnRunSample.grid(row=10, column=10, sticky="NEWS")
 		btnSettings = ttk.Button(self, text="Settings", command=lambda: controller.show_frame(Settings))
 		btnSettings.grid(row=10, column=14, sticky="NEWS")
@@ -643,6 +645,10 @@ class StartPage(tkinter.Frame):
 		btnQuit.grid(row=10, column=20, sticky="NEWS")
 
 		def startSessionThreading(sessionStatus):
+			global liveViewEvents
+			if "active" in liveViewEvents:
+				liveViewEvents["stopLiveView"].set()
+				time.sleep(.5)
 			events = {}
 			events["complete"] = threading.Event()
 			events["cancel"] = threading.Event()
@@ -841,6 +847,7 @@ class StartPage(tkinter.Frame):
 	
 		def startLiveViewThreading(target):
 			global liveViewEvents
+			liveViewEvents["active"] = threading.Event()
 			liveViewEvents["focusCloserLarge"] = threading.Event()
 			liveViewEvents["focusCloserMedium"] = threading.Event()
 			liveViewEvents["focusCloserSmall"] = threading.Event()
@@ -890,7 +897,7 @@ class StartPage(tkinter.Frame):
 		context = gp.Context()
 		camera = gp.Camera()
 		camera.init(context)
-		
+		liveViewEvents["active"].set()
 		while not liveViewEvents["stopLiveView"].is_set():
 			if liveViewEvents["capturingImage"].is_set():
 				target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/CapturingImage.jpg"))
@@ -929,6 +936,7 @@ class StartPage(tkinter.Frame):
 				target = self.capturePreview(camera, target)
 				time.sleep(.05)
 		liveViewEvents["stopLiveView"].clear()
+		liveViewEvents["active"].clear()
 		camera.exit(context)
 		target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
 		imgLiveView = target.image
