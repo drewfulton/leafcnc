@@ -595,6 +595,14 @@ class StartPage(tkinter.Frame):
 		self.grid_columnconfigure(10, minsize=50)
 		self.grid_columnconfigure(12, minsize=50)
 		self.grid_columnconfigure(14, minsize=50)
+		self.grid_columnconfigure(16, minsize=50)
+		self.grid_columnconfigure(18, minsize=50)
+		self.grid_columnconfigure(20, minsize=50)
+		self.grid_columnconfigure(11, minsize=20)
+		self.grid_columnconfigure(13, minsize=20)
+		self.grid_columnconfigure(15, minsize=20)
+		self.grid_columnconfigure(17, minsize=20)
+		self.grid_columnconfigure(19, minsize=20)
 		self.grid_columnconfigure(99, minsize=34)
 
 		# Size Rows
