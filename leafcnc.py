@@ -595,41 +595,52 @@ class StartPage(tkinter.Frame):
 		self.grid_columnconfigure(10, minsize=50)
 		self.grid_columnconfigure(12, minsize=50)
 		self.grid_columnconfigure(14, minsize=50)
+		self.grid_columnconfigure(16, minsize=50)
+		self.grid_columnconfigure(18, minsize=50)
+		self.grid_columnconfigure(20, minsize=50)
+		self.grid_columnconfigure(11, minsize=20)
+		self.grid_columnconfigure(13, minsize=20)
+		self.grid_columnconfigure(15, minsize=20)
+		self.grid_columnconfigure(17, minsize=20)
+		self.grid_columnconfigure(19, minsize=20)
+		self.grid_columnconfigure(99, minsize=34)
 
 		# Size Rows
-		self.grid_rowconfigure(2, minsize=100)
+		self.grid_rowconfigure(2, minsize=50)
 		self.grid_rowconfigure(10, minsize=50)
+		self.grid_rowconfigure(20, minsize=50)
+		self.grid_rowconfigure(31, minsize=50)
+		self.grid_rowconfigure(40, minsize=50)
 		self.grid_rowconfigure(99, minsize=20)
-		self.grid_rowconfigure(31, minsize=700)
-
+ 
 		# Page Title
 		pageTitle = ttk.Label(self, text="Leaf CNC Controller", font=LARGE_FONT)
-		pageTitle.grid(row=0, columnspan=100, sticky="WE")
+		pageTitle.grid(row=0, columnspan=100, column=1, sticky="WE")
 		
 		
 		# Buttons
-		btnInit = ttk.Button(self, text="Initilization", command=lambda: controller.show_frame(Initilization))
-		btnInit.grid(row=10, column=10, sticky="NEWS")
+		btnInit = ttk.Button(self, text="Table Initilization", command=lambda: controller.show_frame(Initilization))
+		btnInit.grid(row=10, column=12, sticky="NEWS")
 		btnRunSample = ttk.Button(self, text="Run Sample", command=lambda: startSessionThreading(self.sessionStatus))
-		btnRunSample.grid(row=10, column=12, sticky="NEWS")
+		btnRunSample.grid(row=10, column=10, sticky="NEWS")
 		btnSettings = ttk.Button(self, text="Settings", command=lambda: controller.show_frame(Settings))
 		btnSettings.grid(row=10, column=14, sticky="NEWS")
 		btnTest = ttk.Button(self, text="Test Function", command=lambda: self.test())
-		btnTest.grid(row=20, column=10, sticky="NEWS")
+#		btnTest.grid(row=20, column=10, sticky="NEWS")
 		btnTest2 = ttk.Button(self, text="Test Function 2", command=lambda: self.test2())
-		btnTest2.grid(row=20, column=11, sticky="NEWS")
+#		btnTest2.grid(row=20, column=11, sticky="NEWS")
 		self.btnLiveView = ttk.Label(self, text="")
-		self.btnLiveView.grid(row=31, column=10, sticky="NEWS", columnspan=20)
+		self.btnLiveView.grid(row=30, column=10, sticky="NEWS", columnspan=11)
 		self.imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
 		self.btnLiveView.image = self.imgLiveView
 		self.btnLiveView.config(text="", image=self.imgLiveView)
 		btnStartLiveView = ttk.Button(self, text="Start Liveview", command=lambda: startLiveViewThreading(self.btnLiveView))
-		btnStartLiveView.grid(row=30, column=10, sticky="NEWS")
+		btnStartLiveView.grid(row=40, column=14, sticky="NEWS")
 		btnStopLivewView = ttk.Button(self, text="Stop Liveview", command=lambda: liveViewEvents["stopLiveView"].set())
-		btnStopLivewView.grid(row=30, column=11, sticky="NEWS")
+		btnStopLivewView.grid(row=40, column=16, sticky="NEWS")
 		
 		btnQuit = ttk.Button(self, text="Quit", command=lambda: controller.quitProgram(machine))
-		btnQuit.grid(row=100, column=6, sticky="EW")
+		btnQuit.grid(row=10, column=20, sticky="NEWS")
 
 		def startSessionThreading(sessionStatus):
 			events = {}
@@ -1149,12 +1160,10 @@ class StartPage(tkinter.Frame):
 				pos = {}
 				pos["x"] = calcX
 				pos["y"] = calcY
-				print("Pos: "+str(pos))
 				positions.append(pos)
 				calcY = calcY + (YMAX/framesPerY)
 			calcX = calcX + (XMAX/framesPerX)
 			calcY = 0
-		print("Positions: "+str(positions))
 		for position in positions:
 		
 			sessionStatus.set("Capturing Image at Position #"+str(positionCount)+" of "+str(len(positions)))
@@ -1211,7 +1220,8 @@ class StartPage(tkinter.Frame):
 						cancelSession()
 						break
 				liveViewEvents["stopLiveView"].set()
-				centerWindow(self.manualFocusStackingWindow)
+				time.sleep(.5)
+				closeWindow(self.manualFocusStackingWindow)
 				positionCount +=1		
 				if events["cancel"].is_set():
 					cancelSession()
