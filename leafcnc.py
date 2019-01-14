@@ -923,6 +923,7 @@ class StartPage(tkinter.Frame):
 		# Live View Testing - Stop
 		global liveViewActive
 		liveViewActive = False
+		print("test0")
 
 	def startSession(self, events, sessionStatus):
 		global rolledOver
