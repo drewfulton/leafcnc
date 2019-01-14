@@ -808,7 +808,7 @@ class StartPage(tkinter.Frame):
 					btnFocusFartherMedium = ttk.Button(manualFocusStackingWindow, text="Medium", width=10, command=lambda: [liveViewEvents["focusFartherMedium"].set()])
 					btnFocusFartherMedium.grid(row=8, column=5, sticky="NEWS")
 					btnFocusFartherLarge = ttk.Button(manualFocusStackingWindow, text="Large", width=15, command=lambda: [liveViewEvents["focusFartherLarge"].set()])
-					btnFocusFartherLarge.grid(row=9, column=5 sticky="NEWS")
+					btnFocusFartherLarge.grid(row=9, column=5, sticky="NEWS")
 					btnFocusStackingCapture = ttk.Button(manualFocusStackingWindow, text="Capture", command=lambda: [liveViewEvents["capturingImage"].set()])
 					btnFocusStackingCapture.grid(row=10, column=3, sticky="NEWS")
 					btnFocusStackingNextPosition = ttk.Button(manualFocusStackingWindow, text="Next Position", command=lambda: [self.stopLiveView(), closeWindow(manualFocusStackingWindow), events["pause"].clear()])
