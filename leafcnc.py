@@ -754,7 +754,6 @@ class StartPage(tkinter.Frame):
 					events["xmlWarning"].clear()
 				
 				if events["manualFocusStacking"].is_set():
-					events["pause"].set()
 					manualFocusStackingWindow = Toplevel(self)
 					manualFocusStackingWindow.title("Manual Focus Stacking")
 					manualFocusStackingWindow.grid_rowconfigure(1, minsize=30) 	#Title
@@ -913,8 +912,8 @@ class StartPage(tkinter.Frame):
 		camera.exit(context)
 		time.sleep(.1)
 		target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
-		self.imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
-		target.config(text="", image=self.imgLiveView)
+		imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
+		target.config(text="", image=imgLiveView)
 
 	def stopLiveView(self, event=None):
 		# Live View Testing - Stop
@@ -1169,6 +1168,7 @@ class StartPage(tkinter.Frame):
 				# Launch Live View/Manual Window
 				global globalPosition
 				globalPosition = position
+				events["pause"].set()
 				events["manualFocusStacking"].set()
 				while events["pause"].is_set():
 					if events["cancel"].is_set():
