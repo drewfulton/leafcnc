@@ -245,6 +245,7 @@ def livewviewFocusCloser(stepSize):
 	camera.set_config(camConfig)
 
 def livewviewFocusFarther(stepSize):
+	global camera
 	if stepSize == "Small":
 		step = "Far1"
 	elif stepSize == "Medium":
@@ -254,7 +255,6 @@ def livewviewFocusFarther(stepSize):
 	else:
 		step = "Far2"
 		
-	global camera
 	print("Focus Farther: "+str(step))
 	camConfig = camera.get_config() 
 	focusmode = camConfig.get_child_by_name("manualfocusdrive") 
