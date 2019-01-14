@@ -1441,6 +1441,7 @@ class Settings(tkinter.Frame):
 		config['cnc']['xOverlap'] = str(self.xOverlap.get())
 		config['cnc']['yOverlap'] = str(self.yOverlap.get())
 		config['cnc']['pause'] = str(self.pauseLength.get())
+		config['cnc']['stackingSize'] = str(self.stackingSize.get())
 		config['filepaths']['download'] = str(self.download.get())
 		config['filepaths']['imagePath'] = str(self.imagePath.get())
 		config['filepaths']['xmlPath'] = str(self.xmlPath.get())
