@@ -258,7 +258,7 @@ def livewviewFocusFarther(stepSize):
 	print("Focus Farther: "+str(step))
 	camConfig = camera.get_config() 
 	focusmode = camConfig.get_child_by_name("manualfocusdrive") 
-	focusmode.set_value("step")
+	focusmode.set_value(step)
 	camera.set_config(camConfig)
 
 def moveFocusCloser(stepSize, count=1):
