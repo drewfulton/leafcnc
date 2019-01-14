@@ -1177,17 +1177,17 @@ class StartPage(tkinter.Frame):
 					cancelSession()
 					break
 			elif config["sample"]["stackingMode"] == "Auto":
-				stackCount = 0
-				while stackCount < int(config["sample"]["stackingCount"]):
+				stackCount = 1
+				while stackCount <= int(config["sample"]["stackingCount"]):
 					sessionStatus.set("Capturing Image #"+str(stackCount)+"/"+str(config["sample"]["stackingCount"])+" at Position #"+str(positionCount)+" of "+str(len(positions)))
 					cameraInfo = triggerImageUSB()
 					print("Captured: "+cameraInfo.name)
 					finalFilename = str(config["sample"]["id"])+"-"+str(config["sample"]["datestamp"])+"-"+str(imageCount).zfill(3)+str(cameraInfo.name[-4:])
 					imageList.append((cameraInfo.folder+"/"+cameraInfo.name, finalFilename))
 					time.sleep(int(config["camera"]["exposure"]))
-					stackCount += 1
 					imageCount +=1	
 					xmlTree = xmlAddImage(position, cameraInfo, finalFilename, stackCount)
+					stackCount += 1
 					if events["cancel"].is_set():
 						cancelSession()
 						break
