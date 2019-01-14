@@ -1194,7 +1194,7 @@ class StartPage(tkinter.Frame):
 					
 					# move focus closer one step
 					moveFocusCloser(config["cnc"]["stackingSize"])
-
+				sessionStatus.set("Resetting Focus Position")
 				while stackCount > 0:
 					moveFocusFarther(config["cnc"]["stackingSize"])
 					stackCount -= 1
