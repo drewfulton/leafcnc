@@ -811,7 +811,7 @@ class StartPage(tkinter.Frame):
 					btnFocusFartherLarge.grid(row=9, column=5, sticky="NEWS")
 					btnFocusStackingCapture = ttk.Button(manualFocusStackingWindow, text="Capture", command=lambda: [liveViewEvents["capturingImage"].set()])
 					btnFocusStackingCapture.grid(row=10, column=3, sticky="NEWS")
-					btnFocusStackingNextPosition = ttk.Button(manualFocusStackingWindow, text="Next Position", command=lambda: [self.stopLiveView()])  #, time.sleep(1), closeWindow(manualFocusStackingWindow), events["pause"].clear()
+					btnFocusStackingNextPosition = ttk.Button(manualFocusStackingWindow, text="Next Position", command=lambda: [self.stopLiveView(), closeWindow(manualFocusStackingWindow), events["pause"].clear()])  #, time.sleep(1), closeWindow(manualFocusStackingWindow), events["pause"].clear()
 					btnFocusStackingNextPosition.grid(row=10, column=4, sticky="NEWS")
 					
 					centerWindow(manualFocusStackingWindow)
@@ -911,9 +911,7 @@ class StartPage(tkinter.Frame):
 					liveViewEvents["focusFartherSmall"].clear()
 				self.capturePreview(camera, target)
 				time.sleep(.05)
-		time.sleep(.1)
 		camera.exit(context)
-		time.sleep(.1)
 		target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
 		imgLiveViewTemplate = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
 		target.config(text="", image=imgLiveViewTemplate)
