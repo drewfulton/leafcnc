@@ -595,6 +595,7 @@ class StartPage(tkinter.Frame):
 		self.grid_columnconfigure(10, minsize=50)
 		self.grid_columnconfigure(12, minsize=50)
 		self.grid_columnconfigure(14, minsize=50)
+		self.grid_columnconfigure(99, minsize=34)
 
 		# Size Rows
 		self.grid_rowconfigure(2, minsize=100)
@@ -604,7 +605,7 @@ class StartPage(tkinter.Frame):
 
 		# Page Title
 		pageTitle = ttk.Label(self, text="Leaf CNC Controller", font=LARGE_FONT)
-		pageTitle.grid(row=0, columnspan=100, sticky="WE")
+		pageTitle.grid(row=0, columnspan=100, column=1, sticky="WE")
 		
 		
 		# Buttons
@@ -629,7 +630,7 @@ class StartPage(tkinter.Frame):
 		btnStopLivewView.grid(row=30, column=11, sticky="NEWS")
 		
 		btnQuit = ttk.Button(self, text="Quit", command=lambda: controller.quitProgram(machine))
-		btnQuit.grid(row=100, column=6, sticky="EW")
+		btnQuit.grid(row=10, column=20, sticky="E")
 
 		def startSessionThreading(sessionStatus):
 			events = {}
