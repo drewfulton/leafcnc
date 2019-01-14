@@ -516,7 +516,7 @@ def xmlImageAddDarkFrame(filename):
 class LeafCNC:
 	def __init__(self):
 		self.tk = Tk()
-# 		self.tk.attributes('-fullscreen',True)
+		self.tk.attributes('-fullscreen',True)
 		self.tk.title("LeafCNC Controller")
 		self.frame = Frame(self.tk)
 		self.frame.pack(side="top", fill="both", expand = True)
