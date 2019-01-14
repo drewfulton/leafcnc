@@ -646,7 +646,7 @@ class StartPage(tkinter.Frame):
 
 		def startSessionThreading(sessionStatus):
 			global liveViewEvents
-			if liveViewEvents is not None:
+			if liveViewEvents["active"].is_set():
 				liveViewEvents["stopLiveView"].set()
 				time.sleep(.5)
 			events = {}
@@ -847,6 +847,7 @@ class StartPage(tkinter.Frame):
 	
 		def startLiveViewThreading(target):
 			global liveViewEvents
+			liveViewEvents["active"] = threading.Event()
 			liveViewEvents["focusCloserLarge"] = threading.Event()
 			liveViewEvents["focusCloserMedium"] = threading.Event()
 			liveViewEvents["focusCloserSmall"] = threading.Event()
@@ -896,7 +897,7 @@ class StartPage(tkinter.Frame):
 		context = gp.Context()
 		camera = gp.Camera()
 		camera.init(context)
-		
+		liveViewEvents["active"].set()
 		while not liveViewEvents["stopLiveView"].is_set():
 			if liveViewEvents["capturingImage"].is_set():
 				target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/CapturingImage.jpg"))
@@ -935,6 +936,7 @@ class StartPage(tkinter.Frame):
 				target = self.capturePreview(camera, target)
 				time.sleep(.05)
 		liveViewEvents["stopLiveView"].clear()
+		liveViewEvents["active"].clear()
 		camera.exit(context)
 		target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
 		imgLiveView = target.image
