@@ -608,6 +608,7 @@ class StartPage(tkinter.Frame):
 		# Size Rows
 		self.grid_rowconfigure(2, minsize=100)
 		self.grid_rowconfigure(10, minsize=50)
+		self.grid_rowconfigure(20, minsize=50)
 		self.grid_rowconfigure(99, minsize=20)
 		self.grid_rowconfigure(31, minsize=700)
 
@@ -628,7 +629,7 @@ class StartPage(tkinter.Frame):
 		btnTest2 = ttk.Button(self, text="Test Function 2", command=lambda: self.test2())
 #		btnTest2.grid(row=20, column=11, sticky="NEWS")
 		self.btnLiveView = ttk.Label(self, text="")
-		self.btnLiveView.grid(row=31, column=10, sticky="NEWS", columnspan=20)
+		self.btnLiveView.grid(row=30, column=10, sticky="NEWS", columnspan=10)
 		self.imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
 		self.btnLiveView.image = self.imgLiveView
 		self.btnLiveView.config(text="", image=self.imgLiveView)
@@ -638,7 +639,7 @@ class StartPage(tkinter.Frame):
 		btnStopLivewView.grid(row=10, column=18, sticky="NEWS")
 		
 		btnQuit = ttk.Button(self, text="Quit", command=lambda: controller.quitProgram(machine))
-		btnQuit.grid(row=10, column=20, sticky="E")
+		btnQuit.grid(row=10, column=20, sticky="NEWS")
 
 		def startSessionThreading(sessionStatus):
 			events = {}
