@@ -911,7 +911,7 @@ class StartPage(tkinter.Frame):
 					liveViewEvents["focusFartherSmall"].clear()
 				self.capturePreview(camera, target)
 				time.sleep(.05)
-		
+		time.sleep(.1)
 		camera.exit(context)
 		time.sleep(.1)
 		target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
