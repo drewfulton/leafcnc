@@ -280,7 +280,7 @@ def moveFocusCloser(stepSize, count=1):
 	focusmode = camConfig.get_child_by_name("manualfocusdrive") 
 	focusmode.set_value(step)
 	camera.set_config(camConfig)
-	focusRound = 1
+	focusRound = 0
 	while focusRound < count:
 		camera.set_config(camConfig)
 		focusRound += 1
@@ -392,7 +392,7 @@ def initXML():
 	xmlStackingMode = ET.SubElement(xmlSessionDetails, "StackingMode")
 	xmlStackingMode.text = str(config["sample"]["stackingMode"])
 	xmlStackingCount = ET.SubElement(xmlSessionDetails, "StackingFrameCount")
-	xmlStackingMode.text = str(config["sample"]["stackingcount"])
+	xmlStackingCount.text = str(config["sample"]["stackingcount"])
 	xmlSampleSizeX = ET.SubElement(xmlSessionDetails, "SampleSizeX")
 	xmlSampleSizeX.text = str(config["sample"]["sizeX"])
 	xmlSampleSizeY = ET.SubElement(xmlSessionDetails, "SampleSizeY")
@@ -793,7 +793,7 @@ class StartPage(tkinter.Frame):
 					imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
 					self.btnLiveViewFocusStacking.image = imgLiveView
 					self.btnLiveViewFocusStacking.config(text="", image=imgLiveView)
-					lblFocusCloser = ttk.Label(manualFocusStackingWindow, text="Move Focus Up", font=MED_FONT)
+					lblFocusCloser = ttk.Label(manualFocusStackingWindow, text="Move Focus Up", font=LARGE_FONT)
 					lblFocusCloser.grid(row=6, column=2, sticky="NEWS")
 					btnFocusCloserSmall = ttk.Button(manualFocusStackingWindow, text="Small", width=5, command=lambda: [liveViewEvents["focusCloserSmall"].set()])
 					btnFocusCloserSmall.grid(row=7, column=2, sticky="NEWS")
@@ -801,7 +801,7 @@ class StartPage(tkinter.Frame):
 					btnFocusCloserMedium.grid(row=8, column=2, sticky="NEWS")
 					btnFocusCloserLarge = ttk.Button(manualFocusStackingWindow, text="Large", width=15, command=lambda: [liveViewEvents["focusCloserLarge"].set()])
 					btnFocusCloserLarge.grid(row=9, column=2, sticky="NEWS")
-					lblFocusFarther = ttk.Label(manualFocusStackingWindow, text="Move Focus Up", font=MED_FONT)
+					lblFocusFarther = ttk.Label(manualFocusStackingWindow, text="Move Focus Down", font=LARGE_FONT)
 					lblFocusFarther.grid(row=6, column=5, sticky="NEWS")
 					btnFocusFartherSmall = ttk.Button(manualFocusStackingWindow, text="Small", width=5, command=lambda: [liveViewEvents["focusFartherSmall"].set()])
 					btnFocusFartherSmall.grid(row=7, column=5, sticky="NEWS")
@@ -866,14 +866,16 @@ class StartPage(tkinter.Frame):
 		global globalPosition
 		global liveViewEvents
 		global imageList
+		global stackCount
 		liveViewActive = True
 		
+		stackCount = 1
 
 		# Connect to Camera
 		context = gp.Context()
 		camera = gp.Camera()
 		camera.init(context)
-
+		
 		while liveViewActive:
 			if liveViewEvents["capturingImage"].is_set():
 				target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/CapturingImage.jpg"))
@@ -884,8 +886,9 @@ class StartPage(tkinter.Frame):
 				finalFilename = str(config["sample"]["id"])+"-"+str(config["sample"]["datestamp"])+"-"+str(imageCount).zfill(3)+str(cameraInfo.name[-4:])
 				imageList.append((cameraInfo.folder+"/"+cameraInfo.name, finalFilename))
 				time.sleep(int(config["camera"]["exposure"]))
-				imageCount +=1	
-				xmlTree = xmlAddImage(globalPosition, cameraInfo, finalFilename)
+				imageCount += 1	
+				stackCount += 1
+				xmlTree = xmlAddImage(globalPosition, cameraInfo, finalFilename, stackCount)
 				liveViewEvents["capturingImage"].clear()
 			else:
 				if liveViewEvents["focusCloserLarge"].is_set():
@@ -908,6 +911,7 @@ class StartPage(tkinter.Frame):
 					liveViewEvents["focusFartherSmall"].clear()
 				self.capturePreview(camera, target)
 				time.sleep(.05)
+		
 		camera.exit(context)
 		time.sleep(.1)
 		target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
@@ -1238,7 +1242,7 @@ class StartPage(tkinter.Frame):
 			
 		return
 			
-	def capturePreview(self, camera, target, event=None ):
+	def capturePreview(self, camera, target, focus=None):
 		OK, camera_file = gp.gp_camera_capture_preview(camera)
 		imageData = camera_file.get_data_and_size()			
 		imgLiveView = ImageTk.PhotoImage(Image.open(io.BytesIO(imageData)))
