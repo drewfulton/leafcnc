@@ -915,8 +915,8 @@ class StartPage(tkinter.Frame):
 		camera.exit(context)
 		time.sleep(.1)
 		target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
-		imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
-		target.config(text="", image=imgLiveView)
+		imgLiveViewTemplate = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
+		target.config(text="", image=imgLiveViewTemplate)
 
 	def stopLiveView(self, event=None):
 		# Live View Testing - Stop
