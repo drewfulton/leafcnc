@@ -811,7 +811,7 @@ class StartPage(tkinter.Frame):
 					btnFocusFartherLarge.grid(row=9, column=5, sticky="NEWS")
 					btnFocusStackingCapture = ttk.Button(manualFocusStackingWindow, text="Capture", command=lambda: [liveViewEvents["capturingImage"].set()])
 					btnFocusStackingCapture.grid(row=10, column=3, sticky="NEWS")
-					btnFocusStackingNextPosition = ttk.Button(manualFocusStackingWindow, text="Next Position", command=lambda: [self.stopLiveView(), closeWindow(manualFocusStackingWindow), events["pause"].clear()])  #, time.sleep(1), closeWindow(manualFocusStackingWindow), events["pause"].clear()
+					btnFocusStackingNextPosition = ttk.Button(manualFocusStackingWindow, text="Next Position", command=lambda: [self.stopLiveView(), time.sleep(.25), closeWindow(manualFocusStackingWindow), events["pause"].clear()])  #, time.sleep(1), closeWindow(manualFocusStackingWindow), events["pause"].clear()
 					btnFocusStackingNextPosition.grid(row=10, column=4, sticky="NEWS")
 					
 					centerWindow(manualFocusStackingWindow)
@@ -879,7 +879,7 @@ class StartPage(tkinter.Frame):
 		while liveViewActive:
 			if liveViewEvents["capturingImage"].is_set():
 				target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/CapturingImage.jpg"))
-				img = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/CapturingImage.jpg"))
+				img = target.image
 				target.config(text="", image=img)
 				camera.exit(context)
 				cameraInfo = triggerImageUSB()
