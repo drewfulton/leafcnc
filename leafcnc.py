@@ -617,10 +617,10 @@ class StartPage(tkinter.Frame):
 		
 		
 		# Buttons
-		btnInit = ttk.Button(self, text="Initilization", command=lambda: controller.show_frame(Initilization))
-		btnInit.grid(row=10, column=10, sticky="NEWS")
+		btnInit = ttk.Button(self, text="Table Initilization", command=lambda: controller.show_frame(Initilization))
+		btnInit.grid(row=10, column=12, sticky="NEWS")
 		btnRunSample = ttk.Button(self, text="Run Sample", command=lambda: startSessionThreading(self.sessionStatus))
-		btnRunSample.grid(row=10, column=12, sticky="NEWS")
+		btnRunSample.grid(row=10, column=10, sticky="NEWS")
 		btnSettings = ttk.Button(self, text="Settings", command=lambda: controller.show_frame(Settings))
 		btnSettings.grid(row=10, column=14, sticky="NEWS")
 		btnTest = ttk.Button(self, text="Test Function", command=lambda: self.test())
@@ -633,9 +633,9 @@ class StartPage(tkinter.Frame):
 		self.btnLiveView.image = self.imgLiveView
 		self.btnLiveView.config(text="", image=self.imgLiveView)
 		btnStartLiveView = ttk.Button(self, text="Start Liveview", command=lambda: startLiveViewThreading(self.btnLiveView))
-		btnStartLiveView.grid(row=30, column=10, sticky="NEWS")
+		btnStartLiveView.grid(row=10, column=16, sticky="NEWS")
 		btnStopLivewView = ttk.Button(self, text="Stop Liveview", command=lambda: liveViewEvents["stopLiveView"].set())
-		btnStopLivewView.grid(row=30, column=11, sticky="NEWS")
+		btnStopLivewView.grid(row=10, column=18, sticky="NEWS")
 		
 		btnQuit = ttk.Button(self, text="Quit", command=lambda: controller.quitProgram(machine))
 		btnQuit.grid(row=10, column=20, sticky="E")
