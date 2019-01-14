@@ -1179,6 +1179,7 @@ class StartPage(tkinter.Frame):
 			elif config["sample"]["stackingMode"] == "Auto":
 				stackCount = 0
 				while stackCount < int(config["sample"]["stackingCount"]):
+					sessionStatus.set("Capturing Image #"+str(stackCount)+"/"+str(config["sample"]["stackingCount"])+" at Position #"+str(positionCount)+" of "+str(len(positions)))
 					cameraInfo = triggerImageUSB()
 					print("Captured: "+cameraInfo.name)
 					finalFilename = str(config["sample"]["id"])+"-"+str(config["sample"]["datestamp"])+"-"+str(imageCount).zfill(3)+str(cameraInfo.name[-4:])
