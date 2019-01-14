@@ -37,7 +37,7 @@ YMAX = 470
 
 rateOfTravel = 100 #mm/s
 # Display Constants
-LARGE_FONT = ("Verdana", 16)
+LARGE_FONT = ("Verdana", 20)
 MED_FONT = ("Verdana", 12)
 SMALL_FONT = ("Verdana", 9)
 
@@ -606,6 +606,7 @@ class StartPage(tkinter.Frame):
 		self.grid_columnconfigure(99, minsize=34)
 
 		# Size Rows
+		self.grid_rowconfigure(0, minsize=20)
 		self.grid_rowconfigure(2, minsize=50)
 		self.grid_rowconfigure(10, minsize=50)
 		self.grid_rowconfigure(20, minsize=50)
@@ -615,7 +616,7 @@ class StartPage(tkinter.Frame):
  
 		# Page Title
 		pageTitle = ttk.Label(self, text="Leaf CNC Controller", font=LARGE_FONT, anchor=CENTER)
-		pageTitle.grid(row=0, columnspan=100, column=1, sticky="WE")
+		pageTitle.grid(row=2, columnspan=100, column=1, sticky="WE")
 		
 		
 		# Buttons
