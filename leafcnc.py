@@ -1088,7 +1088,7 @@ class StartPage(tkinter.Frame):
 
 		if events["cancel"].is_set():
 			cancelSession()
-
+			break
 		# Trigger Dark Frame
 		sessionStatus.set("Capturing Initial Dark Frame")
 		darkFrameFilename = triggerDarkFrame()
@@ -1187,7 +1187,8 @@ class StartPage(tkinter.Frame):
 		if events["cancel"].is_set():
 			events["complete"].set()	
 			cancelSession()
-			return
+			break
+			
 			
 		# Return Camera to Origin
 		sessionStatus.set("Returning Camera to Origin")
@@ -1198,7 +1199,7 @@ class StartPage(tkinter.Frame):
 		if events["cancel"].is_set():
 			cancelSession()
 			events["complete"].set()	
-			return
+			break
 			
 		# Display Photography Completion Prompt
 		xmlTree = xmlTaskStatus("ImageCapture", "Complete")
@@ -1225,7 +1226,7 @@ class StartPage(tkinter.Frame):
 		if events["cancel"].is_set():
 			cancelSession()
 			events["complete"].set()	
-			return
+			break
 
 		# Reset Status Variables and Updates
 # 		status["camerasInit"] = False
