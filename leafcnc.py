@@ -891,6 +891,8 @@ class StartPage(tkinter.Frame):
 				xmlTree = xmlAddImage(globalPosition, cameraInfo, finalFilename, stackCount)
 				stackCount += 1
 				liveViewEvents["capturingImage"].clear()
+			elif liveViewEvents["stopLiveView"].is_set():
+				break
 			else:
 				if liveViewEvents["focusCloserLarge"].is_set():
 					livewviewFocusCloser("Large")	
