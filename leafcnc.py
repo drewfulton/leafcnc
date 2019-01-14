@@ -1222,7 +1222,7 @@ class StartPage(tkinter.Frame):
 						cancelSession()
 						break
 				liveViewEvents["stopLiveView"].set()
-				centerWindow(self.manualFocusStackingWindow)
+				closeWindow(self.manualFocusStackingWindow)
 				positionCount +=1		
 				if events["cancel"].is_set():
 					cancelSession()
