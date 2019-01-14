@@ -622,7 +622,7 @@ class StartPage(tkinter.Frame):
 		self.btnLiveView.config(text="", image=self.imgLiveView)
 		btnStartLiveView = ttk.Button(self, text="Start Liveview", command=lambda: startLiveViewThreading(self.btnLiveView))
 		btnStartLiveView.grid(row=30, column=10, sticky="NEWS")
-		btnStopLivewView = ttk.Button(self, text="Stop Liveview", command=lambda: self.stopLiveView())
+		btnStopLivewView = ttk.Button(self, text="Stop Liveview", command=lambda: liveViewEvents["stopLiveView"].set())
 		btnStopLivewView.grid(row=30, column=11, sticky="NEWS")
 		
 		btnQuit = ttk.Button(self, text="Quit", command=lambda: controller.quitProgram(machine))
@@ -811,7 +811,7 @@ class StartPage(tkinter.Frame):
 					btnFocusFartherLarge.grid(row=9, column=5, sticky="NEWS")
 					btnFocusStackingCapture = ttk.Button(manualFocusStackingWindow, text="Capture", command=lambda: [liveViewEvents["capturingImage"].set()])
 					btnFocusStackingCapture.grid(row=10, column=3, sticky="NEWS")
-					btnFocusStackingNextPosition = ttk.Button(manualFocusStackingWindow, text="Next Position", command=lambda: [self.stopLiveView(), time.sleep(.25), print("test4"), closeWindow(manualFocusStackingWindow), events["pause"].clear()])  #, time.sleep(1), closeWindow(manualFocusStackingWindow), events["pause"].clear()
+					btnFocusStackingNextPosition = ttk.Button(manualFocusStackingWindow, text="Next Position", command=lambda: [liveViewEvents["stopLiveView"].set(), time.sleep(.25), print("test4"), closeWindow(manualFocusStackingWindow), events["pause"].clear()])  #, time.sleep(1), closeWindow(manualFocusStackingWindow), events["pause"].clear()
 					btnFocusStackingNextPosition.grid(row=10, column=4, sticky="NEWS")
 					
 					centerWindow(manualFocusStackingWindow)
@@ -876,7 +876,7 @@ class StartPage(tkinter.Frame):
 		camera = gp.Camera()
 		camera.init(context)
 		
-		while liveViewActive:
+		while not liveViewEvents["stopLiveView"].is_set():
 			if liveViewEvents["capturingImage"].is_set():
 				target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/CapturingImage.jpg"))
 				img = target.image
@@ -911,6 +911,7 @@ class StartPage(tkinter.Frame):
 					liveViewEvents["focusFartherSmall"].clear()
 				target = self.capturePreview(camera, target)
 				time.sleep(.05)
+		liveViewEvents["stopLiveView"].clear()
 		print("test1")
 		camera.exit(context)
 		print("test2")
@@ -919,10 +920,9 @@ class StartPage(tkinter.Frame):
 		target.config(text="", image=imgLiveView)
 		print("test3")
 
-	def stopLiveView(self, event=None):
+	def stopLiveView(self, livewViewEvents):
 		# Live View Testing - Stop
-		global liveViewActive
-		liveViewActive = False
+		liveViewEvents["stopLiveView"].set()
 		print("test0")
 
 	def startSession(self, events, sessionStatus):
