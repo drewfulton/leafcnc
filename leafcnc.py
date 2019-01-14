@@ -811,7 +811,7 @@ class StartPage(tkinter.Frame):
 					btnFocusFartherLarge.grid(row=9, column=5, sticky="NEWS")
 					btnFocusStackingCapture = ttk.Button(manualFocusStackingWindow, text="Capture", command=lambda: [liveViewEvents["capturingImage"].set()])
 					btnFocusStackingCapture.grid(row=10, column=3, sticky="NEWS")
-					btnFocusStackingNextPosition = ttk.Button(manualFocusStackingWindow, text="Next Position", command=lambda: [events["pause"].clear()])
+					btnFocusStackingNextPosition = ttk.Button(manualFocusStackingWindow, text="Next Position", command=lambda: [events["pause"].clear(), time.sleep(.5), closeWindow(manualFocusStackingWindow)])
 					btnFocusStackingNextPosition.grid(row=10, column=4, sticky="NEWS")
 					
 					centerWindow(manualFocusStackingWindow)
@@ -1210,7 +1210,6 @@ class StartPage(tkinter.Frame):
 						break
 				liveViewEvents["stopLiveView"].set()
 				print("test4")
-				closeWindow(manualFocusStackingWindow)
 				positionCount +=1		
 				if events["cancel"].is_set():
 					cancelSession()
