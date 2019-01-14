@@ -646,7 +646,7 @@ class StartPage(tkinter.Frame):
 
 		def startSessionThreading(sessionStatus):
 			global liveViewEvents
-			if liveViewEvents["active"].is_set():
+			if "active" in liveViewEvents:
 				liveViewEvents["stopLiveView"].set()
 				time.sleep(.5)
 			events = {}
