@@ -614,7 +614,7 @@ class StartPage(tkinter.Frame):
 		self.grid_rowconfigure(99, minsize=20)
  
 		# Page Title
-		pageTitle = ttk.Label(self, text="Leaf CNC Controller", font=LARGE_FONT)
+		pageTitle = ttk.Label(self, text="Leaf CNC Controller", font=LARGE_FONT, anchor=CENTER)
 		pageTitle.grid(row=0, columnspan=100, column=1, sticky="WE")
 		
 		
