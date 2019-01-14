@@ -21,9 +21,11 @@ parser = ET.XMLParser(remove_blank_text=True)
 systemStatus = {}
 status = {}
 liveViewActive = False
+liveViewEvents = {}
 # Stores details about active sessionData
 sessionData = {}  
-
+imageCount = 1
+globalPosition = None
 cameraStatusUpdateText = ""	
 
 # CNC Positions
@@ -113,7 +115,6 @@ def triggerDarkFrame():
 	# Connect to Camera
 	context = gp.Context()
 	camera = initCamera(context)		
-	
 	# Get Image Size/Type Settings from Camera
 	camConfig = camera.get_config(context) 
 	camSettings = {}
@@ -128,10 +129,8 @@ def triggerDarkFrame():
 	shutterspeed.set_value("1/4000")
 # 	exposurecompensation.set_value("5.0")
 	camera.set_config(camConfig, context)
-	
 	# Capture Image
 	filePath = camera.capture(gp.GP_CAPTURE_IMAGE, context)
-	
 	# Restore Original Size/Type Settings to Camera
 	iso.set_value(camSettings["iso"])
 	shutterspeed.set_value(camSettings["shutterspeed"])
@@ -229,14 +228,91 @@ def filterFilename(filelist):
 		result.append(name)
 	return result
 
-def focusCloserLarge():
+def livewviewFocusCloser(stepSize):
 	global camera
-	print("Focus Nearer")
+	if stepSize == "Small":
+		step = "Near1"
+	elif stepSize == "Medium":
+		step = "Near2"
+	elif stepSize == "Large":
+		step = "Near3"
+	else:
+		step = "Near2"
+	print("Focus Nearer: "+str(step))
 	camConfig = camera.get_config() 
 	focusmode = camConfig.get_child_by_name("manualfocusdrive") 
-	focusmode.set_value("Near1")
+	focusmode.set_value(step)
 	camera.set_config(camConfig)
 
+def livewviewFocusFarther(stepSize):
+	global camera
+	if stepSize == "Small":
+		step = "Far1"
+	elif stepSize == "Medium":
+		step = "Far2"
+	elif stepSize == "Large":
+		step = "Far3"
+	else:
+		step = "Far2"
+		
+	print("Focus Farther: "+str(step))
+	camConfig = camera.get_config() 
+	focusmode = camConfig.get_child_by_name("manualfocusdrive") 
+	focusmode.set_value(step)
+	camera.set_config(camConfig)
+
+def moveFocusCloser(stepSize, count=1):
+	if stepSize == "Small":
+		step = "Near1"
+	elif stepSize == "Medium":
+		step = "Near2"
+	elif stepSize == "Large":
+		step = "Near3"
+	else:
+		step = "Near2"
+		
+	# Connect to Camera
+	context = gp.Context()
+	camera = gp.Camera()
+	camera.init(context)
+	OK, camera_file = gp.gp_camera_capture_preview(camera)
+	camConfig = camera.get_config() 
+	focusmode = camConfig.get_child_by_name("manualfocusdrive") 
+	focusmode.set_value(step)
+	camera.set_config(camConfig)
+	focusRound = 0
+	while focusRound < count:
+		print("Moving Focus Closer")
+		camera.set_config(camConfig)
+		focusRound += 1
+		time.sleep(.5)
+	camera.exit(context)
+
+def moveFocusFarther(stepSize, count=1):
+	if stepSize == "Small":
+		step = "Far1"
+	elif stepSize == "Medium":
+		step = "Far2"
+	elif stepSize == "Large":
+		step = "Far3"
+	else:
+		step = "Far2"
+		
+	# Connect to Camera
+	context = gp.Context()
+	camera = gp.Camera()
+	camera.init(context)
+	OK, camera_file = gp.gp_camera_capture_preview(camera)
+	camConfig = camera.get_config() 
+	focusmode = camConfig.get_child_by_name("manualfocusdrive") 
+	focusmode.set_value(step)
+	focusRound = 0
+	while focusRound < count:
+		print("Moving Focus Farther")
+		camera.set_config(camConfig)
+		focusRound += 1
+		time.sleep(.5)
+	camera.exit(context)
 
 
 # Create Config File and Variables
@@ -244,10 +320,10 @@ def createConfig(path):
 	# Create config file
 	config = configparser.ConfigParser()
 	
-	config["cnc"] = {"port": "/dev/ttyUSB0", "xOverlap": "40", "yOverlap":"40", "pause":"1"}
+	config["cnc"] = {"port": "/dev/ttyUSB0", "xOverlap": "40", "yOverlap":"40", "pause":"1", "stackingSize":"Medium"}
 	config["camera"] = {"body": "Canon T2i", "lens": "Tokina 100mm", "trigger":"USB", "exposure":"1", "format":"JPG"}
 	config["filepaths"] = {"download":"True", "imagePath":'', "xmlPath": '', "delete":"True"}
-	config["sample"] = {"cameraHeight":"", "id":"", "stackingMode":"None", "stackingCount":"0", "sizeX":"360","sizeY":"470", "datestamp":""}
+	config["sample"] = {"cameraHeight":"", "id":"", "stackingMode":"None", "stackingCount":"1", "sizeX":"360","sizeY":"470", "datestamp":""}
 	
 	# Write Config file
 	with open(path, "w") as config_file:
@@ -319,7 +395,7 @@ def initXML():
 	xmlStackingMode = ET.SubElement(xmlSessionDetails, "StackingMode")
 	xmlStackingMode.text = str(config["sample"]["stackingMode"])
 	xmlStackingCount = ET.SubElement(xmlSessionDetails, "StackingFrameCount")
-	xmlStackingMode.text = str(config["sample"]["stackingcount"])
+	xmlStackingCount.text = str(config["sample"]["stackingcount"])
 	xmlSampleSizeX = ET.SubElement(xmlSessionDetails, "SampleSizeX")
 	xmlSampleSizeX.text = str(config["sample"]["sizeX"])
 	xmlSampleSizeY = ET.SubElement(xmlSessionDetails, "SampleSizeY")
@@ -398,7 +474,7 @@ def xmlRestart():
 	xmlData.clear()
 	return xmlTree
 
-def xmlAddImage(position, cameraFileInfo, finalFilename):
+def xmlAddImage(position, cameraFileInfo, finalFilename, stackCount=1):
 	xmlData = xmlTree.getroot()
 	nodes = xmlData.findall("Images")
 	for node in nodes:
@@ -415,6 +491,8 @@ def xmlAddImage(position, cameraFileInfo, finalFilename):
 		xmlImageFinalFilename.text = str(finalFilename)
 		xmlImageExtension = ET.SubElement(xmlImage, "Extension")
 		xmlImageExtension.text = str(cameraFileInfo.name[-4:])
+		xmlImageStackCount = ET.SubElement(xmlImage, "StackPosition")
+		xmlImageStackCount.text = str(stackCount)
 	writeXML(xmlTree)
 	
 	return xmlTree
@@ -489,6 +567,9 @@ class StartPage(tkinter.Frame):
 	def __init__(self, parent, controller):
 		global machine
 		global camera
+		global imageCount
+		global globalPosition
+
 		
 		tkinter.Frame.__init__(self,parent)
 
@@ -537,13 +618,15 @@ class StartPage(tkinter.Frame):
 		btnTest.grid(row=20, column=10, sticky="NEWS")
 		btnTest2 = ttk.Button(self, text="Test Function 2", command=lambda: self.test2())
 		btnTest2.grid(row=20, column=11, sticky="NEWS")
-		btnStartLiveView = ttk.Button(self, text="Start Liveview", command=lambda: startLiveViewThreading())
-		btnStartLiveView.grid(row=30, column=10, sticky="NEWS")
-		btnStopLivewView = ttk.Button(self, text="Stop Liveview", command=lambda: self.stopLiveView())
-		btnStopLivewView.grid(row=30, column=11, sticky="NEWS")
-		
-		self.btnLiveView = ttk.Label(self, text="", width=150)
+		self.btnLiveView = ttk.Label(self, text="")
 		self.btnLiveView.grid(row=31, column=10, sticky="NEWS", columnspan=20)
+		self.imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
+		self.btnLiveView.image = self.imgLiveView
+		self.btnLiveView.config(text="", image=self.imgLiveView)
+		btnStartLiveView = ttk.Button(self, text="Start Liveview", command=lambda: startLiveViewThreading(self.btnLiveView))
+		btnStartLiveView.grid(row=30, column=10, sticky="NEWS")
+		btnStopLivewView = ttk.Button(self, text="Stop Liveview", command=lambda: liveViewEvents["stopLiveView"].set())
+		btnStopLivewView.grid(row=30, column=11, sticky="NEWS")
 		
 		btnQuit = ttk.Button(self, text="Quit", command=lambda: controller.quitProgram(machine))
 		btnQuit.grid(row=100, column=6, sticky="EW")
@@ -558,6 +641,7 @@ class StartPage(tkinter.Frame):
 			events["filePathProblem"] = threading.Event()
 			events["xmlPathProblem"] = threading.Event()
 			events["xmlWarning"] = threading.Event()
+			events["manualFocusStacking"] = threading.Event()
 			sessionThread = threading.Thread(target=self.startSession, args=( events, sessionStatus))
 			interfaceThread = threading.Thread(target=sessionWindow, args=( events, sessionStatus))
 			interfaceThread.start()
@@ -565,6 +649,7 @@ class StartPage(tkinter.Frame):
 			
 		
 		def sessionWindow(events, sessionStatus):
+			global liveViewEvents
 			sessionWindow = Toplevel(self)
 			sessionWindow.title("Leaf Sampling Session")
 			sessionWindow.geometry("550x350")
@@ -576,7 +661,7 @@ class StartPage(tkinter.Frame):
 			sessionWindow.grid_rowconfigure(4, minsize=30)
 			sessionWindow.grid_rowconfigure(5, minsize=30)
 			sessionWindow.grid_rowconfigure(6, minsize=30)
-			sessionWindow.grid_rowconfigure(6, minsize=30)
+			sessionWindow.grid_rowconfigure(7, minsize=30)
 			sessionWindow.grid_columnconfigure(3, minsize=350)
 
 
@@ -671,22 +756,89 @@ class StartPage(tkinter.Frame):
 					centerWindow(xmlWarningPrompt)
 					events["xmlWarning"].clear()
 				
+				if events["manualFocusStacking"].is_set():
+					self.manualFocusStackingWindow = Toplevel(self)
+					self.manualFocusStackingWindow.title("Manual Focus Stacking")
+					self.manualFocusStackingWindow.grid_rowconfigure(1, minsize=30) 	#Title
+					self.manualFocusStackingWindow.grid_rowconfigure(2, minsize=30)	#Text
+					self.manualFocusStackingWindow.grid_rowconfigure(3, minsize=30)	#text
+					self.manualFocusStackingWindow.grid_rowconfigure(4, minsize=30)	#text
+					self.manualFocusStackingWindow.grid_rowconfigure(5, minsize=30)	#buttons
+					self.manualFocusStackingWindow.grid_rowconfigure(6, minsize=30)	#liveview/text
+					self.manualFocusStackingWindow.grid_rowconfigure(7, minsize=30)	#buttons
+					self.manualFocusStackingWindow.grid_rowconfigure(8, minsize=30)	#buttons
+					self.manualFocusStackingWindow.grid_rowconfigure(9, minsize=30)	#buttons
+					self.manualFocusStackingWindow.grid_rowconfigure(10, minsize=30)	#buttons
+					self.manualFocusStackingWindow.grid_rowconfigure(11, minsize=30)
+					self.manualFocusStackingWindow.grid_columnconfigure(1, minsize=50)
+					self.manualFocusStackingWindow.grid_columnconfigure(2, minsize=200)
+					self.manualFocusStackingWindow.grid_columnconfigure(3, minsize=512)
+					self.manualFocusStackingWindow.grid_columnconfigure(4, minsize=512)
+					self.manualFocusStackingWindow.grid_columnconfigure(5, minsize=200)
+					self.manualFocusStackingWindow.grid_columnconfigure(6, minsize=50)
+					
+					
+					manFocusStackingTitle = ttk.Label(self.manualFocusStackingWindow, text="Manual Focus Stacking", font=LARGE_FONT)
+					manFocusStackingTitle.grid(row=1, column=3, sticky="NEWS")
+					manFocusStackingLine1 = ttk.Label(self.manualFocusStackingWindow, text="To Perform Manual Focus Stacking, use the buttons to adjust the focus,", font=MED_FONT)
+					manFocusStackingLine1.grid(row=2, column=3, sticky="NEWS")
+					manFocusStackingLine2 = ttk.Label(self.manualFocusStackingWindow, text="press Capture to take a picture, and press Next Position to move the ", font=MED_FONT)
+					manFocusStackingLine2.grid(row=3, column=3, sticky="NEWS")
+					manFocusStackingLine3 = ttk.Label(self.manualFocusStackingWindow, text="camera to the next position.", font=MED_FONT)
+					manFocusStackingLine3.grid(row=4, column=3, sticky="NEWS")
+# 					btnStartLiveView = ttk.Button(manualFocusStackingWindow, text="Start Liveview", command=lambda: startLiveViewThreading(self.btnLiveViewFocusStacking))
+# 					btnStartLiveView.grid(row=5, column=3, sticky="NWS")
+# 					btnStopLivewView = ttk.Button(manualFocusStackingWindow, text="Stop Liveview", command=lambda: self.stopLiveView())
+# 					btnStopLivewView.grid(row=5, column=3, sticky="NES")
+					
+					self.btnLiveViewFocusStacking = ttk.Label(self.manualFocusStackingWindow, text="", width=150)
+					self.btnLiveViewFocusStacking.grid(row=6, column=3, sticky="NEWS", rowspan=4, columnspan=2)
+					imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
+					self.btnLiveViewFocusStacking.image = imgLiveView
+					self.btnLiveViewFocusStacking.config(text="", image=imgLiveView)
+					lblFocusCloser = ttk.Label(self.manualFocusStackingWindow, text="Move Focus Up", font=LARGE_FONT)
+					lblFocusCloser.grid(row=6, column=2, sticky="NEWS")
+					btnFocusCloserSmall = ttk.Button(self.manualFocusStackingWindow, text="Small", width=5, command=lambda: [liveViewEvents["focusCloserSmall"].set()])
+					btnFocusCloserSmall.grid(row=7, column=2, sticky="NEWS")
+					btnFocusCloserMedium = ttk.Button(self.manualFocusStackingWindow, text="Medium", width=10, command=lambda: [liveViewEvents["focusCloserMedium"].set()])
+					btnFocusCloserMedium.grid(row=8, column=2, sticky="NEWS")
+					btnFocusCloserLarge = ttk.Button(self.manualFocusStackingWindow, text="Large", width=15, command=lambda: [liveViewEvents["focusCloserLarge"].set()])
+					btnFocusCloserLarge.grid(row=9, column=2, sticky="NEWS")
+					lblFocusFarther = ttk.Label(self.manualFocusStackingWindow, text="Move Focus Down", font=LARGE_FONT)
+					lblFocusFarther.grid(row=6, column=5, sticky="NEWS")
+					btnFocusFartherSmall = ttk.Button(self.manualFocusStackingWindow, text="Small", width=5, command=lambda: [liveViewEvents["focusFartherSmall"].set()])
+					btnFocusFartherSmall.grid(row=7, column=5, sticky="NEWS")
+					btnFocusFartherMedium = ttk.Button(self.manualFocusStackingWindow, text="Medium", width=10, command=lambda: [liveViewEvents["focusFartherMedium"].set()])
+					btnFocusFartherMedium.grid(row=8, column=5, sticky="NEWS")
+					btnFocusFartherLarge = ttk.Button(self.manualFocusStackingWindow, text="Large", width=15, command=lambda: [liveViewEvents["focusFartherLarge"].set()])
+					btnFocusFartherLarge.grid(row=9, column=5, sticky="NEWS")
+					btnFocusStackingCapture = ttk.Button(self.manualFocusStackingWindow, text="Capture", command=lambda: [liveViewEvents["capturingImage"].set()])
+					btnFocusStackingCapture.grid(row=10, column=3, sticky="NEWS")
+					btnFocusStackingNextPosition = ttk.Button(self.manualFocusStackingWindow, text="Next Position", command=lambda: [events["pause"].clear()])
+					btnFocusStackingNextPosition.grid(row=10, column=4, sticky="NEWS")
+					
+					centerWindow(self.manualFocusStackingWindow)
+					startLiveViewThreading(self.btnLiveViewFocusStacking)
+					
+					events["manualFocusStacking"].clear()
+				
 			
 			closeWindow(sessionWindow)
 			self.sessionStatus.set("")
 			events["complete"].clear()
 			playSound("complete")
 	
-		def startLiveViewThreading():
+		def startLiveViewThreading(target):
 			global liveViewEvents
-			liveViewEvents = {}
 			liveViewEvents["focusCloserLarge"] = threading.Event()
-			liveViewEvents["focusCloserMed"] = threading.Event()
+			liveViewEvents["focusCloserMedium"] = threading.Event()
 			liveViewEvents["focusCloserSmall"] = threading.Event()
 			liveViewEvents["focusFartherLarge"] = threading.Event()
-			liveViewEvents["focusFartherMed"] = threading.Event()
+			liveViewEvents["focusFartherMedium"] = threading.Event()
 			liveViewEvents["focusFartherSmall"] = threading.Event()
-			liveViewThread = threading.Thread(target=self.startLiveView, args=( liveViewEvents,))
+			liveViewEvents["capturingImage"] = threading.Event()
+			liveViewEvents["stopLiveView"] = threading.Event()
+			liveViewThread = threading.Thread(target=self.startLiveView, args=( target,))
 			liveViewThread.start()
 	
 	
@@ -709,32 +861,71 @@ class StartPage(tkinter.Frame):
 		config['sample']['sizeY'] = str(self.sampleY.get())
 		updateConfig(config, configpath)
 
-	def startLiveView(self, liveViewEvents):
+	def startLiveView(self, target):
 		# Live View Testing - Start
 		global liveViewActive
 		global camera
 		global context
+		global imageCount
+		global globalPosition
+		global liveViewEvents
+		global imageList
+		global stackCount
 		liveViewActive = True
+		
+		stackCount = 1
 
 		# Connect to Camera
 		context = gp.Context()
 		camera = gp.Camera()
 		camera.init(context)
-
-		while liveViewActive:
-			if liveViewEvents["focusCloserLarge"].is_set():
-				focusCloserLarge()	
-				liveViewEvents["focusCloserLarge"].clear()
-			self.capturePreview(camera)
-			time.sleep(.05)
+		
+		while not liveViewEvents["stopLiveView"].is_set():
+			if liveViewEvents["capturingImage"].is_set():
+				target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/CapturingImage.jpg"))
+				img = target.image
+				target.config(text="", image=img)
+				camera.exit(context)
+				cameraInfo = triggerImageUSB()
+				finalFilename = str(config["sample"]["id"])+"-"+str(config["sample"]["datestamp"])+"-"+str(imageCount).zfill(3)+str(cameraInfo.name[-4:])
+				imageList.append((cameraInfo.folder+"/"+cameraInfo.name, finalFilename))
+				time.sleep(int(config["camera"]["exposure"]))
+				imageCount += 1	
+				xmlTree = xmlAddImage(globalPosition, cameraInfo, finalFilename, stackCount)
+				stackCount += 1
+				liveViewEvents["capturingImage"].clear()
+			elif liveViewEvents["stopLiveView"].is_set():
+				break
+			else:
+				if liveViewEvents["focusCloserLarge"].is_set():
+					livewviewFocusCloser("Large")	
+					liveViewEvents["focusCloserLarge"].clear()
+				if liveViewEvents["focusCloserMedium"].is_set():
+					livewviewFocusCloser("Medium")	
+					liveViewEvents["focusCloserMedium"].clear()
+				if liveViewEvents["focusCloserSmall"].is_set():
+					livewviewFocusCloser("Small")	
+					liveViewEvents["focusCloserSmall"].clear()
+				if liveViewEvents["focusFartherLarge"].is_set():
+					livewviewFocusFarther("Large")	
+					liveViewEvents["focusFartherLarge"].clear()
+				if liveViewEvents["focusFartherMedium"].is_set():
+					livewviewFocusFarther("Medium")	
+					liveViewEvents["focusFartherMedium"].clear()
+				if liveViewEvents["focusFartherSmall"].is_set():
+					livewviewFocusFarther("Small")	
+					liveViewEvents["focusFartherSmall"].clear()
+				target = self.capturePreview(camera, target)
+				time.sleep(.05)
+		liveViewEvents["stopLiveView"].clear()
 		camera.exit(context)
-		self.btnLiveView.image = None
-		self.btnLiveView.config(text="", image="")
+		target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
+		imgLiveView = target.image
+		target.config(text="", image=imgLiveView)
 
-	def stopLiveView(self, event=None):
+	def stopLiveView(self, livewViewEvents):
 		# Live View Testing - Stop
-		global liveViewActive
-		liveViewActive = False
+		liveViewEvents["stopLiveView"].set()
 
 	def startSession(self, events, sessionStatus):
 		global rolledOver
@@ -744,6 +935,10 @@ class StartPage(tkinter.Frame):
 		global xPos
 		global yPos
 		global rateOfTravel
+		global imageCount
+		global positionCount
+		global position
+		global imageList
 		
 		# Check to see if everything is ready
 # 		status["camerasInit"] = False
@@ -765,10 +960,10 @@ class StartPage(tkinter.Frame):
 # 					cancelSession()
 # 					break
 # 				pass
-# 		if events["cancel"].is_set():
-# 			events["complete"].set()
-# 			cancelSession()	
-# 			return
+		if events["cancel"].is_set():
+			events["complete"].set()
+			cancelSession()	
+			return
 
 
 		# Check to see if File Download Path is available
@@ -794,6 +989,10 @@ class StartPage(tkinter.Frame):
 						cancelSession()
 						break
 				status["filepathInit"] = True
+		if events["cancel"].is_set():
+			events["complete"].set()
+			cancelSession()	
+			return
 								
 		# Check to see if XML Path is available
 		if config["filepaths"]["xmlPath"] == '':
@@ -815,6 +1014,10 @@ class StartPage(tkinter.Frame):
 					cancelSession()
 					break
 			status["xmlpathInit"] = True
+		if events["cancel"].is_set():
+			events["complete"].set()
+			cancelSession()	
+			return
 								
 		# Check to see camera settings are not White Frame Settings (1" at 6400 ISO)
 # 		status["cameraSettings"] = False
@@ -849,6 +1052,10 @@ class StartPage(tkinter.Frame):
 # 			else:	
 # 				status["cameraSettings"] = True
 # 
+		if events["cancel"].is_set():
+			events["complete"].set()
+			cancelSession()	
+			return
 
 		# Prompt User to Verify Table is Ready
 		events["cncInit"].set()
@@ -857,6 +1064,10 @@ class StartPage(tkinter.Frame):
 			if events["cancel"].is_set():
 				cancelSession()
 				break
+		if events["cancel"].is_set():
+			events["complete"].set()
+			cancelSession()	
+			return
 		
 		# Prompt User for Sample ID Info
 		events["sampleInfoInit"].set()
@@ -867,6 +1078,10 @@ class StartPage(tkinter.Frame):
 				break
 		
 
+		if events["cancel"].is_set():
+			events["complete"].set()
+			cancelSession()	
+			return
 
 		# Check to see if XML file already exists.
 		status["xmlCheck"] = False
@@ -882,6 +1097,10 @@ class StartPage(tkinter.Frame):
 			else:
 				status["xmlCheck"] = True
 		
+		if events["cancel"].is_set():
+			events["complete"].set()
+			cancelSession()	
+			return
 		
 		# Start Process
 		sessionStatus.set("Initilizing XML Session")
@@ -897,6 +1116,7 @@ class StartPage(tkinter.Frame):
 
 		if events["cancel"].is_set():
 			cancelSession()
+			return
 
 		# Trigger Dark Frame
 		sessionStatus.set("Capturing Initial Dark Frame")
@@ -939,26 +1159,63 @@ class StartPage(tkinter.Frame):
 		
 			sessionStatus.set("Capturing Image at Position #"+str(positionCount)+" of "+str(len(positions)))
 			distanceToTravel = math.sqrt((xPos-int(position["x"]))**2 + (yPos - int(position["y"]))**2)
-# 			print("Move From: ("+str(xPos)+", "+str(yPos)+")")
-# 			print("Move To: ("+str(position["x"])+", "+str(position["y"])+")")
-# 			print("Distance to Travel: "+str(distanceToTravel))
 			
 			timetoTravel = distanceToTravel/rateOfTravel
 			responseString = moveCNCtoCoordinates(position["x"], position["y"], machine)	
 			time.sleep(timetoTravel)
 			time.sleep(int(config["cnc"]["pause"]))
 			# Trigger Camera
-			cameraInfo = triggerImageUSB()
-			finalFilename = str(config["sample"]["id"])+"-"+str(config["sample"]["datestamp"])+"-"+str(imageCount).zfill(3)+str(cameraInfo.name[-4:])
-			imageList.append((cameraInfo.folder+"/"+cameraInfo.name, finalFilename))
-			time.sleep(int(config["camera"]["exposure"]))
-			imageCount +=1	
-			positionCount +=1		
-			xmlTree = xmlAddImage(position, cameraInfo, finalFilename)
-			print("Image Captured: "+str(cameraInfo.name))
-			if events["cancel"].is_set():
-				cancelSession()
-				break
+			if config["sample"]["stackingMode"] == "None":
+				cameraInfo = triggerImageUSB()
+				finalFilename = str(config["sample"]["id"])+"-"+str(config["sample"]["datestamp"])+"-"+str(imageCount).zfill(3)+str(cameraInfo.name[-4:])
+				imageList.append((cameraInfo.folder+"/"+cameraInfo.name, finalFilename))
+				time.sleep(int(config["camera"]["exposure"]))
+				imageCount +=1	
+				positionCount +=1		
+				xmlTree = xmlAddImage(position, cameraInfo, finalFilename)
+				if events["cancel"].is_set():
+					cancelSession()
+					break
+			elif config["sample"]["stackingMode"] == "Auto":
+				stackCount = 1
+				while stackCount <= int(config["sample"]["stackingCount"]):
+					sessionStatus.set("Capturing Image #"+str(stackCount)+"/"+str(config["sample"]["stackingCount"])+" at Position #"+str(positionCount)+" of "+str(len(positions)))
+					cameraInfo = triggerImageUSB()
+					print("Captured: "+cameraInfo.name)
+					finalFilename = str(config["sample"]["id"])+"-"+str(config["sample"]["datestamp"])+"-"+str(imageCount).zfill(3)+str(cameraInfo.name[-4:])
+					imageList.append((cameraInfo.folder+"/"+cameraInfo.name, finalFilename))
+					time.sleep(int(config["camera"]["exposure"]))
+					imageCount +=1	
+					xmlTree = xmlAddImage(position, cameraInfo, finalFilename, stackCount)
+					stackCount += 1
+					if events["cancel"].is_set():
+						cancelSession()
+						break
+					
+					# move focus closer one step
+					moveFocusCloser(config["cnc"]["stackingSize"])
+				sessionStatus.set("Resetting Focus Position")
+				while stackCount > 1:
+					moveFocusFarther(config["cnc"]["stackingSize"])
+					stackCount -= 1
+				positionCount +=1		
+
+			elif config["sample"]["stackingMode"] == "Manual":
+				# Launch Live View/Manual Window
+				global globalPosition
+				globalPosition = position
+				events["pause"].set()
+				events["manualFocusStacking"].set()
+				while events["pause"].is_set():
+					if events["cancel"].is_set():
+						cancelSession()
+						break
+				liveViewEvents["stopLiveView"].set()
+				centerWindow(self.manualFocusStackingWindow)
+				positionCount +=1		
+				if events["cancel"].is_set():
+					cancelSession()
+					return
 		
 		if events["cancel"].is_set():
 			events["complete"].set()	
@@ -1018,12 +1275,13 @@ class StartPage(tkinter.Frame):
 			
 		return
 			
-	def capturePreview(self, camera, event=None ):
+	def capturePreview(self, camera, target, focus=None):
 		OK, camera_file = gp.gp_camera_capture_preview(camera)
 		imageData = camera_file.get_data_and_size()			
 		imgLiveView = ImageTk.PhotoImage(Image.open(io.BytesIO(imageData)))
-		self.btnLiveView.image = imgLiveView
-		self.btnLiveView.config(text="", image=imgLiveView)
+		target.image = imgLiveView
+		target.config(text="", image=imgLiveView)
+		return target
 
 
 
@@ -1057,6 +1315,8 @@ class Settings(tkinter.Frame):
 		self.xmlPath.set(config['filepaths']['xmlPath'])
 		self.deleteImages = BooleanVar()
 		self.deleteImages.set(config['filepaths'].getboolean('delete'))
+		self.stackingSize = StringVar()
+		self.stackingSize.set(str(config['cnc']['stackingSize']))
 		
 		# Size Columns
 		self.grid_columnconfigure(1, minsize=50)
@@ -1135,6 +1395,11 @@ class Settings(tkinter.Frame):
 		entryPause = ttk.Entry(self, textvariable=self.pauseLength, width=5)
 		lblPause.grid(row=14, column=20, sticky="WE")
 		entryPause.grid(row=14, column=21, sticky="WE")
+		lblStackingSize = ttk.Label(self, text="Focus Stacking Size", font=MED_FONT)
+		cmbStackingSize = ttk.Combobox(self, textvariable=self.stackingSize, width=10)
+		cmbStackingSize['values'] = ["Small", "Medium", "Large"]
+		lblStackingSize.grid(row=16, column=20, sticky="WE")
+		cmbStackingSize.grid(row=16, column=21, sticky="WE")
 
 		# File Paths
 		folderIcon = ImageTk.PhotoImage(Image.open("/home/pi/leafcnc/backend/folderIcon-small.png"))
@@ -1176,6 +1441,7 @@ class Settings(tkinter.Frame):
 		config['cnc']['xOverlap'] = str(self.xOverlap.get())
 		config['cnc']['yOverlap'] = str(self.yOverlap.get())
 		config['cnc']['pause'] = str(self.pauseLength.get())
+		config['cnc']['stackingSize'] = str(self.stackingSize.get())
 		config['filepaths']['download'] = str(self.download.get())
 		config['filepaths']['imagePath'] = str(self.imagePath.get())
 		config['filepaths']['xmlPath'] = str(self.xmlPath.get())
