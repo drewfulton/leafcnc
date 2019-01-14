@@ -812,6 +812,7 @@ class StartPage(tkinter.Frame):
 					btnFocusStackingCapture = ttk.Button(manualFocusStackingWindow, text="Capture", command=lambda: [liveViewEvents["capturingImage"].set()])
 					btnFocusStackingCapture.grid(row=10, column=3, sticky="NEWS")
 					btnFocusStackingNextPosition = ttk.Button(manualFocusStackingWindow, text="Next Position", command=lambda: [events["pause"].clear()])
+					btnFocusStackingNextPosition.grid(row=10, column=4, sticky="NEWS")
 					
 					centerWindow(manualFocusStackingWindow)
 					startLiveViewThreading(self.btnLiveViewFocusStacking)
