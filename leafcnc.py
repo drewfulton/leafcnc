@@ -909,7 +909,7 @@ class StartPage(tkinter.Frame):
 				if liveViewEvents["focusFartherSmall"].is_set():
 					livewviewFocusFarther("Small")	
 					liveViewEvents["focusFartherSmall"].clear()
-				self.capturePreview(camera, target)
+				target = self.capturePreview(camera, target)
 				time.sleep(.05)
 		camera.exit(context)
 		target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
@@ -1271,6 +1271,7 @@ class StartPage(tkinter.Frame):
 		imgLiveView = ImageTk.PhotoImage(Image.open(io.BytesIO(imageData)))
 		target.image = imgLiveView
 		target.config(text="", image=imgLiveView)
+		return target
 
 
 
