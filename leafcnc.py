@@ -789,7 +789,7 @@ class StartPage(tkinter.Frame):
 # 					btnStopLivewView.grid(row=5, column=3, sticky="NES")
 					
 					self.btnLiveViewFocusStacking = ttk.Label(manualFocusStackingWindow, text="", width=150)
-					self.btnLiveViewFocusStacking.grid(row=6, column=3, sticky="NEWS", rowspan=5, columnspan=2)
+					self.btnLiveViewFocusStacking.grid(row=6, column=3, sticky="NEWS", rowspan=4, columnspan=2)
 					imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
 					self.btnLiveViewFocusStacking.image = imgLiveView
 					self.btnLiveViewFocusStacking.config(text="", image=imgLiveView)
@@ -886,9 +886,6 @@ class StartPage(tkinter.Frame):
 				time.sleep(int(config["camera"]["exposure"]))
 				imageCount +=1	
 				xmlTree = xmlAddImage(globalPosition, cameraInfo, finalFilename)
-				if events["cancel"].is_set():
-					cancelSession()
-					break
 				
 			else:
 				if liveViewEvents["focusCloserLarge"].is_set():
