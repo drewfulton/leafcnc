@@ -285,6 +285,7 @@ def moveFocusCloser(stepSize, count=1):
 		print("Moving Focus Closer")
 		camera.set_config(camConfig)
 		focusRound += 1
+		time.sleep(.5)
 	camera.exit(context)
 
 def moveFocusFarther(stepSize, count=1):
@@ -310,7 +311,7 @@ def moveFocusFarther(stepSize, count=1):
 		print("Moving Focus Farther")
 		camera.set_config(camConfig)
 		focusRound += 1
-		
+		time.sleep(.5)
 	camera.exit(context)
 
 
