@@ -609,6 +609,8 @@ class StartPage(tkinter.Frame):
 		self.grid_rowconfigure(2, minsize=50)
 		self.grid_rowconfigure(10, minsize=50)
 		self.grid_rowconfigure(20, minsize=50)
+		self.grid_rowconfigure(30, minsize=50)
+		self.grid_rowconfigure(40, minsize=50)
 		self.grid_rowconfigure(99, minsize=20)
 		self.grid_rowconfigure(31, minsize=700)
 
@@ -634,9 +636,9 @@ class StartPage(tkinter.Frame):
 		self.btnLiveView.image = self.imgLiveView
 		self.btnLiveView.config(text="", image=self.imgLiveView)
 		btnStartLiveView = ttk.Button(self, text="Start Liveview", command=lambda: startLiveViewThreading(self.btnLiveView))
-		btnStartLiveView.grid(row=10, column=16, sticky="NEWS")
+		btnStartLiveView.grid(row=40, column=14, sticky="NEWS")
 		btnStopLivewView = ttk.Button(self, text="Stop Liveview", command=lambda: liveViewEvents["stopLiveView"].set())
-		btnStopLivewView.grid(row=10, column=18, sticky="NEWS")
+		btnStopLivewView.grid(row=40, column=16, sticky="NEWS")
 		
 		btnQuit = ttk.Button(self, text="Quit", command=lambda: controller.quitProgram(machine))
 		btnQuit.grid(row=10, column=20, sticky="NEWS")
