@@ -956,10 +956,10 @@ class StartPage(tkinter.Frame):
 # 					cancelSession()
 # 					break
 # 				pass
-# 		if events["cancel"].is_set():
-# 			events["complete"].set()
-# 			cancelSession()	
-# 			return
+		if events["cancel"].is_set():
+			events["complete"].set()
+			cancelSession()	
+			return
 
 
 		# Check to see if File Download Path is available
@@ -985,6 +985,10 @@ class StartPage(tkinter.Frame):
 						cancelSession()
 						break
 				status["filepathInit"] = True
+		if events["cancel"].is_set():
+			events["complete"].set()
+			cancelSession()	
+			return
 								
 		# Check to see if XML Path is available
 		if config["filepaths"]["xmlPath"] == '':
@@ -1006,6 +1010,10 @@ class StartPage(tkinter.Frame):
 					cancelSession()
 					break
 			status["xmlpathInit"] = True
+		if events["cancel"].is_set():
+			events["complete"].set()
+			cancelSession()	
+			return
 								
 		# Check to see camera settings are not White Frame Settings (1" at 6400 ISO)
 # 		status["cameraSettings"] = False
@@ -1040,6 +1048,10 @@ class StartPage(tkinter.Frame):
 # 			else:	
 # 				status["cameraSettings"] = True
 # 
+		if events["cancel"].is_set():
+			events["complete"].set()
+			cancelSession()	
+			return
 
 		# Prompt User to Verify Table is Ready
 		events["cncInit"].set()
@@ -1048,6 +1060,10 @@ class StartPage(tkinter.Frame):
 			if events["cancel"].is_set():
 				cancelSession()
 				break
+		if events["cancel"].is_set():
+			events["complete"].set()
+			cancelSession()	
+			return
 		
 		# Prompt User for Sample ID Info
 		events["sampleInfoInit"].set()
@@ -1058,6 +1074,10 @@ class StartPage(tkinter.Frame):
 				break
 		
 
+		if events["cancel"].is_set():
+			events["complete"].set()
+			cancelSession()	
+			return
 
 		# Check to see if XML file already exists.
 		status["xmlCheck"] = False
@@ -1073,6 +1093,10 @@ class StartPage(tkinter.Frame):
 			else:
 				status["xmlCheck"] = True
 		
+		if events["cancel"].is_set():
+			events["complete"].set()
+			cancelSession()	
+			return
 		
 		# Start Process
 		sessionStatus.set("Initilizing XML Session")
