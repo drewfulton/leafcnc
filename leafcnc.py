@@ -1186,7 +1186,6 @@ class StartPage(tkinter.Frame):
 					time.sleep(int(config["camera"]["exposure"]))
 					stackCount += 1
 					imageCount +=1	
-					positionCount +=1		
 					xmlTree = xmlAddImage(position, cameraInfo, finalFilename, stackCount)
 					if events["cancel"].is_set():
 						cancelSession()
@@ -1196,7 +1195,8 @@ class StartPage(tkinter.Frame):
 					moveFocusCloser(config["cnc"]["stackingSize"])
 
 				moveFocusFarther(config["cnc"]["stackingSize"], stackCount)
-				
+				positionCount +=1		
+
 			elif config["sample"]["stackingMode"] == "Manual":
 				# Launch Live View/Manual Window
 				global globalPosition
