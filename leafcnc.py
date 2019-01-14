@@ -865,6 +865,7 @@ class StartPage(tkinter.Frame):
 		global imageCount
 		global globalPosition
 		global liveViewEvents
+		global imageList
 		liveViewActive = True
 		
 
@@ -932,6 +933,7 @@ class StartPage(tkinter.Frame):
 		global imageCount
 		global positionCount
 		global position
+		global imageList
 		
 		# Check to see if everything is ready
 # 		status["camerasInit"] = False
