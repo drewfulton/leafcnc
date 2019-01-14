@@ -911,10 +911,13 @@ class StartPage(tkinter.Frame):
 					liveViewEvents["focusFartherSmall"].clear()
 				target = self.capturePreview(camera, target)
 				time.sleep(.05)
+		print("test1")
 		camera.exit(context)
+		print("test2")
 		target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
 		imgLiveView = target.image
 		target.config(text="", image=imgLiveView)
+		print("test3")
 
 	def stopLiveView(self, event=None):
 		# Live View Testing - Stop
