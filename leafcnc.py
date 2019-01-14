@@ -887,8 +887,8 @@ class StartPage(tkinter.Frame):
 				imageList.append((cameraInfo.folder+"/"+cameraInfo.name, finalFilename))
 				time.sleep(int(config["camera"]["exposure"]))
 				imageCount += 1	
-				stackCount += 1
 				xmlTree = xmlAddImage(globalPosition, cameraInfo, finalFilename, stackCount)
+				stackCount += 1
 				liveViewEvents["capturingImage"].clear()
 			else:
 				if liveViewEvents["focusCloserLarge"].is_set():
@@ -1166,7 +1166,7 @@ class StartPage(tkinter.Frame):
 					# move focus closer one step
 					moveFocusCloser(config["cnc"]["stackingSize"])
 
-				moveFocusFarther(config["cnc"]["stackingSize"], count=stackCount)
+				moveFocusFarther(config["cnc"]["stackingSize"], stackCount)
 				
 			elif config["sample"]["stackingMode"] == "Manual":
 				# Launch Live View/Manual Window
