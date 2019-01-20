@@ -804,13 +804,13 @@ class StartPage(tkinter.Frame):
 					
 					
 					manFocusStackingTitle = ttk.Label(self.manualFocusStackingWindow, text="Manual Focus Stacking", font=LARGE_FONT)
-					manFocusStackingTitle.grid(row=1, column=3, sticky="NEWS")
+					manFocusStackingTitle.grid(row=1, column=3, sticky="NEWS", columnspan=2)
 					manFocusStackingLine1 = ttk.Label(self.manualFocusStackingWindow, text="To Perform Manual Focus Stacking, use the buttons to adjust the focus,", font=MED_FONT)
-					manFocusStackingLine1.grid(row=2, column=3, sticky="NEWS")
+					manFocusStackingLine1.grid(row=2, column=3, sticky="NEWS", columnspan=2)
 					manFocusStackingLine2 = ttk.Label(self.manualFocusStackingWindow, text="press Capture to take a picture, and press Next Position to move the ", font=MED_FONT)
-					manFocusStackingLine2.grid(row=3, column=3, sticky="NEWS")
+					manFocusStackingLine2.grid(row=3, column=3, sticky="NEWS", columnspan=2)
 					manFocusStackingLine3 = ttk.Label(self.manualFocusStackingWindow, text="camera to the next position.", font=MED_FONT)
-					manFocusStackingLine3.grid(row=4, column=3, sticky="NEWS")
+					manFocusStackingLine3.grid(row=4, column=3, sticky="NEWS", columnspan=2)
 # 					btnStartLiveView = ttk.Button(manualFocusStackingWindow, text="Start Liveview", command=lambda: startLiveViewThreading(self.btnLiveViewFocusStacking))
 # 					btnStartLiveView.grid(row=5, column=3, sticky="NWS")
 # 					btnStopLivewView = ttk.Button(manualFocusStackingWindow, text="Stop Liveview", command=lambda: self.stopLiveView())
