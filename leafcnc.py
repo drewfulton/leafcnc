@@ -810,6 +810,7 @@ class StartPage(tkinter.Frame):
 					self.manualFocusStackingWindow.grid_columnconfigure(4, minsize=400)
 					self.manualFocusStackingWindow.grid_columnconfigure(5, minsize=75)
 					self.manualFocusStackingWindow.grid_columnconfigure(6, minsize=10)
+					self.manualFocusStackingWindow.tk.attributes('-fullscreen',True)
 					
 					
 					manFocusStackingTitle = ttk.Label(self.manualFocusStackingWindow, text="Manual Focus Stacking", font=LARGE_FONT)
@@ -851,7 +852,7 @@ class StartPage(tkinter.Frame):
 					btnFocusStackingNextPosition = ttk.Button(self.manualFocusStackingWindow, text="Next Position", command=lambda: [events["pause"].clear()])
 					btnFocusStackingNextPosition.grid(row=10, column=4, sticky="NEWS")
 					
-					centerWindow(self.manualFocusStackingWindow)
+# 					centerWindow(self.manualFocusStackingWindow)
 					startLiveViewThreading(self.btnLiveViewFocusStacking)
 					
 					events["manualFocusStacking"].clear()
