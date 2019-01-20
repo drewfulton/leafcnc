@@ -804,12 +804,12 @@ class StartPage(tkinter.Frame):
 					self.manualFocusStackingWindow.grid_rowconfigure(9, minsize=30)	#buttons
 					self.manualFocusStackingWindow.grid_rowconfigure(10, minsize=30)	#buttons
 					self.manualFocusStackingWindow.grid_rowconfigure(11, minsize=30)
-					self.manualFocusStackingWindow.grid_columnconfigure(1, minsize=50)
-					self.manualFocusStackingWindow.grid_columnconfigure(2, minsize=100)
+					self.manualFocusStackingWindow.grid_columnconfigure(1, minsize=10)
+					self.manualFocusStackingWindow.grid_columnconfigure(2, minsize=75)
 					self.manualFocusStackingWindow.grid_columnconfigure(3, minsize=400)
 					self.manualFocusStackingWindow.grid_columnconfigure(4, minsize=400)
-					self.manualFocusStackingWindow.grid_columnconfigure(5, minsize=100)
-					self.manualFocusStackingWindow.grid_columnconfigure(6, minsize=50)
+					self.manualFocusStackingWindow.grid_columnconfigure(5, minsize=75)
+					self.manualFocusStackingWindow.grid_columnconfigure(6, minsize=10)
 					
 					
 					manFocusStackingTitle = ttk.Label(self.manualFocusStackingWindow, text="Manual Focus Stacking", font=LARGE_FONT)
@@ -830,7 +830,7 @@ class StartPage(tkinter.Frame):
 					imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg").resize((800,533), Image.ANTIALIAS))
 					self.btnLiveViewFocusStacking.image = imgLiveView
 					self.btnLiveViewFocusStacking.config(text="", image=imgLiveView)
-					lblFocusCloser = ttk.Label(self.manualFocusStackingWindow, text="Move Focus Up", font=LARGE_FONT)
+					lblFocusCloser = ttk.Label(self.manualFocusStackingWindow, text="Focus Up", font=LARGE_FONT)
 					lblFocusCloser.grid(row=6, column=2, sticky="NEWS")
 					btnFocusCloserSmall = ttk.Button(self.manualFocusStackingWindow, text="Small", width=5, command=lambda: [liveViewEvents["focusCloserSmall"].set()])
 					btnFocusCloserSmall.grid(row=7, column=2, sticky="NEWS")
@@ -838,7 +838,7 @@ class StartPage(tkinter.Frame):
 					btnFocusCloserMedium.grid(row=8, column=2, sticky="NEWS")
 					btnFocusCloserLarge = ttk.Button(self.manualFocusStackingWindow, text="Large", width=15, command=lambda: [liveViewEvents["focusCloserLarge"].set()])
 					btnFocusCloserLarge.grid(row=9, column=2, sticky="NEWS")
-					lblFocusFarther = ttk.Label(self.manualFocusStackingWindow, text="Move Focus Down", font=LARGE_FONT)
+					lblFocusFarther = ttk.Label(self.manualFocusStackingWindow, text="Focus Down", font=LARGE_FONT)
 					lblFocusFarther.grid(row=6, column=5, sticky="NEWS")
 					btnFocusFartherSmall = ttk.Button(self.manualFocusStackingWindow, text="Small", width=5, command=lambda: [liveViewEvents["focusFartherSmall"].set()])
 					btnFocusFartherSmall.grid(row=7, column=5, sticky="NEWS")
