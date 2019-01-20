@@ -1540,11 +1540,11 @@ class Initilization(tkinter.Frame):
 		btnCNCRightMed.grid(row=13, column=15, sticky="NEWS")
 		btnCNCRightSmall.grid(row=13, column=14, sticky="NEWS")
 
-		btnStartLV.grid(row=13, column=2, sticky="NEWS")
-		btnStopLV.grid(row=13, column=2, sticky="NEWS")
-		btnSetHardStop.grid(row=13, column=2, sticky="NEWS")
-		btnSetOrigin.grid(row=13, column=2, sticky="NEWS")
-		btnStartPage.grid(row=13, column=2, sticky="NEWS")
+		btnStartLV.grid(row=13, column=2) #, sticky="NEWS")
+		btnStopLV.grid(row=13, column=2) #, sticky="NEWS")
+		btnSetHardStop.grid(row=13, column=2) #, sticky="NEWS")
+		btnSetOrigin.grid(row=13, column=2) #, sticky="NEWS")
+		btnStartPage.grid(row=13, column=2) #, sticky="NEWS")
 		
 
 		# Save and Return 
