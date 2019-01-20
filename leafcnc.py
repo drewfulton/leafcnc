@@ -8,7 +8,7 @@ import gphoto2 as gp
 
 from gpiozero import LED
 from tkinter import *
-from tkinter import tk, ttk, messagebox, filedialog
+from tkinter import ttk, messagebox, filedialog
 from PIL import Image, ImageTk
 from multiprocessing.dummy import Pool as ThreadPool
 from lxml import etree as ET
@@ -1533,11 +1533,11 @@ class Initilization(tkinter.Frame):
 		self.btnLiveView.image = self.imgLiveView
 		self.btnLiveView.config(text="", image=self.imgLiveView)
 		
-		btnStartLV = tk.Button(self, text="Start Live View", command=lambda: startLiveViewThreading(self.btnLiveView))
-		btnStopLV = tk.Button(self, text="Stop Live View", command=lambda: liveViewEvents["stopLiveView"].set())
-		btnSetHardStop = tk.Button(self, text="Set Hard Stop", command=lambda: setCNCHardStop())
-		btnSetOrigin = tk.Button(self, text="Set Origin", command=lambda: setCNCOrigin())
-		btnStartPage = tk.Button(self, text="Back to Home", command=lambda: controller.show_frame(StartPage))
+		btnStartLV = ttk.Button(self, text="Start Live View", command=lambda: startLiveViewThreading(self.btnLiveView))
+		btnStopLV = ttk.Button(self, text="Stop Live View", command=lambda: liveViewEvents["stopLiveView"].set())
+		btnSetHardStop = ttk.Button(self, text="Set Hard Stop", command=lambda: setCNCHardStop())
+		btnSetOrigin = ttk.Button(self, text="Set Origin", command=lambda: setCNCOrigin())
+		btnStartPage = ttk.Button(self, text="Back to Home", command=lambda: controller.show_frame(StartPage))
 		
 		btnCNCUpLarge.grid(row=10, column=13, sticky="NS")
 		btnCNCUpMed.grid(row=12, column=13, sticky="NS")
@@ -1556,11 +1556,8 @@ class Initilization(tkinter.Frame):
 		btnStopLV.grid(row=12, column=14, sticky="NEWS")
 		btnSetHardStop.grid(row=32, column=11, sticky="NEWS")
 		btnSetOrigin.grid(row=32, column=14, sticky="NEWS")
-		
-
-		# Save and Return 
-		btnStartPage = ttk.Button(self, text="Back to Home", command=lambda: controller.show_frame(StartPage))
 		btnStartPage.grid(row=40, column=2, sticky="NEWS")
+
 
 		def startLiveViewThreading(target):
 			global liveViewEvents
