@@ -1463,6 +1463,7 @@ class Settings(tkinter.Frame):
 		updateConfig(config, configpath)
 
 
+
 # Initilization Page
 class Initilization(tkinter.Frame):
 	def __init__(self, parent, controller):
@@ -1637,6 +1638,14 @@ class Initilization(tkinter.Frame):
 		target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg").resize((400,267), Image.ANTIALIAS))
 		imgLiveView = target.image
 		target.config(text="", image=imgLiveView)
+
+	def capturePreview(self, camera, target, focus=None):
+		OK, camera_file = gp.gp_camera_capture_preview(camera)
+		imageData = camera_file.get_data_and_size()			
+		imgLiveView = ImageTk.PhotoImage(Image.open(io.BytesIO(imageData)).resize((400,267), Image.ANTIALIAS))
+		target.image = imgLiveView
+		target.config(text="", image=imgLiveView)
+		return target
 
 config = getConfig(configpath)
 machine = openCNC(config["cnc"]["port"])
