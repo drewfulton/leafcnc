@@ -31,6 +31,7 @@ liveViewEvents["focusFartherMedium"] = threading.Event()
 liveViewEvents["focusFartherSmall"] = threading.Event()
 liveViewEvents["capturingImage"] = threading.Event()
 liveViewEvents["stopLiveView"] = threading.Event()
+
 # Stores details about active sessionData
 sessionData = {}  
 imageCount = 1
@@ -847,7 +848,7 @@ class StartPage(tkinter.Frame):
 					btnFocusStackingNextPosition = ttk.Button(self.manualFocusStackingWindow, text="Next Position", command=lambda: [events["pause"].clear()])
 					btnFocusStackingNextPosition.grid(row=10, column=4, sticky="NEWS")
 					
-# 					centerWindow(self.manualFocusStackingWindow)
+					centerWindow(self.manualFocusStackingWindow)
 					startLiveViewThreading(self.btnLiveViewFocusStacking)
 					
 					events["manualFocusStacking"].clear()
@@ -903,7 +904,9 @@ class StartPage(tkinter.Frame):
 		camera = gp.Camera()
 		camera.init(context)
 		liveViewEvents["active"].set()
+		print("Test1")
 		while not liveViewEvents["stopLiveView"].is_set():
+			print("test2")
 			if liveViewEvents["capturingImage"].is_set():
 				target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/CapturingImage.jpg").resize((800,533), Image.ANTIALIAS))
 				img = target.image
