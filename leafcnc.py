@@ -1502,9 +1502,9 @@ class Initilization(tkinter.Frame):
 		pageTitle.grid(row=0, columnspan=100, sticky="WE")
 
 		# CNC Initilization Buttons
-		btnCNCUpSmall = ttk.Button(self, text="Up 5mm", command=lambda: moveCNCbyAmount(0, 5, machine))
-		btnCNCUpMed = ttk.Button(self, text="Up 50mm", command=lambda: moveCNCbyAmount(0, 50, machine))
-		btnCNCUpLarge = ttk.Button(self, text="Up 100mm", command=lambda: moveCNCbyAmount(0, 100, machine))
+		btnCNCUpSmall = ttk.Button(self, text="Up 5mm", command=lambda: moveCNCbyAmount(0, 5, machine), width=5)
+		btnCNCUpMed = ttk.Button(self, text="Up 50mm", command=lambda: moveCNCbyAmount(0, 50, machine), width=10)
+		btnCNCUpLarge = ttk.Button(self, text="Up 100mm", command=lambda: moveCNCbyAmount(0, 100, machine), width=15)
 		btnCNCLeftSmall = ttk.Button(self, text="Left 5mm", command=lambda: moveCNCbyAmount(-5, 0, machine))
 		btnCNCLeftMed = ttk.Button(self, text="Left 50mm", command=lambda: moveCNCbyAmount(-50, 0, machine))
 		btnCNCLeftLarge = ttk.Button(self, text="Left 100mm", command=lambda: moveCNCbyAmount(-100, 0, machine))
@@ -1527,9 +1527,9 @@ class Initilization(tkinter.Frame):
 		btnSetOrigin = ttk.Button(self, text="Set Origin", command=lambda: setCNCOrigin())
 		btnStartPage = ttk.Button(self, text="Back to Home", command=lambda: controller.show_frame(StartPage))
 		
-		btnCNCUpLarge.grid(row=10, column=13, sticky="NEWS")
-		btnCNCUpMed.grid(row=11, column=13, sticky="NEWS")
-		btnCNCUpSmall.grid(row=12, column=13, sticky="NEWS")
+		btnCNCUpLarge.grid(row=10, column=13)
+		btnCNCUpMed.grid(row=11, column=13)
+		btnCNCUpSmall.grid(row=12, column=13)
 		btnCNCLeftLarge.grid(row=13, column=10, sticky="NEWS")
 		btnCNCLeftMed.grid(row=13, column=11, sticky="NEWS")
 		btnCNCLeftSmall.grid(row=13, column=12, sticky="NEWS")
