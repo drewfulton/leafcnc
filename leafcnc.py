@@ -1533,11 +1533,11 @@ class Initilization(tkinter.Frame):
 		self.btnLiveView.image = self.imgLiveView
 		self.btnLiveView.config(text="", image=self.imgLiveView)
 		
-		btnStartLV = ttk.Button(self, text="Start Live View", command=lambda: startLiveViewThreading(self.btnLiveView))
-		btnStopLV = ttk.Button(self, text="Stop Live View", command=lambda: liveViewEvents["stopLiveView"].set())
-		btnSetHardStop = ttk.Button(self, text="Set Hard Stop", command=lambda: setCNCHardStop())
-		btnSetOrigin = ttk.Button(self, text="Set Origin", command=lambda: setCNCOrigin())
-		btnStartPage = ttk.Button(self, text="Back to Home", command=lambda: controller.show_frame(StartPage))
+		btnStartLV = tk.Button(self, text="Start Live View", command=lambda: startLiveViewThreading(self.btnLiveView))
+		btnStopLV = tk.Button(self, text="Stop Live View", command=lambda: liveViewEvents["stopLiveView"].set())
+		btnSetHardStop = tk.Button(self, text="Set Hard Stop", command=lambda: setCNCHardStop())
+		btnSetOrigin = tk.Button(self, text="Set Origin", command=lambda: setCNCOrigin())
+		btnStartPage = tk.Button(self, text="Back to Home", command=lambda: controller.show_frame(StartPage))
 		
 		btnCNCUpLarge.grid(row=10, column=13, sticky="NS")
 		btnCNCUpMed.grid(row=12, column=13, sticky="NS")
