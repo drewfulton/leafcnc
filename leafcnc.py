@@ -797,8 +797,8 @@ class StartPage(tkinter.Frame):
 					self.manualFocusStackingWindow.grid_rowconfigure(11, minsize=30)
 					self.manualFocusStackingWindow.grid_columnconfigure(1, minsize=50)
 					self.manualFocusStackingWindow.grid_columnconfigure(2, minsize=200)
-					self.manualFocusStackingWindow.grid_columnconfigure(3, minsize=512)
-					self.manualFocusStackingWindow.grid_columnconfigure(4, minsize=512)
+					self.manualFocusStackingWindow.grid_columnconfigure(3, minsize=400)
+					self.manualFocusStackingWindow.grid_columnconfigure(4, minsize=400)
 					self.manualFocusStackingWindow.grid_columnconfigure(5, minsize=200)
 					self.manualFocusStackingWindow.grid_columnconfigure(6, minsize=50)
 					
@@ -818,7 +818,7 @@ class StartPage(tkinter.Frame):
 					
 					self.btnLiveViewFocusStacking = ttk.Label(self.manualFocusStackingWindow, text="", width=150)
 					self.btnLiveViewFocusStacking.grid(row=6, column=3, sticky="NEWS", rowspan=4, columnspan=2)
-					imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
+					imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg").resize((800,533), Image.ANTIALIAS))
 					self.btnLiveViewFocusStacking.image = imgLiveView
 					self.btnLiveViewFocusStacking.config(text="", image=imgLiveView)
 					lblFocusCloser = ttk.Label(self.manualFocusStackingWindow, text="Move Focus Up", font=LARGE_FONT)
@@ -1304,7 +1304,7 @@ class StartPage(tkinter.Frame):
 	def capturePreview(self, camera, target, focus=None):
 		OK, camera_file = gp.gp_camera_capture_preview(camera)
 		imageData = camera_file.get_data_and_size()			
-		imgLiveView = ImageTk.PhotoImage(Image.open(io.BytesIO(imageData)))
+		imgLiveView = ImageTk.PhotoImage(Image.open(io.BytesIO(imageData)).resize((800,533), Image.ANTIALIAS))
 		target.image = imgLiveView
 		target.config(text="", image=imgLiveView)
 		return target
