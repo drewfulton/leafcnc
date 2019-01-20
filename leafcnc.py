@@ -1533,7 +1533,7 @@ class Initilization(tkinter.Frame):
 		self.btnLiveView.image = self.imgLiveView
 		self.btnLiveView.config(text="", image=self.imgLiveView)
 		
-		btnStartLV = ttk.Button(self, text="Start Live View", command=lambda: startLiveViewThreading(self.btnLiveView))
+		btnStartLV = tkinter.Button(self, text="Start Live View", command=lambda: startLiveViewThreading(self.btnLiveView))
 		btnStopLV = ttk.Button(self, text="Stop Live View", command=lambda: liveViewEvents["stopLiveView"].set())
 		btnSetHardStop = ttk.Button(self, text="Set Hard Stop", command=lambda: setCNCHardStop())
 		btnSetOrigin = ttk.Button(self, text="Set Origin", command=lambda: setCNCOrigin())
