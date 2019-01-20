@@ -908,7 +908,7 @@ class StartPage(tkinter.Frame):
 		liveViewEvents["active"].set()
 		while not liveViewEvents["stopLiveView"].is_set():
 			if liveViewEvents["capturingImage"].is_set():
-				target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/CapturingImage.jpg"))
+				target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/CapturingImage.jpg").resize((800,533), Image.ANTIALIAS))
 				img = target.image
 				target.config(text="", image=img)
 				camera.exit(context)
@@ -946,7 +946,7 @@ class StartPage(tkinter.Frame):
 		liveViewEvents["stopLiveView"].clear()
 		liveViewEvents["active"].clear()
 		camera.exit(context)
-		target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
+		target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg").resize((800,533), Image.ANTIALIAS))
 		imgLiveView = target.image
 		target.config(text="", image=imgLiveView)
 
