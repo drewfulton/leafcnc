@@ -1492,9 +1492,12 @@ class Initilization(tkinter.Frame):
 		self.grid_rowconfigure(14, minsize=45)
 		self.grid_rowconfigure(15, minsize=10)
 		self.grid_rowconfigure(20, minsize=45)
-		self.grid_rowconfigure(21, minsize=45)
+		self.grid_rowconfigure(21, minsize=10)
 		self.grid_rowconfigure(22, minsize=45)
-		self.grid_rowconfigure(23, minsize=45)
+		self.grid_rowconfigure(23, minsize=10)
+		self.grid_rowconfigure(24, minsize=45)
+		self.grid_rowconfigure(25, minsize=10)
+		self.grid_rowconfigure(26, minsize=45)
 		self.grid_rowconfigure(30, minsize=45)
 		self.grid_rowconfigure(31, minsize=10)
 		self.grid_rowconfigure(32, minsize=45)
@@ -1523,7 +1526,7 @@ class Initilization(tkinter.Frame):
 		btnCNCRightLarge = ttk.Button(self, text="Right 100mm", command=lambda: moveCNCbyAmount(100, 0, machine), width=30)
 	
 		self.btnLiveView = ttk.Label(self, text="")
-		self.btnLiveView.grid(row=20, column=13, sticky="NEWS", rowspan=8)
+		self.btnLiveView.grid(row=20, column=13, sticky="NEWS", rowspan=7)
 		self.imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg").resize((400,267), Image.ANTIALIAS))
 		self.btnLiveView.image = self.imgLiveView
 		self.btnLiveView.config(text="", image=self.imgLiveView)
