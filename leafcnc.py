@@ -1484,7 +1484,8 @@ class Initilization(tkinter.Frame):
 		self.grid_columnconfigure(15, minsize=50)
 		
 		# Size Rows
-		self.grid_rowconfigure(2, minsize=100)
+		self.grid_rowconfigure(2, minsize=20)
+		self.grid_rowconfigure(5, minsize=45)
 		
 		self.grid_rowconfigure(10, minsize=45)
 		self.grid_rowconfigure(11, minsize=10)
@@ -1552,10 +1553,10 @@ class Initilization(tkinter.Frame):
 		btnCNCRightMed.grid(row=24, column=14, sticky="NS")
 		btnCNCRightSmall.grid(row=26, column=14, sticky="NS")
 
-		btnStartLV.grid(row=5, column=2, sticky="NEWS")
-		btnStopLV.grid(row=7, column=2, sticky="NEWS")
-# 		btnSetHardStop.grid(row=14, column=2, sticky="NEWS")
-# 		btnSetOrigin.grid(row=16, column=2, sticky="NEWS")
+		btnStartLV.grid(row=5, column=11, sticky="NEWS")
+		btnStopLV.grid(row=5, column=14, sticky="NEWS")
+ 		btnSetHardStop.grid(row=14, column=2, sticky="NEWS")
+ 		btnSetOrigin.grid(row=16, column=2, sticky="NEWS")
 		btnStartPage.grid(row=40, column=2, sticky="NEWS")
 		
 
