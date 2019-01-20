@@ -1476,13 +1476,11 @@ class Initilization(tkinter.Frame):
 		self.grid_columnconfigure(2, minsize=70)
 		self.grid_columnconfigure(3, minsize=15)
 		
-		self.grid_columnconfigure(10, minsize=20)
-		self.grid_columnconfigure(11, minsize=10)
+		self.grid_columnconfigure(11, minsize=50)
 		self.grid_columnconfigure(12, minsize=5)
 		self.grid_columnconfigure(13, minsize=400)
 		self.grid_columnconfigure(14, minsize=5)
-		self.grid_columnconfigure(15, minsize=10)
-		self.grid_columnconfigure(16, minsize=20)
+		self.grid_columnconfigure(15, minsize=50)
 		
 		# Size Rows
 		self.grid_rowconfigure(2, minsize=100)
@@ -1493,7 +1491,7 @@ class Initilization(tkinter.Frame):
 		self.grid_rowconfigure(13, minsize=267)
 		self.grid_rowconfigure(14, minsize=5)
 		self.grid_rowconfigure(15, minsize=10)
-		self.grid_rowconfigure(15, minsize=20)
+		self.grid_rowconfigure(16, minsize=20)
 		
 		self.grid_rowconfigure(99, minsize=20)
 
@@ -1530,20 +1528,20 @@ class Initilization(tkinter.Frame):
 		btnCNCUpLarge.grid(row=10, column=13)
 		btnCNCUpMed.grid(row=11, column=13)
 		btnCNCUpSmall.grid(row=12, column=13)
-		btnCNCLeftLarge.grid(row=13, column=12)
-		btnCNCLeftMed.grid(row=14, column=12)
-		btnCNCLeftSmall.grid(row=15, column=12)
-		btnCNCDownLarge.grid(row=16, column=13)
-		btnCNCDownMed.grid(row=17, column=13)
-		btnCNCDownSmall.grid(row=18, column=13)
+		btnCNCLeftLarge.grid(row=13, column=11)
+		btnCNCLeftMed.grid(row=14, column=11)
+		btnCNCLeftSmall.grid(row=15, column=11)
+		btnCNCDownLarge.grid(row=16, column=15)
+		btnCNCDownMed.grid(row=17, column=15)
+		btnCNCDownSmall.grid(row=18, column=15)
 		btnCNCRightLarge.grid(row=13, column=14)
 		btnCNCRightMed.grid(row=14, column=14)
 		btnCNCRightSmall.grid(row=15, column=14)
 
-		btnStartLV.grid(row=10, column=2, sticky="NEWS")
-		btnStopLV.grid(row=12, column=2, sticky="NEWS")
-		btnSetHardStop.grid(row=14, column=2, sticky="NEWS")
-		btnSetOrigin.grid(row=16, column=2, sticky="NEWS")
+# 		btnStartLV.grid(row=10, column=2, sticky="NEWS")
+# 		btnStopLV.grid(row=12, column=2, sticky="NEWS")
+# 		btnSetHardStop.grid(row=14, column=2, sticky="NEWS")
+# 		btnSetOrigin.grid(row=16, column=2, sticky="NEWS")
 		btnStartPage.grid(row=18, column=2, sticky="NEWS")
 		
 
