@@ -860,6 +860,7 @@ class StartPage(tkinter.Frame):
 	
 		def startLiveViewThreading(target):
 			global liveViewEvents
+			liveViewEvents["stopLiveView"].clear()
 			liveViewThread = threading.Thread(target=self.startLiveView, args=( target,))
 			liveViewThread.start()
 	
