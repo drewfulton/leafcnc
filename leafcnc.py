@@ -8,7 +8,7 @@ import gphoto2 as gp
 
 from gpiozero import LED
 from tkinter import *
-from tkinter import ttk, messagebox, filedialog
+from tkinter import tk, ttk, messagebox, filedialog
 from PIL import Image, ImageTk
 from multiprocessing.dummy import Pool as ThreadPool
 from lxml import etree as ET
