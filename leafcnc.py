@@ -22,6 +22,15 @@ systemStatus = {}
 status = {}
 liveViewActive = False
 liveViewEvents = {}
+liveViewEvents["active"] = threading.Event()
+liveViewEvents["focusCloserLarge"] = threading.Event()
+liveViewEvents["focusCloserMedium"] = threading.Event()
+liveViewEvents["focusCloserSmall"] = threading.Event()
+liveViewEvents["focusFartherLarge"] = threading.Event()
+liveViewEvents["focusFartherMedium"] = threading.Event()
+liveViewEvents["focusFartherSmall"] = threading.Event()
+liveViewEvents["capturingImage"] = threading.Event()
+liveViewEvents["stopLiveView"] = threading.Event()
 # Stores details about active sessionData
 sessionData = {}  
 imageCount = 1
@@ -855,15 +864,6 @@ class StartPage(tkinter.Frame):
 	
 		def startLiveViewThreading(target):
 			global liveViewEvents
-			liveViewEvents["active"] = threading.Event()
-			liveViewEvents["focusCloserLarge"] = threading.Event()
-			liveViewEvents["focusCloserMedium"] = threading.Event()
-			liveViewEvents["focusCloserSmall"] = threading.Event()
-			liveViewEvents["focusFartherLarge"] = threading.Event()
-			liveViewEvents["focusFartherMedium"] = threading.Event()
-			liveViewEvents["focusFartherSmall"] = threading.Event()
-			liveViewEvents["capturingImage"] = threading.Event()
-			liveViewEvents["stopLiveView"] = threading.Event()
 			liveViewThread = threading.Thread(target=self.startLiveView, args=( target,))
 			liveViewThread.start()
 	
@@ -1572,15 +1572,6 @@ class Initilization(tkinter.Frame):
 
 		def startLiveViewThreading(target):
 			global liveViewEvents
-			liveViewEvents["active"] = threading.Event()
-			liveViewEvents["focusCloserLarge"] = threading.Event()
-			liveViewEvents["focusCloserMedium"] = threading.Event()
-			liveViewEvents["focusCloserSmall"] = threading.Event()
-			liveViewEvents["focusFartherLarge"] = threading.Event()
-			liveViewEvents["focusFartherMedium"] = threading.Event()
-			liveViewEvents["focusFartherSmall"] = threading.Event()
-			liveViewEvents["capturingImage"] = threading.Event()
-			liveViewEvents["stopLiveView"] = threading.Event()
 			liveViewThread = threading.Thread(target=self.startLiveView, args=( target,))
 			liveViewThread.start()
 	
