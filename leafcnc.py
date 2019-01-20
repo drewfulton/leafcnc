@@ -810,7 +810,6 @@ class StartPage(tkinter.Frame):
 					self.manualFocusStackingWindow.grid_columnconfigure(4, minsize=400)
 					self.manualFocusStackingWindow.grid_columnconfigure(5, minsize=75)
 					self.manualFocusStackingWindow.grid_columnconfigure(6, minsize=10)
-					self.manualFocusStackingWindow.tk.attributes('-fullscreen',True)
 					
 					
 					manFocusStackingTitle = ttk.Label(self.manualFocusStackingWindow, text="Manual Focus Stacking", font=LARGE_FONT)
@@ -821,10 +820,6 @@ class StartPage(tkinter.Frame):
 					manFocusStackingLine2.grid(row=3, column=3, sticky="NEWS", columnspan=2)
 					manFocusStackingLine3 = ttk.Label(self.manualFocusStackingWindow, text="camera to the next position.", font=MED_FONT)
 					manFocusStackingLine3.grid(row=4, column=3, sticky="NEWS", columnspan=2)
-# 					btnStartLiveView = ttk.Button(manualFocusStackingWindow, text="Start Liveview", command=lambda: startLiveViewThreading(self.btnLiveViewFocusStacking))
-# 					btnStartLiveView.grid(row=5, column=3, sticky="NWS")
-# 					btnStopLivewView = ttk.Button(manualFocusStackingWindow, text="Stop Liveview", command=lambda: self.stopLiveView())
-# 					btnStopLivewView.grid(row=5, column=3, sticky="NES")
 					
 					self.btnLiveViewFocusStacking = ttk.Label(self.manualFocusStackingWindow, text="")
 					self.btnLiveViewFocusStacking.grid(row=6, column=3, sticky="NEWS", rowspan=4, columnspan=2)
