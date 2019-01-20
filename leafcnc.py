@@ -1545,7 +1545,85 @@ class Initilization(tkinter.Frame):
 		# Save and Return 
 		btnStartPage = ttk.Button(self, text="Back to Home", command=lambda: controller.show_frame(StartPage))
 		btnStartPage.grid(row=100, column=1, sticky="WE")
+
+		def startLiveViewThreading(target):
+			global liveViewEvents
+			liveViewEvents["active"] = threading.Event()
+			liveViewEvents["focusCloserLarge"] = threading.Event()
+			liveViewEvents["focusCloserMedium"] = threading.Event()
+			liveViewEvents["focusCloserSmall"] = threading.Event()
+			liveViewEvents["focusFartherLarge"] = threading.Event()
+			liveViewEvents["focusFartherMedium"] = threading.Event()
+			liveViewEvents["focusFartherSmall"] = threading.Event()
+			liveViewEvents["capturingImage"] = threading.Event()
+			liveViewEvents["stopLiveView"] = threading.Event()
+			liveViewThread = threading.Thread(target=self.startLiveView, args=( target,))
+			liveViewThread.start()
 	
+
+	
+	def startLiveView(self, target):
+		# Live View Testing - Start
+		global liveViewActive
+		global camera
+		global context
+		global imageCount
+		global globalPosition
+		global liveViewEvents
+		global imageList
+		global stackCount
+		liveViewActive = True
+		
+		stackCount = 1
+
+		# Connect to Camera
+		context = gp.Context()
+		camera = gp.Camera()
+		camera.init(context)
+		liveViewEvents["active"].set()
+		while not liveViewEvents["stopLiveView"].is_set():
+			if liveViewEvents["capturingImage"].is_set():
+				target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/CapturingImage.jpg"))
+				img = target.image
+				target.config(text="", image=img)
+				camera.exit(context)
+				cameraInfo = triggerImageUSB()
+				finalFilename = str(config["sample"]["id"])+"-"+str(config["sample"]["datestamp"])+"-"+str(imageCount).zfill(3)+str(cameraInfo.name[-4:])
+				imageList.append((cameraInfo.folder+"/"+cameraInfo.name, finalFilename))
+				time.sleep(int(config["camera"]["exposure"]))
+				imageCount += 1	
+				xmlTree = xmlAddImage(globalPosition, cameraInfo, finalFilename, stackCount)
+				stackCount += 1
+				liveViewEvents["capturingImage"].clear()
+			elif liveViewEvents["stopLiveView"].is_set():
+				break
+			else:
+				if liveViewEvents["focusCloserLarge"].is_set():
+					livewviewFocusCloser("Large")	
+					liveViewEvents["focusCloserLarge"].clear()
+				if liveViewEvents["focusCloserMedium"].is_set():
+					livewviewFocusCloser("Medium")	
+					liveViewEvents["focusCloserMedium"].clear()
+				if liveViewEvents["focusCloserSmall"].is_set():
+					livewviewFocusCloser("Small")	
+					liveViewEvents["focusCloserSmall"].clear()
+				if liveViewEvents["focusFartherLarge"].is_set():
+					livewviewFocusFarther("Large")	
+					liveViewEvents["focusFartherLarge"].clear()
+				if liveViewEvents["focusFartherMedium"].is_set():
+					livewviewFocusFarther("Medium")	
+					liveViewEvents["focusFartherMedium"].clear()
+				if liveViewEvents["focusFartherSmall"].is_set():
+					livewviewFocusFarther("Small")	
+					liveViewEvents["focusFartherSmall"].clear()
+				target = self.capturePreview(camera, target)
+				time.sleep(.05)
+		liveViewEvents["stopLiveView"].clear()
+		liveViewEvents["active"].clear()
+		camera.exit(context)
+		target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
+		imgLiveView = target.image
+		target.config(text="", image=imgLiveView)
 
 config = getConfig(configpath)
 machine = openCNC(config["cnc"]["port"])
