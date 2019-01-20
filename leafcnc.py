@@ -1517,7 +1517,7 @@ class Initilization(tkinter.Frame):
 	
 		self.btnLiveView = ttk.Label(self, text="")
 		self.btnLiveView.grid(row=10, column=4, sticky="NEWS", rowspan=11)
-		self.imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg").resize((400,267), ImageTk.ANTIALIAS))
+		self.imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg").resize((400,267), Image.ANTIALIAS))
 		self.btnLiveView.image = self.imgLiveView
 		self.btnLiveView.config(text="", image=self.imgLiveView)
 		
