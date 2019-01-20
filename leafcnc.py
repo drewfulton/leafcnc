@@ -1555,7 +1555,7 @@ class Initilization(tkinter.Frame):
 # 		btnStopLV.grid(row=12, column=2, sticky="NEWS")
 # 		btnSetHardStop.grid(row=14, column=2, sticky="NEWS")
 # 		btnSetOrigin.grid(row=16, column=2, sticky="NEWS")
-		btnStartPage.grid(row=18, column=2, sticky="NEWS")
+		btnStartPage.grid(row=40, column=2, sticky="NEWS")
 		
 
 		# Save and Return 
