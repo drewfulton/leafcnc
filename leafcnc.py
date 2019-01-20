@@ -904,9 +904,7 @@ class StartPage(tkinter.Frame):
 		camera = gp.Camera()
 		camera.init(context)
 		liveViewEvents["active"].set()
-		print("Test1")
 		while not liveViewEvents["stopLiveView"].is_set():
-			print("test2")
 			if liveViewEvents["capturingImage"].is_set():
 				target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/CapturingImage.jpg").resize((800,533), Image.ANTIALIAS))
 				img = target.image
