@@ -796,10 +796,10 @@ class StartPage(tkinter.Frame):
 					self.manualFocusStackingWindow.grid_rowconfigure(10, minsize=30)	#buttons
 					self.manualFocusStackingWindow.grid_rowconfigure(11, minsize=30)
 					self.manualFocusStackingWindow.grid_columnconfigure(1, minsize=50)
-					self.manualFocusStackingWindow.grid_columnconfigure(2, minsize=200)
+					self.manualFocusStackingWindow.grid_columnconfigure(2, minsize=100)
 					self.manualFocusStackingWindow.grid_columnconfigure(3, minsize=400)
 					self.manualFocusStackingWindow.grid_columnconfigure(4, minsize=400)
-					self.manualFocusStackingWindow.grid_columnconfigure(5, minsize=200)
+					self.manualFocusStackingWindow.grid_columnconfigure(5, minsize=100)
 					self.manualFocusStackingWindow.grid_columnconfigure(6, minsize=50)
 					
 					
