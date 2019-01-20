@@ -1472,12 +1472,14 @@ class Initilization(tkinter.Frame):
 		global machine
 		
 		# Size Columns
-		self.grid_columnconfigure(1, minsize=34)
+		self.grid_columnconfigure(1, minsize=15)
+		self.grid_columnconfigure(2, minsize=70)
+		self.grid_columnconfigure(3, minsize=15)
 		
 		self.grid_columnconfigure(10, minsize=20)
 		self.grid_columnconfigure(11, minsize=10)
 		self.grid_columnconfigure(12, minsize=5)
-		self.grid_columnconfigure(13, minsize=20)
+		self.grid_columnconfigure(13, minsize=400)
 		self.grid_columnconfigure(14, minsize=5)
 		self.grid_columnconfigure(15, minsize=10)
 		self.grid_columnconfigure(16, minsize=20)
@@ -1488,7 +1490,7 @@ class Initilization(tkinter.Frame):
 		self.grid_rowconfigure(10, minsize=20)
 		self.grid_rowconfigure(11, minsize=10)
 		self.grid_rowconfigure(12, minsize=5)
-		self.grid_rowconfigure(13, minsize=20)
+		self.grid_rowconfigure(13, minsize=267)
 		self.grid_rowconfigure(14, minsize=5)
 		self.grid_rowconfigure(15, minsize=10)
 		self.grid_rowconfigure(15, minsize=20)
@@ -1500,21 +1502,30 @@ class Initilization(tkinter.Frame):
 		pageTitle.grid(row=0, columnspan=100, sticky="WE")
 
 		# CNC Initilization Buttons
-		btnCNCUpSmall = ttk.Button(self, text="Up5", command=lambda: moveCNCbyAmount(0, 5, machine))
-		btnCNCUpMed = ttk.Button(self, text="Up50", command=lambda: moveCNCbyAmount(0, 50, machine))
-		btnCNCUpLarge = ttk.Button(self, text="Up100", command=lambda: moveCNCbyAmount(0, 100, machine))
-		btnCNCLeftSmall = ttk.Button(self, text="Left5", command=lambda: moveCNCbyAmount(-5, 0, machine))
-		btnCNCLeftMed = ttk.Button(self, text="Left50", command=lambda: moveCNCbyAmount(-50, 0, machine))
-		btnCNCLeftLarge = ttk.Button(self, text="Left100", command=lambda: moveCNCbyAmount(-100, 0, machine))
-		btnCNCDownSmall = ttk.Button(self, text="Down5", command=lambda: moveCNCbyAmount(0, -5, machine))
-		btnCNCDownMed = ttk.Button(self, text="Down50", command=lambda: moveCNCbyAmount(0, -50, machine))
-		btnCNCDownLarge = ttk.Button(self, text="Down100", command=lambda: moveCNCbyAmount(0, -100, machine))
-		btnCNCRightSmall = ttk.Button(self, text="Right5", command=lambda: moveCNCbyAmount(5, 0, machine))
-		btnCNCRightMed = ttk.Button(self, text="Right50", command=lambda: moveCNCbyAmount(50, 0, machine))
-		btnCNCRightLarge = ttk.Button(self, text="Right100", command=lambda: moveCNCbyAmount(100, 0, machine))
+		btnCNCUpSmall = ttk.Button(self, text="Up 5mm", command=lambda: moveCNCbyAmount(0, 5, machine))
+		btnCNCUpMed = ttk.Button(self, text="Up 50mm", command=lambda: moveCNCbyAmount(0, 50, machine))
+		btnCNCUpLarge = ttk.Button(self, text="Up 100mm", command=lambda: moveCNCbyAmount(0, 100, machine))
+		btnCNCLeftSmall = ttk.Button(self, text="Left 5mm", command=lambda: moveCNCbyAmount(-5, 0, machine))
+		btnCNCLeftMed = ttk.Button(self, text="Left 50mm", command=lambda: moveCNCbyAmount(-50, 0, machine))
+		btnCNCLeftLarge = ttk.Button(self, text="Left 100mm", command=lambda: moveCNCbyAmount(-100, 0, machine))
+		btnCNCDownSmall = ttk.Button(self, text="Down 5mm", command=lambda: moveCNCbyAmount(0, -5, machine))
+		btnCNCDownMed = ttk.Button(self, text="Down 50mm", command=lambda: moveCNCbyAmount(0, -50, machine))
+		btnCNCDownLarge = ttk.Button(self, text="Down 100mm", command=lambda: moveCNCbyAmount(0, -100, machine))
+		btnCNCRightSmall = ttk.Button(self, text="Right 5mm", command=lambda: moveCNCbyAmount(5, 0, machine))
+		btnCNCRightMed = ttk.Button(self, text="Right 50mm", command=lambda: moveCNCbyAmount(50, 0, machine))
+		btnCNCRightLarge = ttk.Button(self, text="Right 100mm", command=lambda: moveCNCbyAmount(100, 0, machine))
 	
+		self.btnLiveView = ttk.Label(self, text="")
+		self.btnLiveView.grid(row=10, column=4, sticky="NEWS", rowspan=11)
+		self.imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg").resize((400,267), ImageTk.ANTIALIAS))
+		self.btnLiveView.image = self.imgLiveView
+		self.btnLiveView.config(text="", image=self.imgLiveView)
 		
+		btnStartLV = ttk.Button(self, text="Start Live View", command=lambda: startLiveViewThreading(self.btnLiveView))
+		btnStopLV = ttk.Button(self, text="Stop Live View", command=lambda: liveViewEvents["stopLiveView"].set())
+		btnSetHardStop = ttk.Button(self, text="Set Hard Stop", command=lambda: setCNCHardStop())
 		btnSetOrigin = ttk.Button(self, text="Set Origin", command=lambda: setCNCOrigin())
+		btnStartPage = ttk.Button(self, text="Back to Home", command=lambda: controller.show_frame(StartPage))
 		
 		btnCNCUpLarge.grid(row=10, column=13, sticky="NEWS")
 		btnCNCUpMed.grid(row=11, column=13, sticky="NEWS")
