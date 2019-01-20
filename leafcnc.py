@@ -598,20 +598,19 @@ class StartPage(tkinter.Frame):
 		self.grid_columnconfigure(5, minsize=34)
 
 		# Size Rows
-		self.grid_rowconfigure(0, minsize=20)
+		self.grid_rowconfigure(0, minsize=10)
 		self.grid_rowconfigure(2, minsize=50)
-		self.grid_rowconfigure(3, minsize=20)
+		self.grid_rowconfigure(3, minsize=10)
 		self.grid_rowconfigure(10, minsize=50)
-		self.grid_rowconfigure(11, minsize=20)
+		self.grid_rowconfigure(11, minsize=10)
 		self.grid_rowconfigure(12, minsize=50)
-		self.grid_rowconfigure(13, minsize=20)
+		self.grid_rowconfigure(13, minsize=10)
 		self.grid_rowconfigure(14, minsize=50)
-		self.grid_rowconfigure(15, minsize=20)
+		self.grid_rowconfigure(15, minsize=10)
 		self.grid_rowconfigure(16, minsize=50)
-		self.grid_rowconfigure(17, minsize=20)
+		self.grid_rowconfigure(17, minsize=10)
 		self.grid_rowconfigure(18, minsize=50)
-		self.grid_rowconfigure(19, minsize=20)
-		self.grid_rowconfigure(99, minsize=20)
+		self.grid_rowconfigure(99, minsize=10)
  
 		# Page Title
 		pageTitle = ttk.Label(self, text="Leaf CNC Controller", font=LARGE_FONT, anchor=CENTER)
@@ -630,7 +629,7 @@ class StartPage(tkinter.Frame):
 		btnTest2 = ttk.Button(self, text="Test Function 2", command=lambda: self.test2())
 #		btnTest2.grid(row=20, column=11, sticky="NEWS")
 		self.btnLiveView = ttk.Label(self, text="")
-		self.btnLiveView.grid(row=10, column=2, sticky="NEWS", rowspan=11)
+		self.btnLiveView.grid(row=10, column=4, sticky="NEWS", rowspan=11)
 		self.imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
 		self.btnLiveView.image = self.imgLiveView
 		self.btnLiveView.config(text="", image=self.imgLiveView)
