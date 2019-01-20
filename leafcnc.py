@@ -31,7 +31,8 @@ cameraStatusUpdateText = ""
 # CNC Positions
 xPos = 0
 yPos = 0
-
+xOriginOffset = 0
+yOriginOffset = 0
 XMAX = 200 #should actually be 360 but just testing to avoid the circuit board
 YMAX = 470
 
@@ -64,8 +65,10 @@ def moveCNCbyAmount(dx,dy, machine):
 def moveCNCtoCoordinates(x, y, machine):
 	global xPos
 	global yPos
-	xPos = x
-	yPos = y
+	global xOriginOffset
+	global yOriginOffset
+	xPos = x + xOriginOffset
+	yPos = y + yOriginOffset
 	msg = 'G0 X'+str(xPos)+' Y'+str(yPos)+'\n'
 # 	print(str(msg))
 	machine.write(msg.encode())
@@ -82,6 +85,14 @@ def closeCNC(machine):
 	return True
 
 def setCNCOrigin():
+	global xOriginOffset
+	global yOriginOffset
+	global xPos
+	global yPos
+	xOriginOffset = xPos
+	yOriginOffset = yPos
+
+def setCNCHardStop():
 	global machine
 	global xPos
 	global yPos
