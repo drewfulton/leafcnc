@@ -1548,7 +1548,7 @@ class Initilization(tkinter.Frame):
 		btnStopLV = tkinter.Button(self, text="Stop Live View", fg="#ffffff", bg="#2b2b2b", command=lambda: liveViewEvents["stopLiveView"].set())
 		btnSetHardStop = tkinter.Button(self, text="Set Hard Stop", fg="#ffffff", bg="#2b2b2b", command=lambda: setCNCHardStop())
 		btnSetOrigin = tkinter.Button(self, text="Set Origin", fg="#ffffff", bg="#2b2b2b", command=lambda: setCNCOrigin())
-		btnStartPage = ttk.Button(self, text="Back to Home", command=lambda: controller.show_frame(StartPage))
+		btnStartPage = ttk.Button(self, text="Back to Home", command=lambda: [liveViewEvents["stopLiveView"].set(),controller.show_frame(StartPage)])
 		
 		btnCNCUpLarge.grid(row=10, column=13, sticky="NS")
 		btnCNCUpMed.grid(row=12, column=13, sticky="NS")
