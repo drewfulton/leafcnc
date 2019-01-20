@@ -1516,7 +1516,7 @@ class Initilization(tkinter.Frame):
 		btnCNCRightLarge = ttk.Button(self, text="Right 100mm", command=lambda: moveCNCbyAmount(100, 0, machine))
 	
 		self.btnLiveView = ttk.Label(self, text="")
-		self.btnLiveView.grid(row=10, column=4, sticky="NEWS", rowspan=11)
+		self.btnLiveView.grid(row=13, column=13, sticky="NEWS", rowspan=11)
 		self.imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg").resize((400,267), Image.ANTIALIAS))
 		self.btnLiveView.image = self.imgLiveView
 		self.btnLiveView.config(text="", image=self.imgLiveView)
@@ -1539,12 +1539,16 @@ class Initilization(tkinter.Frame):
 		btnCNCRightLarge.grid(row=13, column=16, sticky="NEWS")
 		btnCNCRightMed.grid(row=13, column=15, sticky="NEWS")
 		btnCNCRightSmall.grid(row=13, column=14, sticky="NEWS")
-		btnSetOrigin.grid(row=13, column=13, sticky="NEWS")
+
+		btnStartLV.grid(row=13, column=2, sticky="NEWS")
+		btnStopLV.grid(row=13, column=2, sticky="NEWS")
+		btnSetHardStop.grid(row=13, column=2, sticky="NEWS")
+		btnSetOrigin.grid(row=13, column=2, sticky="NEWS")
+		btnStartPage.grid(row=13, column=2, sticky="NEWS")
 		
 
 		# Save and Return 
 		btnStartPage = ttk.Button(self, text="Back to Home", command=lambda: controller.show_frame(StartPage))
-		btnStartPage.grid(row=100, column=1, sticky="WE")
 
 		def startLiveViewThreading(target):
 			global liveViewEvents
@@ -1559,8 +1563,6 @@ class Initilization(tkinter.Frame):
 			liveViewEvents["stopLiveView"] = threading.Event()
 			liveViewThread = threading.Thread(target=self.startLiveView, args=( target,))
 			liveViewThread.start()
-	
-
 	
 	def startLiveView(self, target):
 		# Live View Testing - Start
@@ -1621,7 +1623,7 @@ class Initilization(tkinter.Frame):
 		liveViewEvents["stopLiveView"].clear()
 		liveViewEvents["active"].clear()
 		camera.exit(context)
-		target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
+		target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg").resize((400,267), Image.ANTIALIAS))
 		imgLiveView = target.image
 		target.config(text="", image=imgLiveView)
 
