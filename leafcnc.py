@@ -592,27 +592,25 @@ class StartPage(tkinter.Frame):
 		
 		# Size Columns
 		self.grid_columnconfigure(1, minsize=34)
-		self.grid_columnconfigure(10, minsize=50)
-		self.grid_columnconfigure(12, minsize=50)
-		self.grid_columnconfigure(14, minsize=50)
-		self.grid_columnconfigure(16, minsize=50)
-		self.grid_columnconfigure(18, minsize=50)
-		self.grid_columnconfigure(20, minsize=50)
-		self.grid_columnconfigure(11, minsize=20)
-		self.grid_columnconfigure(13, minsize=20)
-		self.grid_columnconfigure(15, minsize=20)
-		self.grid_columnconfigure(17, minsize=20)
-		self.grid_columnconfigure(19, minsize=20)
-		self.grid_columnconfigure(99, minsize=34)
+		self.grid_columnconfigure(2, minsize=76)
+		self.grid_columnconfigure(3, minsize=34)
+		self.grid_columnconfigure(4, minsize=1056)
+		self.grid_columnconfigure(5, minsize=34)
 
 		# Size Rows
 		self.grid_rowconfigure(0, minsize=20)
 		self.grid_rowconfigure(2, minsize=50)
 		self.grid_rowconfigure(3, minsize=20)
 		self.grid_rowconfigure(10, minsize=50)
-		self.grid_rowconfigure(20, minsize=50)
-		self.grid_rowconfigure(31, minsize=50)
-		self.grid_rowconfigure(40, minsize=50)
+		self.grid_rowconfigure(11, minsize=20)
+		self.grid_rowconfigure(12, minsize=50)
+		self.grid_rowconfigure(13, minsize=20)
+		self.grid_rowconfigure(14, minsize=50)
+		self.grid_rowconfigure(15, minsize=20)
+		self.grid_rowconfigure(16, minsize=50)
+		self.grid_rowconfigure(17, minsize=20)
+		self.grid_rowconfigure(18, minsize=50)
+		self.grid_rowconfigure(19, minsize=20)
 		self.grid_rowconfigure(99, minsize=20)
  
 		# Page Title
@@ -622,27 +620,27 @@ class StartPage(tkinter.Frame):
 		
 		# Buttons
 		btnInit = ttk.Button(self, text="Table Initilization", command=lambda: controller.show_frame(Initilization))
-		btnInit.grid(row=10, column=12, sticky="NEWS")
+		btnInit.grid(row=10, column=2, sticky="NEWS")
 		btnRunSample = ttk.Button(self, text="Run Sample", command=lambda: [startSessionThreading(self.sessionStatus)])
-		btnRunSample.grid(row=10, column=10, sticky="NEWS")
+		btnRunSample.grid(row=12, column=2, sticky="NEWS")
 		btnSettings = ttk.Button(self, text="Settings", command=lambda: controller.show_frame(Settings))
-		btnSettings.grid(row=10, column=14, sticky="NEWS")
+		btnSettings.grid(row=14, column=2, sticky="NEWS")
 		btnTest = ttk.Button(self, text="Test Function", command=lambda: self.test())
 #		btnTest.grid(row=20, column=10, sticky="NEWS")
 		btnTest2 = ttk.Button(self, text="Test Function 2", command=lambda: self.test2())
 #		btnTest2.grid(row=20, column=11, sticky="NEWS")
 		self.btnLiveView = ttk.Label(self, text="")
-		self.btnLiveView.grid(row=30, column=10, sticky="NEWS", columnspan=11)
+		self.btnLiveView.grid(row=10, column=2, sticky="NEWS", rowspan=11)
 		self.imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
 		self.btnLiveView.image = self.imgLiveView
 		self.btnLiveView.config(text="", image=self.imgLiveView)
 		btnStartLiveView = ttk.Button(self, text="Start Liveview", command=lambda: startLiveViewThreading(self.btnLiveView))
-		btnStartLiveView.grid(row=40, column=14, sticky="NEWS")
+		btnStartLiveView.grid(row=16, column=2, sticky="NEWS")
 		btnStopLivewView = ttk.Button(self, text="Stop Liveview", command=lambda: liveViewEvents["stopLiveView"].set())
-		btnStopLivewView.grid(row=40, column=16, sticky="NEWS")
+		btnStopLivewView.grid(row=18, column=2, sticky="NEWS")
 		
 		btnQuit = ttk.Button(self, text="Quit", command=lambda: controller.quitProgram(machine))
-		btnQuit.grid(row=10, column=20, sticky="NEWS")
+		btnQuit.grid(row=20, column=2, sticky="NEWS")
 
 		def startSessionThreading(sessionStatus):
 			global liveViewEvents
