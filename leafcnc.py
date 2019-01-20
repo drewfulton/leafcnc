@@ -1493,7 +1493,6 @@ class Initilization(tkinter.Frame):
 		self.grid_rowconfigure(13, minsize=10)
 		self.grid_rowconfigure(14, minsize=45)
 		self.grid_rowconfigure(15, minsize=10)
-		self.grid_rowconfigure(20, minsize=5)
 		self.grid_rowconfigure(22, minsize=45)
 		self.grid_rowconfigure(23, minsize=10)
 		self.grid_rowconfigure(24, minsize=45)
@@ -1534,10 +1533,10 @@ class Initilization(tkinter.Frame):
 		self.btnLiveView.image = self.imgLiveView
 		self.btnLiveView.config(text="", image=self.imgLiveView)
 		
-		btnStartLV = ttk.Button(self, text="Start Live View", command=lambda: startLiveViewThreading(self.btnLiveView))
-		btnStopLV = ttk.Button(self, text="Stop Live View", command=lambda: liveViewEvents["stopLiveView"].set())
-		btnSetHardStop = ttk.Button(self, text="Set Hard Stop", command=lambda: setCNCHardStop())
-		btnSetOrigin = ttk.Button(self, text="Set Origin", command=lambda: setCNCOrigin())
+		btnStartLV = ttk.Button(self, text="Start Live View", fg='#db0000', command=lambda: startLiveViewThreading(self.btnLiveView))
+		btnStopLV = ttk.Button(self, text="Stop Live View", fg='#db0000', command=lambda: liveViewEvents["stopLiveView"].set())
+		btnSetHardStop = ttk.Button(self, text="Set Hard Stop", fg='#db0000', command=lambda: setCNCHardStop())
+		btnSetOrigin = ttk.Button(self, text="Set Origin", fg='#db0000', command=lambda: setCNCOrigin())
 		btnStartPage = ttk.Button(self, text="Back to Home", command=lambda: controller.show_frame(StartPage))
 		
 		btnCNCUpLarge.grid(row=10, column=13, sticky="NS")
@@ -1553,15 +1552,15 @@ class Initilization(tkinter.Frame):
 		btnCNCRightMed.grid(row=24, column=14, sticky="NS")
 		btnCNCRightSmall.grid(row=26, column=14, sticky="NS")
 
-		btnStartLV.grid(row=5, column=11, sticky="NEWS")
-		btnStopLV.grid(row=5, column=14, sticky="NEWS")
-		btnSetHardStop.grid(row=14, column=2, sticky="NEWS")
-		btnSetOrigin.grid(row=16, column=2, sticky="NEWS")
-		btnStartPage.grid(row=40, column=2, sticky="NEWS")
+		btnStartLV.grid(row=12, column=11, sticky="NEWS")
+		btnStopLV.grid(row=12, column=14, sticky="NEWS")
+		btnSetHardStop.grid(row=32, column=11, sticky="NEWS")
+		btnSetOrigin.grid(row=32, column=14, sticky="NEWS")
 		
 
 		# Save and Return 
 		btnStartPage = ttk.Button(self, text="Back to Home", command=lambda: controller.show_frame(StartPage))
+		btnStartPage.grid(row=40, column=2, sticky="NEWS")
 
 		def startLiveViewThreading(target):
 			global liveViewEvents
