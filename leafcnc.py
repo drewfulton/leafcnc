@@ -1491,7 +1491,6 @@ class Initilization(tkinter.Frame):
 		self.grid_rowconfigure(13, minsize=10)
 		self.grid_rowconfigure(14, minsize=45)
 		self.grid_rowconfigure(15, minsize=10)
-		self.grid_rowconfigure(20, minsize=45)
 		self.grid_rowconfigure(21, minsize=10)
 		self.grid_rowconfigure(22, minsize=45)
 		self.grid_rowconfigure(23, minsize=10)
