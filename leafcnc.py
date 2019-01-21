@@ -492,14 +492,14 @@ def xmlImageAddDarkFrame(filename):
 # Camera Database Management
 def saveCameraDatabase(cameraDatabase):
 	filepath = os.path.dirname(os.path.abspath(__file__))+"/backend/cameraDatabase.txt"
-	file = open(filepath, 'w')
-	file.write(repr(cameraDatabase))
+	file = open(filepath, 'w+')
+	file.write(str(cameraDatabase))
 	file.close()
 	return cameraDatabase
 
 def getCameraDatabase():
 	filepath = os.path.dirname(os.path.abspath(__file__))+"/backend/cameraDatabase.txt"
-	file = open(filepath, 'r')
+	file = open(filepath, 'r').read()
 	cameraDatabase = file
 	print(str(cameraDatabase))
 	return cameraDatabase
