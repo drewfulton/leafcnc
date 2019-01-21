@@ -17,6 +17,8 @@ from subprocess import call
 configpath = os.path.dirname(os.path.abspath(__file__))+"/config.ini"
 parser = ET.XMLParser(remove_blank_text=True)
 cameraDatabase = {}
+lensList = []
+bodyList = []
 
 # Stores info about the status of all components of system
 systemStatus = {}
@@ -1338,8 +1340,8 @@ class Settings(tkinter.Frame):
 		self.deleteImages.set(config['filepaths'].getboolean('delete'))
 		self.stackingSize = StringVar()
 		self.stackingSize.set(str(config['cnc']['stackingSize']))
-		self.bodyList = []
-		self.lensList = []
+		global bodyList
+		global lensList
 		
 		# Size Columns
 		self.grid_columnconfigure(1, minsize=50)
@@ -1375,8 +1377,8 @@ class Settings(tkinter.Frame):
 		self.grid_rowconfigure(27, minsize=20)
 		
 		def updateLens(self):
-			global self.lensList
-			global self.cameraBody
+			global lensList
+			global bodyList
 			self.lensList = list(cameraDatabase[str(self.cameraBody.get())].keys())
 		
 		# Page Title
