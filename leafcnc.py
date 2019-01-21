@@ -1369,6 +1369,10 @@ class Settings(tkinter.Frame):
 		self.grid_rowconfigure(26, minsize=10)
 		self.grid_rowconfigure(27, minsize=20)
 		
+		def updateLens():
+			self.cmbLens['values'] = list(cameraDatabase[self.cameraBody.get()].keys())
+
+		
 		# Page Title
 		pageTitle = ttk.Label(self, text="LeafCNC Settings", font=LARGE_FONT)
 		pageTitle.grid(row=0, columnspan=100, sticky="WE")
