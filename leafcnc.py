@@ -1374,9 +1374,6 @@ class Settings(tkinter.Frame):
 		self.grid_rowconfigure(26, minsize=10)
 		self.grid_rowconfigure(27, minsize=20)
 		
-		def updateLens():
-			self.cmbLens['values'] = list(cameraDatabase[self.cameraBody.get()].keys())
-
 		
 		# Page Title
 		pageTitle = ttk.Label(self, text="LeafCNC Settings", font=LARGE_FONT)
@@ -1454,10 +1451,11 @@ class Settings(tkinter.Frame):
 		btnStartPage = ttk.Button(self, text="Save", command=lambda: [self.updateVariable(), controller.show_frame(StartPage)])
 		btnStartPage.grid(row=100, column=1, sticky="WE")
 		
+		updateLists()
 		
-		if 
-		def updateLens():
-			self.cmbLens['values'] = list(cameraDatabase[self.cameraBody.get()].keys())
+		def updateLists():
+			# Camera Body List
+			pass
 
 
 		def selectDirectory(var):
