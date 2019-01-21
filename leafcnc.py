@@ -1460,7 +1460,7 @@ class Settings(tkinter.Frame):
 				self.bodyList.append(key)
 			cmbCameraBody.config(values=self.bodyList)
 							
-			if not self.cameraBody.get() == "":
+			if not str(self.cameraBody.get()) == "":
 				self.lensList = list(cameraDatabase[str(self.cameraBody.get())].keys())
 # 				self.cmbLens['values'] = self.lensList
 				self.cmbLens.config(values=self.lensList)
