@@ -1376,7 +1376,8 @@ class Settings(tkinter.Frame):
 
 		# Camera Settings
 		lblCameraBody = ttk.Label(self, text="Camera Body", font=MED_FONT)
-		cmbCameraBody = ttk.Combobox(self, textvariable=self.cameraBody, width=10, command=lambda: [updateLens()])
+		cmbCameraBody = ttk.Combobox(self, textvariable=self.cameraBody, width=10)
+		cmbCameraBody.bind("<<ComboboxSelected>>", updateLens)
 		cmbCameraBody['values'] = list(cameraDatabase.keys())
 		lblCameraBody.grid(row=10, column=10, sticky="WE")
 		cmbCameraBody.grid(row=10, column=11, sticky="WE")
