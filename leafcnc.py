@@ -1752,7 +1752,7 @@ config = getConfig(configpath)
 machine = openCNC(config["cnc"]["port"])
 xmlData = ET.Element("data")
 xmlTree = ET.ElementTree(xmlData)
-cameraDatabase = getCameraDatabase()
+# cameraDatabase = getCameraDatabase()
 
 #RunApplication Start
 app = LeafCNC()
