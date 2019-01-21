@@ -19,7 +19,13 @@ Prerequisites
 		pyserial
 		Pillow
 		gphoto2
-		
+	
+	Touchscreen Driver	
+		https://github.com/Elecrow-keen/Elecrow-LCD101.git
+			clone https://github.com/Elecrow-keen/Elecrow-LCD101.git
+			cd Elecrow-LCD101
+			sudo chmod +x Elecrow-LCD101
+			sudo ./Elecrow-LCD101
 		
 Installed for Testing Purposes (To Be Removed Later)
 	bCNC (https://github.com/vlachoudis/bCNC)
