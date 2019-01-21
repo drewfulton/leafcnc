@@ -3,7 +3,7 @@
 # LeafCNC Application
 
 # Import Libraries and Modules
-import tkinter, configparser, os, serial, time, threading, pygame, datetime, math, io
+import tkinter, configparser, os, serial, time, threading, pygame, datetime, math, io, pickle
 import gphoto2 as gp
 
 from tkinter import *
@@ -16,6 +16,7 @@ from subprocess import call
 # Global Variables
 configpath = os.path.dirname(os.path.abspath(__file__))+"/config.ini"
 parser = ET.XMLParser(remove_blank_text=True)
+cameraDatabase = {}
 
 # Stores info about the status of all components of system
 systemStatus = {}
@@ -488,8 +489,19 @@ def xmlImageAddDarkFrame(filename):
 	return xmlTree
 	
 
+# Camera Database Management
+def saveCameraDatabase(cameraDatabase):
+	filepath = os.path.dirname(os.path.abspath(__file__))+"/backedn/cameraDatabase.txt"
+	file = open(filepath, 'w')
+	pickle.dump(cameraDatabase, file)
+	file.close()
+	return cameraDatabase
 
-
+def getCameraDatabase():
+	filepath = os.path.dirname(os.path.abspath(__file__))+"/backedn/cameraDatabase.txt"
+	file = open(filepath, 'r')
+	cameraDatabase = pickle.load(file)
+	return cameraDatabase
 
 # Tkinter Application Overview
 class LeafCNC:
@@ -507,7 +519,7 @@ class LeafCNC:
 		self.tk.bind("<Escape>", self.end_fullscreen)
 
 		self.frames = {}
-		FrameList = (StartPage, Settings, Initilization)
+		FrameList = (StartPage, Settings, Initilization, CameraCalibration)
 		
 		for F in FrameList:
 			frame = F(self.frame, self)
@@ -592,6 +604,10 @@ class StartPage(tkinter.Frame):
 		self.grid_rowconfigure(16, minsize=50)
 		self.grid_rowconfigure(17, minsize=10)
 		self.grid_rowconfigure(18, minsize=50)
+		self.grid_rowconfigure(19, minsize=10)
+		self.grid_rowconfigure(20, minsize=50)
+		self.grid_rowconfigure(21, minsize=10)
+		self.grid_rowconfigure(22, minsize=50)
 		self.grid_rowconfigure(99, minsize=10)
  
 		# Page Title
@@ -615,9 +631,12 @@ class StartPage(tkinter.Frame):
 		btnStartLiveView.grid(row=16, column=2, sticky="NEWS")
 		btnStopLivewView = ttk.Button(self, text="Stop Liveview", command=lambda: liveViewEvents["stopLiveView"].set())
 		btnStopLivewView.grid(row=18, column=2, sticky="NEWS")
+
+		btnCamCalibration = ttk.Button(self, text="Camera Calibration", command=lambda: controller.show_frame(CameraCalibration))
+		btnCamCalibration.grid(row=20, column=2, sticky="NEWS")
 		
 		btnQuit = ttk.Button(self, text="Shutdown", command=lambda: controller.quitProgram(machine))
-		btnQuit.grid(row=20, column=2, sticky="NEWS")
+		btnQuit.grid(row=22, column=2, sticky="NEWS")
 
 		def startSessionThreading(sessionStatus):
 			# Starts the threads to run a Sampling Session
@@ -1356,13 +1375,13 @@ class Settings(tkinter.Frame):
 
 		# Camera Settings
 		lblCameraBody = ttk.Label(self, text="Camera Body", font=MED_FONT)
-		cmbCameraBody = ttk.Combobox(self, textvariable=self.cameraBody, width=10)
-		cmbCameraBody['values'] = ["Canon T2i"]
+		cmbCameraBody = ttk.Combobox(self, textvariable=self.cameraBody, width=10, command=updateLens)
+		cmbCameraBody['values'] = list(cameraDatabase.keys())
 		lblCameraBody.grid(row=10, column=10, sticky="WE")
 		cmbCameraBody.grid(row=10, column=11, sticky="WE")
 		lblLens = ttk.Label(self, text="Lens", font=MED_FONT)
-		cmbLens = ttk.Combobox(self, textvariable=self.lens, width=10)
-		cmbLens['values'] = ["Tokina 100"]
+		self.cmbLens = ttk.Combobox(self, textvariable=self.lens, width=10)
+		self.cmbLens['values'] = list(cameraDatabase[self.cameraBody.get()].keys())
 		lblLens.grid(row=12, column=10, sticky="WE")
 		cmbLens.grid(row=12, column=11, sticky="WE")
 		lblTriggerMethod = ttk.Label(self, text="Trigger Method", font=MED_FONT)
@@ -1423,6 +1442,10 @@ class Settings(tkinter.Frame):
 		# Save and Return 
 		btnStartPage = ttk.Button(self, text="Save", command=lambda: [self.updateVariable(), controller.show_frame(StartPage)])
 		btnStartPage.grid(row=100, column=1, sticky="WE")
+		
+		def updateLens():
+			self.cmbLens['values'] = list(cameraDatabase[self.cameraBody.get()].keys())
+
 
 		def selectDirectory(var):
 			directory = filedialog.askdirectory()
@@ -1443,6 +1466,105 @@ class Settings(tkinter.Frame):
 		config['filepaths']['xmlPath'] = str(self.xmlPath.get())
 		updateConfig(config, configpath)
 
+
+# Camera Calibration Page
+class CameraCalibration(tkinter.Frame):
+	# Camera Calibration Page
+	
+	def __init__(self, parent, controller):
+		tkinter.Frame.__init__(self,parent)
+		
+		# Variables
+		self.cameraBody = StringVar()
+		self.lens = StringVar()
+		self.heightBottom = StringVar()
+		self.heightTop = StringVar()
+		self.bottomWidth = StringVar()
+		self.topWidth = StringVar()
+		
+		# Size Columns
+		self.grid_columnconfigure(1, minsize=50)
+		self.grid_columnconfigure(10, minsize=100)
+		self.grid_columnconfigure(11, minsize=200)
+		self.grid_columnconfigure(12, minsize=25)
+		self.grid_columnconfigure(19, minsize=50)
+		self.grid_columnconfigure(20, minsize=100)
+		self.grid_columnconfigure(21, minsize=200)
+		self.grid_columnconfigure(99, minsize=50)
+		# Size Rows
+		self.grid_rowconfigure(2, minsize=100)
+		self.grid_rowconfigure(99, minsize=20)
+		self.grid_rowconfigure(10, minsize=20)
+		self.grid_rowconfigure(11, minsize=10)
+		self.grid_rowconfigure(10, minsize=20)
+		self.grid_rowconfigure(12, minsize=10)
+		self.grid_rowconfigure(13, minsize=20)
+		self.grid_rowconfigure(14, minsize=10)
+		self.grid_rowconfigure(15, minsize=20)
+		self.grid_rowconfigure(16, minsize=10)
+		self.grid_rowconfigure(17, minsize=20)
+		self.grid_rowconfigure(18, minsize=10)
+		self.grid_rowconfigure(19, minsize=20)
+
+		self.grid_rowconfigure(20, minsize=10)
+		self.grid_rowconfigure(21, minsize=20)
+		self.grid_rowconfigure(22, minsize=10)
+		self.grid_rowconfigure(23, minsize=20)
+		self.grid_rowconfigure(24, minsize=10)
+		self.grid_rowconfigure(25, minsize=20)
+		self.grid_rowconfigure(26, minsize=10)
+		self.grid_rowconfigure(27, minsize=20)
+		
+		# Page Title
+		pageTitle = ttk.Label(self, text="Calibrate a New Camera", font=LARGE_FONT)
+		pageTitle.grid(row=0, columnspan=100, sticky="WE")
+
+		# Camera Settings
+		lblCameraBody = ttk.Label(self, text="Camera Body", font=MED_FONT)
+		entryCameraBody = ttk.Entry(self, textvariable=self.cameraBody, width=10)
+		lblCameraBody.grid(row=10, column=10, sticky="WE")
+		entryCameraBody.grid(row=10, column=11, sticky="WE")
+		lblLens = ttk.Label(self, text="Lens", font=MED_FONT)
+		entryLens = ttk.Entry(self, textvariable=self.lens, width=10)
+		lblLens.grid(row=10, column=13, sticky="WE")
+		entryLens.grid(row=10, column=14, sticky="WE")
+		
+		# Focus Heights and Values
+		lblBottom = ttk.Label(self, text="Highest Magnification", font=LARGE_FONT)
+		lblBottomHeight = ttk.Label(self, text="Height", font=MED_FONT)
+		entryBottomHeight = ttk.Entry(self, textvariable=self.heightBottom, width=10)
+		lblBottomWidth = ttk.Label(self, text="Width (mm)", font=MED_FONT)
+		entryBottomWidth = ttk.Entry(self, textvariable=self.bottomWidth, width=10)
+		lblTop = ttk.Label(self, text="Lowest Magnification", font=LARGE_FONT)
+		lblTopHeight = ttk.Label(self, text="Height", font=MED_FONT)
+		entryTopHeight = ttk.Entry(self, textvariable=self.heightTop, width=10)
+		lblTopWidth = ttk.Label(self, text="Width (mm)", font=MED_FONT)
+		entryTopWidth = ttk.Entry(self, textvariable=self.topWidth, width=10)
+		
+		# Save and Return 
+		btnStartPage = ttk.Button(self, text="Save", command=lambda: [self.updateCameraDatabase(), controller.show_frame(StartPage)])
+		btnStartPage.grid(row=100, column=1, sticky="WE")
+
+		def selectDirectory(var):
+			directory = filedialog.askdirectory()
+			var.set(directory)
+			return var
+		
+	def updateCameraDatabase(self, event=None):
+		global cameraDatabase
+		camBody = self.cameraBody.get()
+		camLens = self.cameraLens.get()
+		if camBody not in cameraDatabase:
+			cameraDatabase[camBody] = {}
+		if camLens not in cameraDatabase[camBody]:
+			cameraDatabase[camBody][camLens] = {}
+		
+		cameraDatabase[camBody][camLens]["topHeight"] =  self.heightTop.get()
+		cameraDatabase[camBody][camLens]["topWidth"] =  self.topWidth.get()
+		cameraDatabase[camBody][camLens]["bottomHeight"] =  self.heightBottom.get()
+		cameraDatabase[camBody][camLens]["bottomWidth"] =  self.bottomWidth
+		
+		cameraDatabase = saveCameraDatabase(cameraDatabase)
 
 
 # Initilization Page
@@ -1621,6 +1743,7 @@ config = getConfig(configpath)
 machine = openCNC(config["cnc"]["port"])
 xmlData = ET.Element("data")
 xmlTree = ET.ElementTree(xmlData)
+cameraDatabase = getCameraDatabase()
 
 #RunApplication Start
 app = LeafCNC()
