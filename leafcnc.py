@@ -1453,7 +1453,6 @@ class Settings(tkinter.Frame):
 		btnStartPage = ttk.Button(self, text="Save", command=lambda: [self.updateVariable(), controller.show_frame(StartPage)])
 		btnStartPage.grid(row=100, column=1, sticky="WE")
 		
-		updateLists()
 		
 		def updateLists():
 			# Camera Body List
@@ -1464,6 +1463,8 @@ class Settings(tkinter.Frame):
 			directory = filedialog.askdirectory()
 			var.set(directory)
 			return var
+
+		updateLists()
 		
 	def updateVariable(self, event=None):
 		config['camera']['body'] = str(self.cameraBody.get())
