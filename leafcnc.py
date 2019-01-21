@@ -491,14 +491,14 @@ def xmlImageAddDarkFrame(filename):
 
 # Camera Database Management
 def saveCameraDatabase(cameraDatabase):
-	filepath = os.path.dirname(os.path.abspath(__file__))+"/backedn/cameraDatabase.txt"
+	filepath = os.path.dirname(os.path.abspath(__file__))+"/backend/cameraDatabase.txt"
 	file = open(filepath, 'w')
 	pickle.dump(cameraDatabase, file)
 	file.close()
 	return cameraDatabase
 
 def getCameraDatabase():
-	filepath = os.path.dirname(os.path.abspath(__file__))+"/backedn/cameraDatabase.txt"
+	filepath = os.path.dirname(os.path.abspath(__file__))+"/backend/cameraDatabase.txt"
 	file = open(filepath, 'r')
 	cameraDatabase = pickle.load(file)
 	return cameraDatabase
