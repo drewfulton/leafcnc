@@ -6,12 +6,12 @@
 import tkinter, configparser, os, serial, time, threading, pygame, datetime, math, io
 import gphoto2 as gp
 
-from gpiozero import LED
 from tkinter import *
 from tkinter import ttk, messagebox, filedialog
 from PIL import Image, ImageTk
 from multiprocessing.dummy import Pool as ThreadPool
 from lxml import etree as ET
+from subprocess import call
 
 # Global Variables
 configpath = os.path.dirname(os.path.abspath(__file__))+"/config.ini"
@@ -20,6 +20,8 @@ parser = ET.XMLParser(remove_blank_text=True)
 # Stores info about the status of all components of system
 systemStatus = {}
 status = {}
+
+# Global Variable with Live View Events
 liveViewActive = False
 liveViewEvents = {}
 liveViewEvents["active"] = threading.Event()
@@ -38,41 +40,36 @@ imageCount = 1
 globalPosition = None
 cameraStatusUpdateText = ""	
 
-# CNC Positions
+# CNC Positions & Variables
 xPos = 0
 yPos = 0
 xOriginOffset = 0
 yOriginOffset = 0
 XMAX = 200 #should actually be 360 but just testing to avoid the circuit board
 YMAX = 470
-
 rateOfTravel = 100 #mm/s
+
+
 # Display Constants
 LARGE_FONT = ("Verdana", 20)
 MED_FONT = ("Verdana", 12)
 SMALL_FONT = ("Verdana", 9)
 
 
-# GPIO Pin Settings
-focus = LED(17)
-shutter = LED(24)
-
-
 # Functions to Move CNC Machine
-
 def moveCNCbyAmount(dx,dy, machine):
+	# Shift the CNC machine by specific amount
 	global xPos
 	global yPos
 	xPos = xPos + dx
 	yPos = yPos + dy
 	msg = 'G0 X'+str(xPos)+' Y'+str(yPos)+'\n'
-# 	print(str(msg))
 	machine.write(msg.encode())
 	responseString = machine.readline().decode()
-# 	print("Response: "+str(responseString))
 	return responseString
 	 
 def moveCNCtoCoordinates(x, y, machine):
+	# Move CNC machine to specific position
 	global xPos
 	global yPos
 	global xOriginOffset
@@ -80,21 +77,22 @@ def moveCNCtoCoordinates(x, y, machine):
 	xPos = x + xOriginOffset
 	yPos = y + yOriginOffset
 	msg = 'G0 X'+str(xPos)+' Y'+str(yPos)+'\n'
-# 	print(str(msg))
 	machine.write(msg.encode())
 	responseString = machine.readline().decode()
-# 	print("Response: "+str(responseString))
 	return responseString
 
 def openCNC(port):
+	# Connect to CNC Machine
 	machine = serial.Serial(port,115200)
 	return machine
 
 def closeCNC(machine):
+	# Close the CNC Machine Connection
 	machine.close()
 	return True
 
 def setCNCOrigin():
+	# Set CNC Machine to Origin Position
 	global xOriginOffset
 	global yOriginOffset
 	global xPos
@@ -103,6 +101,7 @@ def setCNCOrigin():
 	yOriginOffset = yPos
 
 def setCNCHardStop():
+	# Set CNC Hard Stops so x=0 and y=0
 	global machine
 	global xPos
 	global yPos
@@ -113,112 +112,63 @@ def setCNCHardStop():
 
 
 # Functions to Control Camera
-def listFiles(camera, context, path='/'):
-    result = []
-    # get files
-    for name, value in camera.folder_list_files(path, context):
-        result.append(os.path.join(path, name))
-    # read folders
-    folders = []
-    for name, value in camera.folder_list_folders(path, context):
-        folders.append(name)
-    # recurse over subfolders
-    for name in folders:
-        result.extend(listFiles(camera, context, os.path.join(path, name)))
-    return result
-
 def get_file_info(camera, context, path):
     folder, name = os.path.split(path)
     return camera.file_get_info(folder, name, context)
 
 def triggerDarkFrame():
-	# Take Sample Image from Camera
-	# Connect to Camera
+	# Take Sample Image from Camera to help distinguish when downloading card
 	context = gp.Context()
 	camera = initCamera(context)		
-	# Get Image Size/Type Settings from Camera
+
+	# Get Existing Image Size/Type Settings from Camera
 	camConfig = camera.get_config(context) 
 	camSettings = {}
 	iso = camConfig.get_child_by_name("iso") 
 	camSettings["iso"] = iso.get_value()
 	shutterspeed = camConfig.get_child_by_name("shutterspeed") 
 	camSettings["shutterspeed"] = shutterspeed.get_value()
-# 	exposurecompensation = camConfig.get_child_by_name("exposurecompensation")			
-# 	camSettings["exposurecompensation"] = exposurecompensation.get_value()
-	# Set Camera to 128000 ISO at 1" exposure with +5 exposure compensation
+
+	# Set Camera to 100 ISO at 1/4000 exposure 
 	iso.set_value("100")
 	shutterspeed.set_value("1/4000")
-# 	exposurecompensation.set_value("5.0")
 	camera.set_config(camConfig, context)
+
 	# Capture Image
 	filePath = camera.capture(gp.GP_CAPTURE_IMAGE, context)
+
 	# Restore Original Size/Type Settings to Camera
 	iso.set_value(camSettings["iso"])
 	shutterspeed.set_value(camSettings["shutterspeed"])
-# 	exposurecompensation.set_value(camSettings["exposurecompensation"])
 	camera.set_config(camConfig, context)
 	
 	# Exit Camera
 	camera.exit(context)
-# 	print (filePath.name)
 	return (filePath.name)
 
 def triggerImageUSB():
-		
+	# Trigger frame on Camera over USB and return filePath
 	# Connect to Camera
 	context = gp.Context()
 	camera = initCamera(context)		
 
 	# Capture Image
 	filePath = camera.capture(gp.GP_CAPTURE_IMAGE, context)
-	
-	
-	
+
 	camera.exit(context)
 		
 	return (filePath)
 		
-def triggerImageCable(imageData):   
-		global focus
-		global shutter				
-		global rolledOver
-		focus.on()
-		time.sleep(0.25)
-		shutter.on()
-		time.sleep(0.5)
-		shutter.off()
-		time.sleep(0.1)
-		focus.off()
-		
-		# Calculate Filename
-		for cam in imageData:
-			cameraNumber, rotation, positionCount, positionDegree, whiteFrameFilename = cam
-			whiteFrameNumber = int(whiteFrameFilename[-8:-4])
-			if rolledOver[cameraNumber]:
-				positionCount += 1
-			currentFrameNumber = str(whiteFrameNumber + int(positionCount))[-4:].zfill(4)
-			if currentFrameNumber == "0000":
-				rolledOver[cameraNumber] = True
-				currentFrameNumber = str(int(currentFrameNumber)+1).zfill(4)
-			filename = whiteFrameFilename[:-8]+str(currentFrameNumber)	
-			
-			xmlTree = xmlAddImage(cameraNumber, rotation, positionCount, positionDegree, "", filename)	
-
 def createFolderStructure():
-	# Start File Directory Structure
+	# Create File Directory Structure
 	if not os.path.exists(config["filepaths"]["imagepath"]+'/'+config["sample"]["id"]+"-"+config["sample"]["datestamp"]):
 		os.makedirs(config["filepaths"]["imagepath"]+'/'+config["sample"]["id"]+"-"+config["sample"]["datestamp"])
 	print("Downloading to "+ str(config["filepaths"]["imagepath"]+'/'+config["sample"]["id"])+"-"+config["sample"]["datestamp"])
 
 def downloadImages(imageList):
-	#Get List of Files from Camera
+	# Download Images from Camera
 	context = gp.Context()
 	camera = initCamera(context)	
-# 	files = listFiles(camera, context)	
-# 	if not files:
-# 		camStatusUpdates[cameraNumber] = updateCameraDownloadStatus(cameraNumber, "No Files Found on Camera")
-# 		print("No Files on "+str(cameraNumber))
-# 		return	
 
 	for image in imageList:
 		(file, finalfilename) = image
@@ -238,10 +188,6 @@ def initCamera(context):
 	camera.init(context)
 	return camera
 
-def updateCameraDownloadStatus(cameraNumber, status):
-	update = "Camera "+cameraNumber[-1:]+": "+status
-	return update
-
 def filterFilename(filelist):
 	result = []
 	for path in filelist:
@@ -250,6 +196,7 @@ def filterFilename(filelist):
 	return result
 
 def livewviewFocusCloser(stepSize):
+	# Move Focus Closer based on given Step Size while in Live View
 	global camera
 	if stepSize == "Small":
 		step = "Near1"
@@ -266,6 +213,7 @@ def livewviewFocusCloser(stepSize):
 	camera.set_config(camConfig)
 
 def livewviewFocusFarther(stepSize):
+	# Move Focus Farther based on given Step Size while in Live View
 	global camera
 	if stepSize == "Small":
 		step = "Far1"
@@ -283,6 +231,7 @@ def livewviewFocusFarther(stepSize):
 	camera.set_config(camConfig)
 
 def moveFocusCloser(stepSize, count=1):
+	# Move Focus Closer based on given Step Size (not in live view)
 	if stepSize == "Small":
 		step = "Near1"
 	elif stepSize == "Medium":
@@ -310,6 +259,7 @@ def moveFocusCloser(stepSize, count=1):
 	camera.exit(context)
 
 def moveFocusFarther(stepSize, count=1):
+	# Move Focus Farther based on given Step Size (not in live view)
 	if stepSize == "Small":
 		step = "Far1"
 	elif stepSize == "Medium":
@@ -351,6 +301,7 @@ def createConfig(path):
 		config.write(config_file)
 
 def getConfig(path):
+	# Get Configuration from File
 	if not os.path.exists(path):
 		createConfig(path)
 	
@@ -359,11 +310,12 @@ def getConfig(path):
 	return config
 
 def updateConfig(config, path):
+	# Update Configuration File
 	with open(path, "w") as config_file:
 		config.write(config_file)
 
 
-# Miscellaneous Tkinter Functions
+# Miscellaneous Tkinter & Helper Functions
 def centerWindow(window):
 	time.sleep(0.25)
 	window.update_idletasks()
@@ -389,7 +341,7 @@ def playSoundThread(sound):
 	pygame.mixer.quit()
 
 def cancelSession():
-	#Doesn't actually do anything for now
+	#Doesn't actually do anything for now but can be used to shutdown processes if required
 	pass
 
 def setEvent(event):
@@ -400,9 +352,11 @@ def setEvent(event):
 
 # XML Management Functions
 def writeXML(xmlTree):
+	# Write XML to File
 	xmlTree.write(config["filepaths"]["xmlPath"]+'/'+config["sample"]["id"]+"-"+config["sample"]["datestamp"]+".xml", pretty_print=True)
 
 def initXML():
+	# Initialize the XML File
 	
 	# Sample Details
 	xmlSampleDetails = ET.SubElement(xmlData, "SampleDetails")
@@ -451,6 +405,7 @@ def initXML():
 	return xmlTree
 	
 def xmlLogTime(activity, state, other=""):
+	# Log the Time for an Activity
 	xmlData = xmlTree.getroot()
 	if other != "":
 		other = "/"+other
@@ -491,11 +446,13 @@ def xmlTaskStatus(activity, state, other=""):
 	writeXML(xmlTree)
 
 def xmlRestart():
+	# Clear and Restart XML Structure
 	xmlData = xmlTree.getroot()
 	xmlData.clear()
 	return xmlTree
 
 def xmlAddImage(position, cameraFileInfo, finalFilename, stackCount=1):
+	# Add Image to XML File
 	xmlData = xmlTree.getroot()
 	nodes = xmlData.findall("Images")
 	for node in nodes:
@@ -519,6 +476,7 @@ def xmlAddImage(position, cameraFileInfo, finalFilename, stackCount=1):
 	return xmlTree
 	
 def xmlImageAddDarkFrame(filename):
+	# Add Info for the Dark Frame to XML File
 	xmlData = xmlTree.getroot()
 	nodes = xmlData.findall("Images")
 	for node in nodes:
@@ -535,6 +493,7 @@ def xmlImageAddDarkFrame(filename):
 
 # Tkinter Application Overview
 class LeafCNC:
+	# Initial Tkinter Application
 	def __init__(self):
 		self.tk = Tk()
 		self.tk.attributes('-fullscreen',True)
@@ -580,7 +539,8 @@ class LeafCNC:
 	def quitProgram(self, machine, event=None):
 		updateConfig(config, configpath)
 		closeCNC(machine)
-		exit()
+		time.sleep(1)
+		call("sudo shutdown -h now", shell=True)
 		return "break"
 
 # Start Page Class
@@ -645,10 +605,6 @@ class StartPage(tkinter.Frame):
 		btnRunSample.grid(row=12, column=2, sticky="NEWS")
 		btnSettings = ttk.Button(self, text="Settings", command=lambda: controller.show_frame(Settings))
 		btnSettings.grid(row=14, column=2, sticky="NEWS")
-		btnTest = ttk.Button(self, text="Test Function", command=lambda: self.test())
-#		btnTest.grid(row=20, column=10, sticky="NEWS")
-		btnTest2 = ttk.Button(self, text="Test Function 2", command=lambda: self.test2())
-#		btnTest2.grid(row=20, column=11, sticky="NEWS")
 		self.btnLiveView = ttk.Label(self, text="")
 		self.btnLiveView.grid(row=10, column=4, sticky="NEWS", rowspan=11)
 		self.imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg").resize((800,533), Image.ANTIALIAS))
@@ -659,10 +615,11 @@ class StartPage(tkinter.Frame):
 		btnStopLivewView = ttk.Button(self, text="Stop Liveview", command=lambda: liveViewEvents["stopLiveView"].set())
 		btnStopLivewView.grid(row=18, column=2, sticky="NEWS")
 		
-		btnQuit = ttk.Button(self, text="Quit", command=lambda: controller.quitProgram(machine))
+		btnQuit = ttk.Button(self, text="Shutdown", command=lambda: controller.quitProgram(machine))
 		btnQuit.grid(row=20, column=2, sticky="NEWS")
 
 		def startSessionThreading(sessionStatus):
+			# Starts the threads to run a Sampling Session
 			global liveViewEvents
 			if "active" in liveViewEvents:
 				liveViewEvents["stopLiveView"].set()
@@ -684,6 +641,7 @@ class StartPage(tkinter.Frame):
 			
 		
 		def sessionWindow(events, sessionStatus):
+			# Creates the GUI Window for the Sampling Session
 			global liveViewEvents
 			sessionWindow = Toplevel(self)
 			sessionWindow.title("Leaf Sampling Session")
@@ -730,7 +688,6 @@ class StartPage(tkinter.Frame):
 				
 				if events["sampleInfoInit"].is_set():
 					events["pause"].set()
-# 					playSound("error")
 					sampleInfoInitWindow = Toplevel(self)
 					sampleInfoInitWindow.title("Sample Details")
 					sampleInfoInitWindow.grid_columnconfigure(1, minsize=30)
@@ -894,23 +851,15 @@ class StartPage(tkinter.Frame):
 			playSound("complete")
 	
 		def startLiveViewThreading(target):
+			# Starts the Live View processes
 			global liveViewEvents
 			liveViewEvents["stopLiveView"].clear()
 			liveViewThread = threading.Thread(target=self.startLiveView, args=( target,))
 			liveViewThread.start()
 	
 	
-	def test(self):
-		global liveViewEvents
-		liveViewEvents["focusCloserLarge"].set()
-		
-		pass
-		
-	def test2(self):
-		pass
-	
-		
 	def updateSampleInfo(self, event=None):
+		# Update Configuration File with Current Sample Info
 		config['sample']['id'] = str(self.sampleID.get())
 		config['sample']['cameraHeight'] = str(self.cameraHeight.get())
 		config['sample']['stackingMode'] = str(self.stackingMode.get())
@@ -920,6 +869,7 @@ class StartPage(tkinter.Frame):
 		updateConfig(config, configpath)
 
 	def startLiveView(self, target):
+		# Main Live View Functions and Handler
 		# Live View Testing - Start
 		global liveViewActive
 		global camera
@@ -983,10 +933,12 @@ class StartPage(tkinter.Frame):
 		target.config(text="", image=imgLiveView)
 
 	def stopLiveView(self, livewViewEvents):
+		# Triggers event to shutdown Live View - Currently unused
 		# Live View Testing - Stop
 		liveViewEvents["stopLiveView"].set()
 
 	def startSession(self, events, sessionStatus):
+		# Main Session Handler that triggers events in the GUI controlled above.
 		global rolledOver
 		global machine
 		global XMAX
@@ -1000,25 +952,12 @@ class StartPage(tkinter.Frame):
 		global imageList
 		
 		# Check to see if everything is ready
-# 		status["camerasInit"] = False
-# 		status["cameraSettings"] = False
-# 		status["tableInit"] = False
 		status["filepathInit"] = False
 		status["xmlpathInit"] = False
 		status["xmlCheck"] = False
 
 
 		# Check to see that camera is connected
-# 		if status["cameras"] > 0:
-# 			status["camerasInit"] = True
-# 		else: 
-# 			events["noCamerasPrompt"].set()
-# 			events["pause"].set()
-# 			while events["pause"].is_set():
-# 				if events["cancel"].is_set():
-# 					cancelSession()
-# 					break
-# 				pass
 		if events["cancel"].is_set():
 			events["complete"].set()
 			cancelSession()	
@@ -1078,7 +1017,7 @@ class StartPage(tkinter.Frame):
 			cancelSession()	
 			return
 								
-		# Check to see camera settings are not White Frame Settings (1" at 6400 ISO)
+		# Check to see camera settings are not Dark Frame Settings (1/4000 at 100 ISO)
 # 		status["cameraSettings"] = False
 # 		while not status["cameraSettings"]:
 # 			# Connect to Camera
@@ -1319,9 +1258,6 @@ class StartPage(tkinter.Frame):
 			return
 
 		# Reset Status Variables and Updates
-# 		status["camerasInit"] = False
-# 		status["cameraSettings"] = False
-# 		status["tableInit"] = False
 		status["filepathInit"] = False
 		status["xmlpathInit"] = False
 		status["xmlCheck"] = False
@@ -1334,6 +1270,7 @@ class StartPage(tkinter.Frame):
 		return
 			
 	def capturePreview(self, camera, target, focus=None):
+		# Live View Helper Function actually displays image on GUI
 		OK, camera_file = gp.gp_camera_capture_preview(camera)
 		imageData = camera_file.get_data_and_size()			
 		imgLiveView = ImageTk.PhotoImage(Image.open(io.BytesIO(imageData)).resize((800,533), Image.ANTIALIAS))
@@ -1345,6 +1282,8 @@ class StartPage(tkinter.Frame):
 
 # Settings Page
 class Settings(tkinter.Frame):
+	# System Settings Page
+	
 	def __init__(self, parent, controller):
 		tkinter.Frame.__init__(self,parent)
 		
@@ -1461,8 +1400,6 @@ class Settings(tkinter.Frame):
 
 		# File Paths
 		folderIcon = ImageTk.PhotoImage(Image.open("/home/pi/leafcnc/backend/folderIcon-small.png"))
-# 		lblDownloadFiles = ttk.Label(self, text="Download Files from Camera", font=MED_FONT)
-# 		lblDownloadFiles.grid(row=20, column=10, sticky="EW")
 		chkDownloadFiles = ttk.Checkbutton(self, var=self.download, text="Download Files from Camera", onvalue=True, offvalue=False, command=lambda: [self.updateVariable()] )
 		chkDownloadFiles.grid(row=20, column=11, sticky="EW")
 		chkDeleteFiles = ttk.Checkbutton(self, var=self.download, text="Delete Files from Camera after Download", onvalue=True, offvalue=False, command=lambda: [self.updateVariable()] )
@@ -1509,6 +1446,7 @@ class Settings(tkinter.Frame):
 
 # Initilization Page
 class Initilization(tkinter.Frame):
+	# CNC System Initilization
 	def __init__(self, parent, controller):
 		tkinter.Frame.__init__(self,parent)
 		
@@ -1608,7 +1546,7 @@ class Initilization(tkinter.Frame):
 			liveViewThread.start()
 	
 	def startLiveView(self, target):
-		# Live View Testing - Start
+		# Live View - Start
 		global liveViewActive
 		global camera
 		global context
