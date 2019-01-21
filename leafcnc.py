@@ -504,7 +504,7 @@ def getCameraDatabase():
 
 # 	file = open(filepath, 'r').read()
 # 	cameraDatabase = file
-# 	print(str(cameraDatabase))
+	print(str(cameraDatabase))
 	return cameraDatabase
 
 # Tkinter Application Overview
