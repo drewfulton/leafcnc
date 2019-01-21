@@ -1390,12 +1390,12 @@ class Settings(tkinter.Frame):
 		lblCameraBody = ttk.Label(self, text="Camera Body", font=MED_FONT)
 		cmbCameraBody = ttk.Combobox(self, textvariable=self.cameraBody, width=10)
 		cmbCameraBody.bind("<<ComboboxSelected>>", updateLens)
-		cmbCameraBody['values'] = self.bodyList
+		cmbCameraBody['values'] = bodyList
 		lblCameraBody.grid(row=10, column=10, sticky="WE")
 		cmbCameraBody.grid(row=10, column=11, sticky="WE")
 		lblLens = ttk.Label(self, text="Lens", font=MED_FONT)
 		self.cmbLens = ttk.Combobox(self, textvariable=self.lens, width=10)
-		self.cmbLens['values'] = self.lensList
+		self.cmbLens['values'] = lensList
 		lblLens.grid(row=12, column=10, sticky="WE")
 		self.cmbLens.grid(row=12, column=11, sticky="WE")
 		lblTriggerMethod = ttk.Label(self, text="Trigger Method", font=MED_FONT)
