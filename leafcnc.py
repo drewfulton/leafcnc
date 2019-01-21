@@ -1375,7 +1375,7 @@ class Settings(tkinter.Frame):
 		self.grid_rowconfigure(27, minsize=20)
 		
 		def updateLens(self):
-			if not self.cameraBody.get() == "":
+			if not str(self.cameraBody.get()) == "":
 				self.lensList = list(cameraDatabase[str(self.cameraBody.get())].keys())
 		
 		# Page Title
