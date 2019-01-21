@@ -493,13 +493,13 @@ def xmlImageAddDarkFrame(filename):
 def saveCameraDatabase(cameraDatabase):
 	filepath = os.path.dirname(os.path.abspath(__file__))+"/backend/cameraDatabase.txt"
 	with open(filepath, 'wb+') as f:
-        pickle.dump(cameraDatabase, f, pickle.HIGHEST_PROTOCOL)	
+		pickle.dump(cameraDatabase, f, pickle.HIGHEST_PROTOCOL)	
 	return cameraDatabase
 
 def getCameraDatabase():
 	filepath = os.path.dirname(os.path.abspath(__file__))+"/backend/cameraDatabase.txt"
 	with open(filepath, 'rb') as f:
-        cameraDatabase = pickle.load(f)
+		cameraDatabase = pickle.load(f)
 
 
 # 	file = open(filepath, 'r').read()
