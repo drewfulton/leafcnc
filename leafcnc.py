@@ -1379,7 +1379,7 @@ class Settings(tkinter.Frame):
 		def updateLens(self):
 			global lensList
 			global bodyList
-			self.lensList = list(cameraDatabase[str(self.cameraBody.get())].keys())
+			self.lensList = list(cameraDatabase[str(cameraBody.get())].keys())
 		
 		# Page Title
 		pageTitle = ttk.Label(self, text="LeafCNC Settings", font=LARGE_FONT)
