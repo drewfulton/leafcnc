@@ -22,6 +22,16 @@ systemStatus = {}
 status = {}
 liveViewActive = False
 liveViewEvents = {}
+liveViewEvents["active"] = threading.Event()
+liveViewEvents["focusCloserLarge"] = threading.Event()
+liveViewEvents["focusCloserMedium"] = threading.Event()
+liveViewEvents["focusCloserSmall"] = threading.Event()
+liveViewEvents["focusFartherLarge"] = threading.Event()
+liveViewEvents["focusFartherMedium"] = threading.Event()
+liveViewEvents["focusFartherSmall"] = threading.Event()
+liveViewEvents["capturingImage"] = threading.Event()
+liveViewEvents["stopLiveView"] = threading.Event()
+
 # Stores details about active sessionData
 sessionData = {}  
 imageCount = 1
@@ -31,7 +41,8 @@ cameraStatusUpdateText = ""
 # CNC Positions
 xPos = 0
 yPos = 0
-
+xOriginOffset = 0
+yOriginOffset = 0
 XMAX = 200 #should actually be 360 but just testing to avoid the circuit board
 YMAX = 470
 
@@ -64,8 +75,10 @@ def moveCNCbyAmount(dx,dy, machine):
 def moveCNCtoCoordinates(x, y, machine):
 	global xPos
 	global yPos
-	xPos = x
-	yPos = y
+	global xOriginOffset
+	global yOriginOffset
+	xPos = x + xOriginOffset
+	yPos = y + yOriginOffset
 	msg = 'G0 X'+str(xPos)+' Y'+str(yPos)+'\n'
 # 	print(str(msg))
 	machine.write(msg.encode())
@@ -82,6 +95,14 @@ def closeCNC(machine):
 	return True
 
 def setCNCOrigin():
+	global xOriginOffset
+	global yOriginOffset
+	global xPos
+	global yPos
+	xOriginOffset = xPos
+	yOriginOffset = yPos
+
+def setCNCHardStop():
 	global machine
 	global xPos
 	global yPos
@@ -592,28 +613,25 @@ class StartPage(tkinter.Frame):
 		
 		# Size Columns
 		self.grid_columnconfigure(1, minsize=34)
-		self.grid_columnconfigure(10, minsize=50)
-		self.grid_columnconfigure(12, minsize=50)
-		self.grid_columnconfigure(14, minsize=50)
-		self.grid_columnconfigure(16, minsize=50)
-		self.grid_columnconfigure(18, minsize=50)
-		self.grid_columnconfigure(20, minsize=50)
-		self.grid_columnconfigure(11, minsize=20)
-		self.grid_columnconfigure(13, minsize=20)
-		self.grid_columnconfigure(15, minsize=20)
-		self.grid_columnconfigure(17, minsize=20)
-		self.grid_columnconfigure(19, minsize=20)
-		self.grid_columnconfigure(99, minsize=34)
+		self.grid_columnconfigure(2, minsize=76)
+		self.grid_columnconfigure(3, minsize=34)
+		self.grid_columnconfigure(4, minsize=1056)
+		self.grid_columnconfigure(5, minsize=34)
 
 		# Size Rows
-		self.grid_rowconfigure(0, minsize=20)
+		self.grid_rowconfigure(0, minsize=10)
 		self.grid_rowconfigure(2, minsize=50)
-		self.grid_rowconfigure(3, minsize=20)
+		self.grid_rowconfigure(3, minsize=10)
 		self.grid_rowconfigure(10, minsize=50)
-		self.grid_rowconfigure(20, minsize=50)
-		self.grid_rowconfigure(31, minsize=50)
-		self.grid_rowconfigure(40, minsize=50)
-		self.grid_rowconfigure(99, minsize=20)
+		self.grid_rowconfigure(11, minsize=10)
+		self.grid_rowconfigure(12, minsize=50)
+		self.grid_rowconfigure(13, minsize=10)
+		self.grid_rowconfigure(14, minsize=50)
+		self.grid_rowconfigure(15, minsize=10)
+		self.grid_rowconfigure(16, minsize=50)
+		self.grid_rowconfigure(17, minsize=10)
+		self.grid_rowconfigure(18, minsize=50)
+		self.grid_rowconfigure(99, minsize=10)
  
 		# Page Title
 		pageTitle = ttk.Label(self, text="Leaf CNC Controller", font=LARGE_FONT, anchor=CENTER)
@@ -622,27 +640,27 @@ class StartPage(tkinter.Frame):
 		
 		# Buttons
 		btnInit = ttk.Button(self, text="Table Initilization", command=lambda: controller.show_frame(Initilization))
-		btnInit.grid(row=10, column=12, sticky="NEWS")
+		btnInit.grid(row=10, column=2, sticky="NEWS")
 		btnRunSample = ttk.Button(self, text="Run Sample", command=lambda: [startSessionThreading(self.sessionStatus)])
-		btnRunSample.grid(row=10, column=10, sticky="NEWS")
+		btnRunSample.grid(row=12, column=2, sticky="NEWS")
 		btnSettings = ttk.Button(self, text="Settings", command=lambda: controller.show_frame(Settings))
-		btnSettings.grid(row=10, column=14, sticky="NEWS")
+		btnSettings.grid(row=14, column=2, sticky="NEWS")
 		btnTest = ttk.Button(self, text="Test Function", command=lambda: self.test())
 #		btnTest.grid(row=20, column=10, sticky="NEWS")
 		btnTest2 = ttk.Button(self, text="Test Function 2", command=lambda: self.test2())
 #		btnTest2.grid(row=20, column=11, sticky="NEWS")
 		self.btnLiveView = ttk.Label(self, text="")
-		self.btnLiveView.grid(row=30, column=10, sticky="NEWS", columnspan=11)
-		self.imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
+		self.btnLiveView.grid(row=10, column=4, sticky="NEWS", rowspan=11)
+		self.imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg").resize((800,533), Image.ANTIALIAS))
 		self.btnLiveView.image = self.imgLiveView
 		self.btnLiveView.config(text="", image=self.imgLiveView)
 		btnStartLiveView = ttk.Button(self, text="Start Liveview", command=lambda: startLiveViewThreading(self.btnLiveView))
-		btnStartLiveView.grid(row=40, column=14, sticky="NEWS")
+		btnStartLiveView.grid(row=16, column=2, sticky="NEWS")
 		btnStopLivewView = ttk.Button(self, text="Stop Liveview", command=lambda: liveViewEvents["stopLiveView"].set())
-		btnStopLivewView.grid(row=40, column=16, sticky="NEWS")
+		btnStopLivewView.grid(row=18, column=2, sticky="NEWS")
 		
 		btnQuit = ttk.Button(self, text="Quit", command=lambda: controller.quitProgram(machine))
-		btnQuit.grid(row=10, column=20, sticky="NEWS")
+		btnQuit.grid(row=20, column=2, sticky="NEWS")
 
 		def startSessionThreading(sessionStatus):
 			global liveViewEvents
@@ -715,23 +733,57 @@ class StartPage(tkinter.Frame):
 # 					playSound("error")
 					sampleInfoInitWindow = Toplevel(self)
 					sampleInfoInitWindow.title("Sample Details")
-					sampleInfoInitTitle = ttk.Label(sampleInfoInitWindow, text="Enter Sample Information", font=MED_FONT).pack()
-					lblSampleID = ttk.Label(sampleInfoInitWindow, text="Sample ID:", font=MED_FONT).pack()
-					entrySampleID = ttk.Entry(sampleInfoInitWindow, textvariable=self.sampleID, width=10).pack()
-					lblCameraHeight = ttk.Label(sampleInfoInitWindow, text="Camera Height:", font=MED_FONT).pack()
-					entryCameraHeight = ttk.Entry(sampleInfoInitWindow, textvariable=self.cameraHeight, width=10).pack()
-					lblStackingMode = ttk.Label(sampleInfoInitWindow, text="Focus Stacking Mode:", font=MED_FONT).pack()
+					sampleInfoInitWindow.grid_columnconfigure(1, minsize=30)
+					sampleInfoInitWindow.grid_columnconfigure(2, minsize=40)
+					sampleInfoInitWindow.grid_columnconfigure(3, minsize=100)
+					sampleInfoInitWindow.grid_columnconfigure(4, minsize=30)
+					sampleInfoInitWindow.grid_rowconfigure(0, minsize=40) 	
+					sampleInfoInitWindow.grid_rowconfigure(1, minsize=10) 	
+					sampleInfoInitWindow.grid_rowconfigure(2, minsize=40) 	
+					sampleInfoInitWindow.grid_rowconfigure(3, minsize=10) 	
+					sampleInfoInitWindow.grid_rowconfigure(4, minsize=40) 	
+					sampleInfoInitWindow.grid_rowconfigure(5, minsize=10) 	
+					sampleInfoInitWindow.grid_rowconfigure(6, minsize=40) 	
+					sampleInfoInitWindow.grid_rowconfigure(7, minsize=10) 	
+					sampleInfoInitWindow.grid_rowconfigure(8, minsize=40) 	
+					sampleInfoInitWindow.grid_rowconfigure(9, minsize=10) 	
+					sampleInfoInitWindow.grid_rowconfigure(10, minsize=40) 	
+					sampleInfoInitWindow.grid_rowconfigure(11, minsize=10) 	
+					sampleInfoInitWindow.grid_rowconfigure(12, minsize=40) 	
+					sampleInfoInitWindow.grid_rowconfigure(13, minsize=10) 	
+					sampleInfoInitWindow.grid_rowconfigure(14, minsize=40) 	
+					sampleInfoInitWindow.grid_rowconfigure(15, minsize=40) 	
+					sampleInfoInitTitle = ttk.Label(sampleInfoInitWindow, text="Enter Sample Information", font=MED_FONT)
+					sampleInfoInitTitle.grid(row=0, column=2, sticky="NEWS")
+					lblSampleID = ttk.Label(sampleInfoInitWindow, text="Sample ID:", font=MED_FONT)
+					entrySampleID = ttk.Entry(sampleInfoInitWindow, textvariable=self.sampleID, width=10)
+					lblSampleID.grid(row=2, column=2, sticky="EW")
+					entrySampleID.grid(row=2, column=3, sticky="EW")
+					lblCameraHeight = ttk.Label(sampleInfoInitWindow, text="Camera Height:", font=MED_FONT)
+					entryCameraHeight = ttk.Entry(sampleInfoInitWindow, textvariable=self.cameraHeight, width=10)
+					lblCameraHeight.grid(row=4, column=2, sticky="EW")
+					entryCameraHeight.grid(row=4, column=3, sticky="EW")
+					lblStackingMode = ttk.Label(sampleInfoInitWindow, text="Focus Stacking Mode:", font=MED_FONT)
 					cmbStackingMode = ttk.Combobox(sampleInfoInitWindow, textvariable=self.stackingMode, width=10)
 					cmbStackingMode['values'] = ["None","Auto","Manual"]
-					cmbStackingMode.pack()
-					lblStackingCount = ttk.Label(sampleInfoInitWindow, text="Stacking Count:", font=MED_FONT).pack()
-					entryStackingCount = ttk.Entry(sampleInfoInitWindow, textvariable=self.stackingCount, width=10).pack()
-					lblSampleSizeX = ttk.Label(sampleInfoInitWindow, text="Sample Height:", font=MED_FONT).pack()
-					entrySampleSizeX = ttk.Entry(sampleInfoInitWindow, textvariable=self.sampleX, width=10).pack()
-					lblSampleSizeY = ttk.Label(sampleInfoInitWindow, text="Sample Width:", font=MED_FONT).pack()
-					entrySampleSizeY = ttk.Entry(sampleInfoInitWindow, textvariable=self.sampleY, width=10).pack()
-					sampleInfoInitContinue = ttk.Button(sampleInfoInitWindow, text="Continue", command=lambda: [self.updateSampleInfo(), closeWindow(sampleInfoInitWindow), events["pause"].clear()]).pack()
-					sampleInfoInitCancel = ttk.Button(sampleInfoInitWindow, text="Cancel", command=lambda: [closeWindow(sampleInfoInitWindow), events["cancel"].set(), events["pause"].clear()]).pack()
+					lblStackingMode.grid(row=6, column=2, sticky="EW")
+					cmbStackingMode.grid(row=6, column=3, sticky="EW")
+					lblStackingCount = ttk.Label(sampleInfoInitWindow, text="Stacking Count:", font=MED_FONT)
+					entryStackingCount = ttk.Entry(sampleInfoInitWindow, textvariable=self.stackingCount, width=10)
+					lblStackingCount.grid(row=8, column=2, sticky="EW")
+					entryStackingCount.grid(row=8, column=3, sticky="EW")
+					lblSampleSizeX = ttk.Label(sampleInfoInitWindow, text="Sample Height:", font=MED_FONT)
+					entrySampleSizeX = ttk.Entry(sampleInfoInitWindow, textvariable=self.sampleX, width=10)
+					lblSampleSizeX.grid(row=10, column=2, sticky="EW")
+					entrySampleSizeX.grid(row=10, column=3, sticky="EW")
+					lblSampleSizeY = ttk.Label(sampleInfoInitWindow, text="Sample Width:", font=MED_FONT)
+					entrySampleSizeY = ttk.Entry(sampleInfoInitWindow, textvariable=self.sampleY, width=10)
+					lblSampleSizeY.grid(row=12, column=2, sticky="EW")
+					entrySampleSizeY.grid(row=12, column=3, sticky="EW")
+					sampleInfoInitContinue = ttk.Button(sampleInfoInitWindow, text="Continue", command=lambda: [self.updateSampleInfo(), closeWindow(sampleInfoInitWindow), events["pause"].clear()])
+					sampleInfoInitCancel = ttk.Button(sampleInfoInitWindow, text="Cancel", command=lambda: [closeWindow(sampleInfoInitWindow), events["cancel"].set(), events["pause"].clear()])
+					sampleInfoInitContinue.grid(row=14, column=2, sticky="NEWS")
+					sampleInfoInitCancel.grid(row=14, column=3, sticky="NEWS")
 					centerWindow(sampleInfoInitWindow)
 					events["sampleInfoInit"].clear()
 				
@@ -787,33 +839,29 @@ class StartPage(tkinter.Frame):
 					self.manualFocusStackingWindow.grid_rowconfigure(9, minsize=30)	#buttons
 					self.manualFocusStackingWindow.grid_rowconfigure(10, minsize=30)	#buttons
 					self.manualFocusStackingWindow.grid_rowconfigure(11, minsize=30)
-					self.manualFocusStackingWindow.grid_columnconfigure(1, minsize=50)
-					self.manualFocusStackingWindow.grid_columnconfigure(2, minsize=200)
-					self.manualFocusStackingWindow.grid_columnconfigure(3, minsize=512)
-					self.manualFocusStackingWindow.grid_columnconfigure(4, minsize=512)
-					self.manualFocusStackingWindow.grid_columnconfigure(5, minsize=200)
-					self.manualFocusStackingWindow.grid_columnconfigure(6, minsize=50)
+					self.manualFocusStackingWindow.grid_columnconfigure(1, minsize=10)
+					self.manualFocusStackingWindow.grid_columnconfigure(2, minsize=75)
+					self.manualFocusStackingWindow.grid_columnconfigure(3, minsize=400)
+					self.manualFocusStackingWindow.grid_columnconfigure(4, minsize=400)
+					self.manualFocusStackingWindow.grid_columnconfigure(5, minsize=75)
+					self.manualFocusStackingWindow.grid_columnconfigure(6, minsize=10)
 					
 					
 					manFocusStackingTitle = ttk.Label(self.manualFocusStackingWindow, text="Manual Focus Stacking", font=LARGE_FONT)
-					manFocusStackingTitle.grid(row=1, column=3, sticky="NEWS")
+					manFocusStackingTitle.grid(row=1, column=3, sticky="NEWS", columnspan=2)
 					manFocusStackingLine1 = ttk.Label(self.manualFocusStackingWindow, text="To Perform Manual Focus Stacking, use the buttons to adjust the focus,", font=MED_FONT)
-					manFocusStackingLine1.grid(row=2, column=3, sticky="NEWS")
+					manFocusStackingLine1.grid(row=2, column=3, sticky="NEWS", columnspan=2)
 					manFocusStackingLine2 = ttk.Label(self.manualFocusStackingWindow, text="press Capture to take a picture, and press Next Position to move the ", font=MED_FONT)
-					manFocusStackingLine2.grid(row=3, column=3, sticky="NEWS")
+					manFocusStackingLine2.grid(row=3, column=3, sticky="NEWS", columnspan=2)
 					manFocusStackingLine3 = ttk.Label(self.manualFocusStackingWindow, text="camera to the next position.", font=MED_FONT)
-					manFocusStackingLine3.grid(row=4, column=3, sticky="NEWS")
-# 					btnStartLiveView = ttk.Button(manualFocusStackingWindow, text="Start Liveview", command=lambda: startLiveViewThreading(self.btnLiveViewFocusStacking))
-# 					btnStartLiveView.grid(row=5, column=3, sticky="NWS")
-# 					btnStopLivewView = ttk.Button(manualFocusStackingWindow, text="Stop Liveview", command=lambda: self.stopLiveView())
-# 					btnStopLivewView.grid(row=5, column=3, sticky="NES")
+					manFocusStackingLine3.grid(row=4, column=3, sticky="NEWS", columnspan=2)
 					
-					self.btnLiveViewFocusStacking = ttk.Label(self.manualFocusStackingWindow, text="", width=150)
+					self.btnLiveViewFocusStacking = ttk.Label(self.manualFocusStackingWindow, text="")
 					self.btnLiveViewFocusStacking.grid(row=6, column=3, sticky="NEWS", rowspan=4, columnspan=2)
-					imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
+					imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg").resize((800,533), Image.ANTIALIAS))
 					self.btnLiveViewFocusStacking.image = imgLiveView
 					self.btnLiveViewFocusStacking.config(text="", image=imgLiveView)
-					lblFocusCloser = ttk.Label(self.manualFocusStackingWindow, text="Move Focus Up", font=LARGE_FONT)
+					lblFocusCloser = ttk.Label(self.manualFocusStackingWindow, text="Focus Up", font=LARGE_FONT)
 					lblFocusCloser.grid(row=6, column=2, sticky="NEWS")
 					btnFocusCloserSmall = ttk.Button(self.manualFocusStackingWindow, text="Small", width=5, command=lambda: [liveViewEvents["focusCloserSmall"].set()])
 					btnFocusCloserSmall.grid(row=7, column=2, sticky="NEWS")
@@ -821,7 +869,7 @@ class StartPage(tkinter.Frame):
 					btnFocusCloserMedium.grid(row=8, column=2, sticky="NEWS")
 					btnFocusCloserLarge = ttk.Button(self.manualFocusStackingWindow, text="Large", width=15, command=lambda: [liveViewEvents["focusCloserLarge"].set()])
 					btnFocusCloserLarge.grid(row=9, column=2, sticky="NEWS")
-					lblFocusFarther = ttk.Label(self.manualFocusStackingWindow, text="Move Focus Down", font=LARGE_FONT)
+					lblFocusFarther = ttk.Label(self.manualFocusStackingWindow, text="Focus Down", font=LARGE_FONT)
 					lblFocusFarther.grid(row=6, column=5, sticky="NEWS")
 					btnFocusFartherSmall = ttk.Button(self.manualFocusStackingWindow, text="Small", width=5, command=lambda: [liveViewEvents["focusFartherSmall"].set()])
 					btnFocusFartherSmall.grid(row=7, column=5, sticky="NEWS")
@@ -847,15 +895,7 @@ class StartPage(tkinter.Frame):
 	
 		def startLiveViewThreading(target):
 			global liveViewEvents
-			liveViewEvents["active"] = threading.Event()
-			liveViewEvents["focusCloserLarge"] = threading.Event()
-			liveViewEvents["focusCloserMedium"] = threading.Event()
-			liveViewEvents["focusCloserSmall"] = threading.Event()
-			liveViewEvents["focusFartherLarge"] = threading.Event()
-			liveViewEvents["focusFartherMedium"] = threading.Event()
-			liveViewEvents["focusFartherSmall"] = threading.Event()
-			liveViewEvents["capturingImage"] = threading.Event()
-			liveViewEvents["stopLiveView"] = threading.Event()
+			liveViewEvents["stopLiveView"].clear()
 			liveViewThread = threading.Thread(target=self.startLiveView, args=( target,))
 			liveViewThread.start()
 	
@@ -900,7 +940,7 @@ class StartPage(tkinter.Frame):
 		liveViewEvents["active"].set()
 		while not liveViewEvents["stopLiveView"].is_set():
 			if liveViewEvents["capturingImage"].is_set():
-				target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/CapturingImage.jpg"))
+				target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/CapturingImage.jpg").resize((800,533), Image.ANTIALIAS))
 				img = target.image
 				target.config(text="", image=img)
 				camera.exit(context)
@@ -938,7 +978,7 @@ class StartPage(tkinter.Frame):
 		liveViewEvents["stopLiveView"].clear()
 		liveViewEvents["active"].clear()
 		camera.exit(context)
-		target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg"))
+		target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg").resize((800,533), Image.ANTIALIAS))
 		imgLiveView = target.image
 		target.config(text="", image=imgLiveView)
 
@@ -1296,7 +1336,7 @@ class StartPage(tkinter.Frame):
 	def capturePreview(self, camera, target, focus=None):
 		OK, camera_file = gp.gp_camera_capture_preview(camera)
 		imageData = camera_file.get_data_and_size()			
-		imgLiveView = ImageTk.PhotoImage(Image.open(io.BytesIO(imageData)))
+		imgLiveView = ImageTk.PhotoImage(Image.open(io.BytesIO(imageData)).resize((800,533), Image.ANTIALIAS))
 		target.image = imgLiveView
 		target.config(text="", image=imgLiveView)
 		return target
@@ -1466,6 +1506,7 @@ class Settings(tkinter.Frame):
 		updateConfig(config, configpath)
 
 
+
 # Initilization Page
 class Initilization(tkinter.Frame):
 	def __init__(self, parent, controller):
@@ -1475,26 +1516,39 @@ class Initilization(tkinter.Frame):
 		global machine
 		
 		# Size Columns
-		self.grid_columnconfigure(1, minsize=34)
+		self.grid_columnconfigure(1, minsize=15)
+		self.grid_columnconfigure(2, minsize=70)
+		self.grid_columnconfigure(3, minsize=15)
 		
-		self.grid_columnconfigure(10, minsize=20)
-		self.grid_columnconfigure(11, minsize=10)
+		self.grid_columnconfigure(11, minsize=50)
 		self.grid_columnconfigure(12, minsize=5)
-		self.grid_columnconfigure(13, minsize=20)
+		self.grid_columnconfigure(13, minsize=400)
 		self.grid_columnconfigure(14, minsize=5)
-		self.grid_columnconfigure(15, minsize=10)
-		self.grid_columnconfigure(16, minsize=20)
+		self.grid_columnconfigure(15, minsize=50)
 		
 		# Size Rows
-		self.grid_rowconfigure(2, minsize=100)
+		self.grid_rowconfigure(2, minsize=20)
+		self.grid_rowconfigure(5, minsize=45)
 		
-		self.grid_rowconfigure(10, minsize=20)
+		self.grid_rowconfigure(10, minsize=45)
 		self.grid_rowconfigure(11, minsize=10)
-		self.grid_rowconfigure(12, minsize=5)
-		self.grid_rowconfigure(13, minsize=20)
-		self.grid_rowconfigure(14, minsize=5)
+		self.grid_rowconfigure(12, minsize=45)
+		self.grid_rowconfigure(13, minsize=10)
+		self.grid_rowconfigure(14, minsize=45)
 		self.grid_rowconfigure(15, minsize=10)
-		self.grid_rowconfigure(15, minsize=20)
+		self.grid_rowconfigure(22, minsize=45)
+		self.grid_rowconfigure(23, minsize=10)
+		self.grid_rowconfigure(24, minsize=45)
+		self.grid_rowconfigure(25, minsize=10)
+		self.grid_rowconfigure(26, minsize=45)
+		self.grid_rowconfigure(29, minsize=10)
+		
+		self.grid_rowconfigure(30, minsize=45)
+		self.grid_rowconfigure(31, minsize=10)
+		self.grid_rowconfigure(32, minsize=45)
+		self.grid_rowconfigure(33, minsize=10)
+		self.grid_rowconfigure(34, minsize=45)
+		self.grid_rowconfigure(35, minsize=10)
 		
 		self.grid_rowconfigure(99, minsize=20)
 
@@ -1503,41 +1557,126 @@ class Initilization(tkinter.Frame):
 		pageTitle.grid(row=0, columnspan=100, sticky="WE")
 
 		# CNC Initilization Buttons
-		btnCNCUpSmall = ttk.Button(self, text="Up5", command=lambda: moveCNCbyAmount(0, 5, machine))
-		btnCNCUpMed = ttk.Button(self, text="Up50", command=lambda: moveCNCbyAmount(0, 50, machine))
-		btnCNCUpLarge = ttk.Button(self, text="Up100", command=lambda: moveCNCbyAmount(0, 100, machine))
-		btnCNCLeftSmall = ttk.Button(self, text="Left5", command=lambda: moveCNCbyAmount(-5, 0, machine))
-		btnCNCLeftMed = ttk.Button(self, text="Left50", command=lambda: moveCNCbyAmount(-50, 0, machine))
-		btnCNCLeftLarge = ttk.Button(self, text="Left100", command=lambda: moveCNCbyAmount(-100, 0, machine))
-		btnCNCDownSmall = ttk.Button(self, text="Down5", command=lambda: moveCNCbyAmount(0, -5, machine))
-		btnCNCDownMed = ttk.Button(self, text="Down50", command=lambda: moveCNCbyAmount(0, -50, machine))
-		btnCNCDownLarge = ttk.Button(self, text="Down100", command=lambda: moveCNCbyAmount(0, -100, machine))
-		btnCNCRightSmall = ttk.Button(self, text="Right5", command=lambda: moveCNCbyAmount(5, 0, machine))
-		btnCNCRightMed = ttk.Button(self, text="Right50", command=lambda: moveCNCbyAmount(50, 0, machine))
-		btnCNCRightLarge = ttk.Button(self, text="Right100", command=lambda: moveCNCbyAmount(100, 0, machine))
+		btnCNCUpSmall = ttk.Button(self, text="Up 5mm", command=lambda: moveCNCbyAmount(0, 5, machine), width=10)
+		btnCNCUpMed = ttk.Button(self, text="Up 50mm", command=lambda: moveCNCbyAmount(0, 50, machine), width=20)
+		btnCNCUpLarge = ttk.Button(self, text="Up 100mm", command=lambda: moveCNCbyAmount(0, 100, machine), width=30)
+		btnCNCLeftSmall = ttk.Button(self, text="Left 5mm", command=lambda: moveCNCbyAmount(-5, 0, machine), width=10)
+		btnCNCLeftMed = ttk.Button(self, text="Left 50mm", command=lambda: moveCNCbyAmount(-50, 0, machine), width=20)
+		btnCNCLeftLarge = ttk.Button(self, text="Left 100mm", command=lambda: moveCNCbyAmount(-100, 0, machine), width=30)
+		btnCNCDownSmall = ttk.Button(self, text="Down 5mm", command=lambda: moveCNCbyAmount(0, -5, machine), width=10)
+		btnCNCDownMed = ttk.Button(self, text="Down 50mm", command=lambda: moveCNCbyAmount(0, -50, machine), width=20)
+		btnCNCDownLarge = ttk.Button(self, text="Down 100mm", command=lambda: moveCNCbyAmount(0, -100, machine), width=30)
+		btnCNCRightSmall = ttk.Button(self, text="Right 5mm", command=lambda: moveCNCbyAmount(5, 0, machine), width=10)
+		btnCNCRightMed = ttk.Button(self, text="Right 50mm", command=lambda: moveCNCbyAmount(50, 0, machine), width=20)
+		btnCNCRightLarge = ttk.Button(self, text="Right 100mm", command=lambda: moveCNCbyAmount(100, 0, machine), width=30)
 	
+		self.btnLiveView = ttk.Label(self, text="")
+		self.btnLiveView.grid(row=20, column=13, sticky="NEWS", rowspan=7)
+		self.imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg").resize((400,267), Image.ANTIALIAS))
+		self.btnLiveView.image = self.imgLiveView
+		self.btnLiveView.config(text="", image=self.imgLiveView)
 		
-		btnSetOrigin = ttk.Button(self, text="Set Origin", command=lambda: setCNCOrigin())
+		btnStartLV = tkinter.Button(self, text="Start Live View", fg="#ffffff", bg="#2b2b2b", command=lambda: startLiveViewThreading(self.btnLiveView))
+		btnStopLV = tkinter.Button(self, text="Stop Live View", fg="#ffffff", bg="#2b2b2b", command=lambda: liveViewEvents["stopLiveView"].set())
+		btnSetHardStop = tkinter.Button(self, text="Set Hard Stop", fg="#ffffff", bg="#2b2b2b", command=lambda: setCNCHardStop())
+		btnSetOrigin = tkinter.Button(self, text="Set Origin", fg="#ffffff", bg="#2b2b2b", command=lambda: setCNCOrigin())
+		btnStartPage = ttk.Button(self, text="Back to Home", command=lambda: [liveViewEvents["stopLiveView"].set(),controller.show_frame(StartPage)])
 		
-		btnCNCUpLarge.grid(row=10, column=13, sticky="NEWS")
-		btnCNCUpMed.grid(row=11, column=13, sticky="NEWS")
-		btnCNCUpSmall.grid(row=12, column=13, sticky="NEWS")
-		btnCNCLeftLarge.grid(row=13, column=10, sticky="NEWS")
-		btnCNCLeftMed.grid(row=13, column=11, sticky="NEWS")
-		btnCNCLeftSmall.grid(row=13, column=12, sticky="NEWS")
-		btnCNCDownLarge.grid(row=16, column=13, sticky="NEWS")
-		btnCNCDownMed.grid(row=15, column=13, sticky="NEWS")
-		btnCNCDownSmall.grid(row=14, column=13, sticky="NEWS")
-		btnCNCRightLarge.grid(row=13, column=16, sticky="NEWS")
-		btnCNCRightMed.grid(row=13, column=15, sticky="NEWS")
-		btnCNCRightSmall.grid(row=13, column=14, sticky="NEWS")
-		btnSetOrigin.grid(row=13, column=13, sticky="NEWS")
-		
+		btnCNCUpLarge.grid(row=10, column=13, sticky="NS")
+		btnCNCUpMed.grid(row=12, column=13, sticky="NS")
+		btnCNCUpSmall.grid(row=14, column=13, sticky="NS")
+		btnCNCLeftLarge.grid(row=22, column=11, sticky="NS")
+		btnCNCLeftMed.grid(row=24, column=11, sticky="NS")
+		btnCNCLeftSmall.grid(row=26, column=11, sticky="NS")
+		btnCNCDownLarge.grid(row=30, column=13, sticky="NS")
+		btnCNCDownMed.grid(row=32, column=13, sticky="NS")
+		btnCNCDownSmall.grid(row=34, column=13, sticky="NS")
+		btnCNCRightLarge.grid(row=22, column=14, sticky="NS")
+		btnCNCRightMed.grid(row=24, column=14, sticky="NS")
+		btnCNCRightSmall.grid(row=26, column=14, sticky="NS")
 
-		# Save and Return 
-		btnStartPage = ttk.Button(self, text="Back to Home", command=lambda: controller.show_frame(StartPage))
-		btnStartPage.grid(row=100, column=1, sticky="WE")
+		btnStartLV.grid(row=12, column=11, sticky="NEWS")
+		btnStopLV.grid(row=12, column=14, sticky="NEWS")
+		btnSetHardStop.grid(row=32, column=11, sticky="NEWS")
+		btnSetOrigin.grid(row=32, column=14, sticky="NEWS")
+		btnStartPage.grid(row=40, column=2, sticky="NEWS")
+
+
+		def startLiveViewThreading(target):
+			global liveViewEvents
+			liveViewThread = threading.Thread(target=self.startLiveView, args=( target,))
+			liveViewThread.start()
 	
+	def startLiveView(self, target):
+		# Live View Testing - Start
+		global liveViewActive
+		global camera
+		global context
+		global imageCount
+		global globalPosition
+		global liveViewEvents
+		global imageList
+		global stackCount
+		liveViewActive = True
+		
+		stackCount = 1
+
+		# Connect to Camera
+		context = gp.Context()
+		camera = gp.Camera()
+		camera.init(context)
+		liveViewEvents["active"].set()
+		while not liveViewEvents["stopLiveView"].is_set():
+			if liveViewEvents["capturingImage"].is_set():
+				target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/CapturingImage.jpg"))
+				img = target.image
+				target.config(text="", image=img)
+				camera.exit(context)
+				cameraInfo = triggerImageUSB()
+				finalFilename = str(config["sample"]["id"])+"-"+str(config["sample"]["datestamp"])+"-"+str(imageCount).zfill(3)+str(cameraInfo.name[-4:])
+				imageList.append((cameraInfo.folder+"/"+cameraInfo.name, finalFilename))
+				time.sleep(int(config["camera"]["exposure"]))
+				imageCount += 1	
+				xmlTree = xmlAddImage(globalPosition, cameraInfo, finalFilename, stackCount)
+				stackCount += 1
+				liveViewEvents["capturingImage"].clear()
+			elif liveViewEvents["stopLiveView"].is_set():
+				break
+			else:
+				if liveViewEvents["focusCloserLarge"].is_set():
+					livewviewFocusCloser("Large")	
+					liveViewEvents["focusCloserLarge"].clear()
+				if liveViewEvents["focusCloserMedium"].is_set():
+					livewviewFocusCloser("Medium")	
+					liveViewEvents["focusCloserMedium"].clear()
+				if liveViewEvents["focusCloserSmall"].is_set():
+					livewviewFocusCloser("Small")	
+					liveViewEvents["focusCloserSmall"].clear()
+				if liveViewEvents["focusFartherLarge"].is_set():
+					livewviewFocusFarther("Large")	
+					liveViewEvents["focusFartherLarge"].clear()
+				if liveViewEvents["focusFartherMedium"].is_set():
+					livewviewFocusFarther("Medium")	
+					liveViewEvents["focusFartherMedium"].clear()
+				if liveViewEvents["focusFartherSmall"].is_set():
+					livewviewFocusFarther("Small")	
+					liveViewEvents["focusFartherSmall"].clear()
+				target = self.capturePreview(camera, target)
+				time.sleep(.05)
+		liveViewEvents["stopLiveView"].clear()
+		liveViewEvents["active"].clear()
+		camera.exit(context)
+		target.image = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg").resize((400,267), Image.ANTIALIAS))
+		imgLiveView = target.image
+		target.config(text="", image=imgLiveView)
+
+	def capturePreview(self, camera, target, focus=None):
+		OK, camera_file = gp.gp_camera_capture_preview(camera)
+		imageData = camera_file.get_data_and_size()			
+		imgLiveView = ImageTk.PhotoImage(Image.open(io.BytesIO(imageData)).resize((400,267), Image.ANTIALIAS))
+		target.image = imgLiveView
+		target.config(text="", image=imgLiveView)
+		return target
 
 config = getConfig(configpath)
 machine = openCNC(config["cnc"]["port"])
