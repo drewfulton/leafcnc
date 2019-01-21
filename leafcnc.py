@@ -3,7 +3,7 @@
 # LeafCNC Application
 
 # Import Libraries and Modules
-import tkinter, configparser, os, serial, time, threading, pygame, datetime, math, io, pickle
+import tkinter, configparser, os, serial, time, threading, pygame, datetime, math, io
 import gphoto2 as gp
 
 from tkinter import *
@@ -493,14 +493,15 @@ def xmlImageAddDarkFrame(filename):
 def saveCameraDatabase(cameraDatabase):
 	filepath = os.path.dirname(os.path.abspath(__file__))+"/backend/cameraDatabase.txt"
 	file = open(filepath, 'w')
-	pickle.dump(cameraDatabase, file)
+	file.write(repr(cameraDatabase))
 	file.close()
 	return cameraDatabase
 
 def getCameraDatabase():
 	filepath = os.path.dirname(os.path.abspath(__file__))+"/backend/cameraDatabase.txt"
-	file = (open(filepath, 'r')).encode()
-	cameraDatabase = pickle.load(file)
+	file = open(filepath, 'r')
+	cameraDatabase = file
+	print(str(cameraDatabase))
 	return cameraDatabase
 
 # Tkinter Application Overview
