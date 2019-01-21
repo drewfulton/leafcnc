@@ -1338,6 +1338,8 @@ class Settings(tkinter.Frame):
 		self.deleteImages.set(config['filepaths'].getboolean('delete'))
 		self.stackingSize = StringVar()
 		self.stackingSize.set(str(config['cnc']['stackingSize']))
+		self.bodyList = []
+		self.lensList = []
 		
 		# Size Columns
 		self.grid_columnconfigure(1, minsize=50)
@@ -1385,12 +1387,12 @@ class Settings(tkinter.Frame):
 		lblCameraBody = ttk.Label(self, text="Camera Body", font=MED_FONT)
 		cmbCameraBody = ttk.Combobox(self, textvariable=self.cameraBody, width=10)
 		cmbCameraBody.bind("<<ComboboxSelected>>", updateLens)
-		cmbCameraBody['values'] = list(cameraDatabase.keys())
+		cmbCameraBody['values'] = self.bodyList
 		lblCameraBody.grid(row=10, column=10, sticky="WE")
 		cmbCameraBody.grid(row=10, column=11, sticky="WE")
 		lblLens = ttk.Label(self, text="Lens", font=MED_FONT)
 		self.cmbLens = ttk.Combobox(self, textvariable=self.lens, width=10)
-		self.cmbLens['values'] = list(cameraDatabase[self.cameraBody.get()].keys())
+		self.cmbLens['values'] = self.lensList
 		lblLens.grid(row=12, column=10, sticky="WE")
 		cmbLens.grid(row=12, column=11, sticky="WE")
 		lblTriggerMethod = ttk.Label(self, text="Trigger Method", font=MED_FONT)
@@ -1452,6 +1454,8 @@ class Settings(tkinter.Frame):
 		btnStartPage = ttk.Button(self, text="Save", command=lambda: [self.updateVariable(), controller.show_frame(StartPage)])
 		btnStartPage.grid(row=100, column=1, sticky="WE")
 		
+		
+		if 
 		def updateLens():
 			self.cmbLens['values'] = list(cameraDatabase[self.cameraBody.get()].keys())
 
