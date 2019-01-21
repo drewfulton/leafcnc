@@ -1576,17 +1576,17 @@ class CameraCalibration(tkinter.Frame):
 		
 	def updateCameraDatabase(self, event=None):
 		global cameraDatabase
-		camBody = self.cameraBody.get()
-		camLens = self.lens.get()
+		camBody = str(self.cameraBody.get())
+		camLens = str(self.lens.get())
 		if camBody not in cameraDatabase:
 			cameraDatabase[camBody] = {}
 		if camLens not in cameraDatabase[camBody]:
 			cameraDatabase[camBody][camLens] = {}
 		
-		cameraDatabase[camBody][camLens]["topHeight"] =  self.heightTop.get()
-		cameraDatabase[camBody][camLens]["topWidth"] =  self.topWidth.get()
-		cameraDatabase[camBody][camLens]["bottomHeight"] =  self.heightBottom.get()
-		cameraDatabase[camBody][camLens]["bottomWidth"] =  self.bottomWidth
+		cameraDatabase[camBody][camLens]["topHeight"] =  str(self.heightTop.get())
+		cameraDatabase[camBody][camLens]["topWidth"] =  str(self.topWidth.get())
+		cameraDatabase[camBody][camLens]["bottomHeight"] =  str(self.heightBottom.get())
+		cameraDatabase[camBody][camLens]["bottomWidth"] =  str(self.bottomWidth.get())
 		
 		cameraDatabase = saveCameraDatabase(cameraDatabase)
 
