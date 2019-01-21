@@ -1375,7 +1375,8 @@ class Settings(tkinter.Frame):
 		self.grid_rowconfigure(27, minsize=20)
 		
 		def updateLens():
-			pass
+			if not self.cameraBody.get() == "":
+				self.lensList = list(cameraDatabase[str(self.cameraBody.get())].keys())
 		
 		# Page Title
 		pageTitle = ttk.Label(self, text="LeafCNC Settings", font=LARGE_FONT)
@@ -1455,8 +1456,11 @@ class Settings(tkinter.Frame):
 		
 		
 		def updateLists():
-			# Camera Body List
-			pass
+			for key in cameraDatabase.keys():
+				self.bodyList.append(key)
+			if not self.cameraBody.get() == "":
+				self.lensList = list(cameraDatabase[str(self.cameraBody.get())].keys())
+				
 
 
 		def selectDirectory(var):
