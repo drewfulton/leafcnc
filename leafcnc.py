@@ -1600,7 +1600,7 @@ class CameraCalibration(tkinter.Frame):
 		global cameraDatabase
 		camBody = str(self.cameraBody.get())
 		camLens = str(self.lens.get())
-		if not camBody == "" and not camLens == ""
+		if not camBody == "" and not camLens == "":
 			if camBody not in cameraDatabase:
 				cameraDatabase[camBody] = {}
 			if camLens not in cameraDatabase[camBody]:
