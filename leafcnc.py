@@ -1381,6 +1381,7 @@ class Settings(tkinter.Frame):
 			global bodyList
 			bodyList = []
 			lensList = []
+			self.lens.set('')
 			for key in cameraDatabase.keys():
 				bodyList.append(key)
 			cmbCameraBody.config(values=bodyList)
