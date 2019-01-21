@@ -600,7 +600,7 @@ class StartPage(tkinter.Frame):
 		
 		
 		# Buttons
-		btnInit = ttk.Button(self, text="Table Initilization", command=lambda: controller.show_frame(Initilization))
+		btnInit = ttk.Button(self, text="System Initilization", command=lambda: controller.show_frame(Initilization))
 		btnInit.grid(row=10, column=2, sticky="NEWS")
 		btnRunSample = ttk.Button(self, text="Run Sample", command=lambda: [startSessionThreading(self.sessionStatus)])
 		btnRunSample.grid(row=12, column=2, sticky="NEWS")
