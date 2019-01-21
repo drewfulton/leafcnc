@@ -502,11 +502,6 @@ def getCameraDatabase():
 	filepath = os.path.dirname(os.path.abspath(__file__))+"/backend/cameraDatabase.txt"
 	with open(filepath, 'rb') as f:
 		cameraDatabase = pickle.load(f)
-
-
-# 	file = open(filepath, 'r').read()
-# 	cameraDatabase = file
-	print(str(cameraDatabase))
 	return cameraDatabase
 
 # Tkinter Application Overview
@@ -1600,17 +1595,18 @@ class CameraCalibration(tkinter.Frame):
 		global cameraDatabase
 		camBody = str(self.cameraBody.get())
 		camLens = str(self.lens.get())
-		if camBody not in cameraDatabase:
-			cameraDatabase[camBody] = {}
-		if camLens not in cameraDatabase[camBody]:
-			cameraDatabase[camBody][camLens] = {}
+		if camBody not == "" and camLens not == ""
+			if camBody not in cameraDatabase:
+				cameraDatabase[camBody] = {}
+			if camLens not in cameraDatabase[camBody]:
+				cameraDatabase[camBody][camLens] = {}
 		
-		cameraDatabase[camBody][camLens]["topHeight"] =  str(self.heightTop.get())
-		cameraDatabase[camBody][camLens]["topWidth"] =  str(self.topWidth.get())
-		cameraDatabase[camBody][camLens]["bottomHeight"] =  str(self.heightBottom.get())
-		cameraDatabase[camBody][camLens]["bottomWidth"] =  str(self.bottomWidth.get())
+			cameraDatabase[camBody][camLens]["topHeight"] =  str(self.heightTop.get())
+			cameraDatabase[camBody][camLens]["topWidth"] =  str(self.topWidth.get())
+			cameraDatabase[camBody][camLens]["bottomHeight"] =  str(self.heightBottom.get())
+			cameraDatabase[camBody][camLens]["bottomWidth"] =  str(self.bottomWidth.get())
 		
-		cameraDatabase = saveCameraDatabase(cameraDatabase)
+			cameraDatabase = saveCameraDatabase(cameraDatabase)
 
 
 # Initilization Page
