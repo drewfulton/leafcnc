@@ -1375,6 +1375,8 @@ class Settings(tkinter.Frame):
 		self.grid_rowconfigure(27, minsize=20)
 		
 		def updateLens(self):
+			global self.lensList
+			global self.cameraBody
 			self.lensList = list(cameraDatabase[str(self.cameraBody.get())].keys())
 		
 		# Page Title
