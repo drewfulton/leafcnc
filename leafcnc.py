@@ -1562,8 +1562,8 @@ class CameraCalibration(tkinter.Frame):
 		lblTop.grid(row=20, column=20, sticky="WE")
 		lblTopHeight.grid(row=22, column=20, sticky="WE")
 		entryTopHeight.grid(row=22, column=21, sticky="WE")
-		lblTopWidth.grid(row=24, column=23, sticky="WE")
-		entryTopWidth.grid(row=24, column=24, sticky="WE")
+		lblTopWidth.grid(row=24, column=20, sticky="WE")
+		entryTopWidth.grid(row=24, column=21, sticky="WE")
 		
 		# Save and Return 
 		btnStartPage = ttk.Button(self, text="Save", command=lambda: [self.updateCameraDatabase(), controller.show_frame(StartPage)])
