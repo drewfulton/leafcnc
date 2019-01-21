@@ -1393,7 +1393,7 @@ class Settings(tkinter.Frame):
 		self.cmbLens = ttk.Combobox(self, textvariable=self.lens, width=10)
 		self.cmbLens['values'] = self.lensList
 		lblLens.grid(row=12, column=10, sticky="WE")
-		cmbLens.grid(row=12, column=11, sticky="WE")
+		self.cmbLens.grid(row=12, column=11, sticky="WE")
 		lblTriggerMethod = ttk.Label(self, text="Trigger Method", font=MED_FONT)
 		cmbTriggerMethod = ttk.Combobox(self, textvariable=self.triggerMethod, width=10)
 		cmbTriggerMethod['values'] = ["USB","Cable Release"]
