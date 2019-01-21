@@ -1459,14 +1459,16 @@ class Settings(tkinter.Frame):
 		
 		
 		def updateLists():
+			global bodyList
+			global lensList
 			for key in cameraDatabase.keys():
-				self.bodyList.append(key)
+				bodyList.append(key)
 			cmbCameraBody.config(values=self.bodyList)
 							
 			if not str(self.cameraBody.get()) == "":
-				self.lensList = list(cameraDatabase[str(self.cameraBody.get())].keys())
+				lensList = list(cameraDatabase[str(self.cameraBody.get())].keys())
 # 				self.cmbLens['values'] = self.lensList
-				self.cmbLens.config(values=self.lensList)
+				self.cmbLens.config(values=lensList)
 				
 
 
