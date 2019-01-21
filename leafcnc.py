@@ -293,7 +293,7 @@ def createConfig(path):
 	config = configparser.ConfigParser()
 	
 	config["cnc"] = {"port": "/dev/ttyUSB0", "xOverlap": "40", "yOverlap":"40", "pause":"1", "stackingSize":"Medium"}
-	config["camera"] = {"body": "Canon T2i", "lens": "Tokina 100mm", "trigger":"USB", "exposure":"1", "format":"JPG"}
+	config["camera"] = {"body": "", "lens": "", "trigger":"USB", "exposure":"1", "format":"JPG"}
 	config["filepaths"] = {"download":"True", "imagePath":'', "xmlPath": '', "delete":"True"}
 	config["sample"] = {"cameraHeight":"", "id":"", "stackingMode":"None", "stackingCount":"1", "sizeX":"360","sizeY":"470", "datestamp":""}
 	
