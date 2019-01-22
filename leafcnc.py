@@ -562,7 +562,6 @@ class LeafCNC:
 		return "break"
 		
 	def quitProgram(self, machine, event=None):
-		liveViewEvents["stopLiveView"].set()
 		updateConfig(config, configpath)
 		closeCNC(machine)
 		time.sleep(1)
@@ -647,7 +646,7 @@ class StartPage(tkinter.Frame):
 		btnStopLivewView = ttk.Button(self, text="Stop Liveview", command=lambda: liveViewEvents["stopLiveView"].set())
 		btnStopLivewView.grid(row=18, column=2, sticky="NEWS")
 
-		btnCamCalibration = ttk.Button(self, text="Camera Calibration", command=lambda: controller.show_frame(CameraCalibration))
+		btnCamCalibration = ttk.Button(self, text="Camera Calibration", command=lambda: [liveViewEvents["stopLiveView"].set(), controller.show_frame(CameraCalibration)])
 		btnCamCalibration.grid(row=20, column=2, sticky="NEWS")
 		
 		btnQuit = ttk.Button(self, text="Shutdown", command=lambda: controller.quitProgram(machine))
