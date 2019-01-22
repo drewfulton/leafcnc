@@ -637,7 +637,7 @@ class StartPage(tkinter.Frame):
 		btnSettings = ttk.Button(self, text="Settings", command=lambda: controller.show_frame(Settings))
 		btnSettings.grid(row=14, column=2, sticky="NEWS")
 		self.btnLiveView = ttk.Label(self, text="")
-		self.btnLiveView.grid(row=10, column=4, sticky="NEWS", rowspan=14)
+		self.btnLiveView.grid(row=10, column=4, sticky="NEWS", rowspan=13)
 		self.imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg").resize((800,533), Image.ANTIALIAS))
 		self.btnLiveView.image = self.imgLiveView
 		self.btnLiveView.config(text="", image=self.imgLiveView)
