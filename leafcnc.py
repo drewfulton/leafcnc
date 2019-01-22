@@ -562,6 +562,7 @@ class LeafCNC:
 		return "break"
 		
 	def quitProgram(self, machine, event=None):
+		liveViewEvents["stopLiveView"].set()
 		updateConfig(config, configpath)
 		closeCNC(machine)
 		time.sleep(1)
