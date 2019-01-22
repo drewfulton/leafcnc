@@ -510,10 +510,11 @@ def saveCameraDatabase(cameraDatabase):
 def getCameraDatabase():
 	filepath = os.path.dirname(os.path.abspath(__file__))+"/backend/cameraDatabase.txt"
 	with open(filepath, 'rb') as f:
-# 		if not str(f.read()) == "b''":
-		cameraDatabase = pickle.loads(f.read())
-# 		else:
-# 			cameraDatabase = {}
+		test = f
+		if not str(test.read()) == "b''":
+			cameraDatabase = pickle.load(f)
+		else:
+			cameraDatabase = {}
 	print("CameraDatabase: "+str(cameraDatabase))
 	return cameraDatabase
 
