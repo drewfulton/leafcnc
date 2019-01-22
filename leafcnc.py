@@ -649,7 +649,7 @@ class StartPage(tkinter.Frame):
 		btnCamCalibration = ttk.Button(self, text="Camera Calibration", command=lambda: controller.show_frame(CameraCalibration))
 		btnCamCalibration.grid(row=20, column=2, sticky="NEWS")
 		
-		btnQuit = ttk.Button(self, text="Shutdown", command=lambda: [self.stopLiveView(liveViewEvents), time.sleep(1), controller.quitProgram(machine)])
+		btnQuit = ttk.Button(self, text="Shutdown", command=lambda: [controller.quitProgram(machine)])
 		btnQuit.grid(row=22, column=2, sticky="NEWS")
 
 		def startSessionThreading(sessionStatus):
