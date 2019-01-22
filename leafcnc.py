@@ -513,7 +513,7 @@ def getCameraDatabase():
 		print("f: "+str(f))
 		if not str(f.read()) == "b''":
 			print("f: "+str(f))
-			cameraDatabase = pickle.load(f)
+			cameraDatabase = pickle.loads(f.read())
 		else:
 			cameraDatabase = {}
 	print("CameraDatabase: "+str(cameraDatabase))
