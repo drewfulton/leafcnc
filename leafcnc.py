@@ -514,8 +514,8 @@ def getCameraDatabase():
 		g.close()
 		with open(filepath, 'rb') as f:
 			cameraDatabase = pickle.load(f)
-		else:
-			cameraDatabase = {}
+	else:
+		cameraDatabase = {}
 	print("CameraDatabase: "+str(cameraDatabase))
 	return cameraDatabase
 
