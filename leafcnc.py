@@ -510,11 +510,11 @@ def saveCameraDatabase(cameraDatabase):
 def getCameraDatabase():
 	filepath = os.path.dirname(os.path.abspath(__file__))+"/backend/cameraDatabase.txt"
 	with open(filepath, 'rb') as f:
-		print(str(f.read()))
 		if not str(f.read()) == "b''":
 			cameraDatabase = pickle.load(f)
 		else:
 			cameraDatabase = {}
+	print("CameraDatabase: "+str(cameraDatabase))
 	return cameraDatabase
 
 # Tkinter Application Overview
