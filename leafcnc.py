@@ -511,7 +511,7 @@ def getCameraDatabase():
 	filepath = os.path.dirname(os.path.abspath(__file__))+"/backend/cameraDatabase.txt"
 	with open(filepath, 'rb') as f:
 		if not str(f.read()) == "b''":
-			print(str(f)
+			print("f: "+str(f))
 			cameraDatabase = pickle.load(f)
 		else:
 			cameraDatabase = {}
