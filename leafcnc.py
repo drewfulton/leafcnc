@@ -48,7 +48,9 @@ xPos = 0
 yPos = 0
 xOriginOffset = 0
 yOriginOffset = 0
-XMAX = 200 #should actually be 360 but just testing to avoid the circuit board
+xWorkspaceMax = 0
+yWorkspaceMax = 0
+XMAX = 360 
 YMAX = 470
 rateOfTravel = 100 #mm/s
 
@@ -100,9 +102,16 @@ def setCNCOrigin():
 	global yOriginOffset
 	global xPos
 	global yPos
+	global xWorkspaceMax
+	global yWorkspaceMax
+	global XMAX
+	global YMAX
+
 	xOriginOffset = xPos
 	yOriginOffset = yPos
-
+	xWorkspaceMax = XMAX - xOriginOffset
+	yWorkspaceMax = YMAX - yOriginOffset
+	
 def setCNCHardStop():
 	# Set CNC Hard Stops so x=0 and y=0
 	global machine
@@ -612,6 +621,7 @@ class StartPage(tkinter.Frame):
 		self.grid_rowconfigure(20, minsize=50)
 		self.grid_rowconfigure(21, minsize=10)
 		self.grid_rowconfigure(22, minsize=50)
+		self.grid_rowconfigure(23, minsize=10)
 		self.grid_rowconfigure(99, minsize=10)
  
 		# Page Title
@@ -627,7 +637,7 @@ class StartPage(tkinter.Frame):
 		btnSettings = ttk.Button(self, text="Settings", command=lambda: controller.show_frame(Settings))
 		btnSettings.grid(row=14, column=2, sticky="NEWS")
 		self.btnLiveView = ttk.Label(self, text="")
-		self.btnLiveView.grid(row=10, column=4, sticky="NEWS", rowspan=11)
+		self.btnLiveView.grid(row=10, column=4, sticky="NEWS", rowspan=14)
 		self.imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg").resize((800,533), Image.ANTIALIAS))
 		self.btnLiveView.image = self.imgLiveView
 		self.btnLiveView.config(text="", image=self.imgLiveView)
@@ -965,8 +975,8 @@ class StartPage(tkinter.Frame):
 		# Main Session Handler that triggers events in the GUI controlled above.
 		global rolledOver
 		global machine
-		global XMAX
-		global YMAX
+		global xWorkspaceMax
+		global yWorkspaceMax
 		global xPos
 		global yPos
 		global rateOfTravel
@@ -1155,26 +1165,35 @@ class StartPage(tkinter.Frame):
 		positionCount = 1
 		imageList = []
 		
+		# Calculate Line Equation
+		# This isn't quite linear but is functionally close enough with conservative overlap percentages
+		camData = cameraDatabase[config["camera"]["body"]][config["camera"]["lens"]]
+		slope = (float(camData["topHeight"])-float(camData["bottomHeight"]))/(float(camData["topWidth"])-float(camData["bottomWidth"]))
+		b = float(camData["topHeight"])-slope*float(camData["topWidth"])
 		
+		xFrameWidth = (float(config["sample"]["cameraHeight"])-b)/slope
+		print("xFrame Width: "+str(xFrameWidth))
 		
-		# Calculate Frames Per X
-		framesPerX = 2
-		# Calculate Frames Per Y	
-		framesPerY = 2
+		# Calculate MM moved Per X frame
+		mmPerXFrame = xFrameWidth - (1/2*int(int(config["cnc"]["xOverlap"]))/100)
+		
+		# Calculate MM moved Per Y frame
+		mmPerYFrame = 2/3*xFrameWidth - (1/2*float(config["cnc"]["yOverlap"])/100)
+
 		# Generate List of Positions
 		positions = []
 		
-		calcX = 0
-		calcY = 0
-		while calcX < XMAX:
-			while calcY < YMAX:
+		calcX = xOriginOffset
+		calcY = yOriginOffset
+		while calcX < xWorkspaceMax:
+			while calcY < yWorkspaceMax:
 				pos = {}
 				pos["x"] = calcX
 				pos["y"] = calcY
 				positions.append(pos)
-				calcY = calcY + (YMAX/framesPerY)
-			calcX = calcX + (XMAX/framesPerX)
-			calcY = 0
+				calcY = calcY + (mmPerYFrame)
+			calcX = calcX + (mmPerYFrame)
+			calcY = yOriginOffset
 		for position in positions:
 		
 			sessionStatus.set("Capturing Image at Position #"+str(positionCount)+" of "+str(len(positions)))
@@ -1247,7 +1266,7 @@ class StartPage(tkinter.Frame):
 		sessionStatus.set("Returning Camera to Origin")
 		print(str(sessionStatus.get()))
 		
-		responseString = moveCNCtoCoordinates(0, 0, machine)
+		responseString = moveCNCtoCoordinates(xOriginOffset, yOriginOffset, machine)
 		
 		if events["cancel"].is_set():
 			cancelSession()
