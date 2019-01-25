@@ -671,6 +671,7 @@ class StartPage(tkinter.Frame):
 			events["xmlPathProblem"] = threading.Event()
 			events["xmlWarning"] = threading.Event()
 			events["manualFocusStacking"] = threading.Event()
+			events["sampleSizeWarning"] = threading.Event()
 			sessionThread = threading.Thread(target=self.startSession, args=( events, sessionStatus))
 			interfaceThread = threading.Thread(target=sessionWindow, args=( events, sessionStatus))
 			interfaceThread.start()
@@ -804,6 +805,18 @@ class StartPage(tkinter.Frame):
 					xmlPathCancel = ttk.Button(xmlPathPrompt, text="Cancel", command=lambda: [closeWindow(xmlPathPrompt), events["cancel"].set(), events["pause"].clear()]).pack()
 					centerWindow(xmlPathPrompt)
 					events["xmlPathProblem"].clear()
+				
+				if events["sampleSizeWarning"].is_set():
+					events["pause"].set()
+					playSound("error")
+					sampleSizePrompt = Toplevel(self)
+					sampleSizePrompt.title("Sample is Too Large")
+					sampleSizeTitle = ttk.Label(sampleSizePrompt, text="Sample is Too Large", font=MED_FONT).pack()
+					sampleSizePromptLine2 = ttk.Label(sampleSizePrompt, text="The sample size entered currently exceeds the workspace.", font=MED_FONT).pack()
+					sampleSizePromptLine3 = ttk.Label(sampleSizePrompt, text="Please hit Cancel and check either the Sample Size or Initilization of Machine.", font=MED_FONT).pack()
+					sampleSizeCancel = ttk.Button(sampleSizePrompt, text="Cancel", command=lambda: [closeWindow(xmlPathPrompt), events["cancel"].set(), events["pause"].clear()]).pack()
+					centerWindow(sampleSizePrompt)
+					events["sampleSizeWarning"].clear()
 				
 				if events["xmlWarning"].is_set():
 					events["pause"].set()
@@ -992,6 +1005,7 @@ class StartPage(tkinter.Frame):
 		status["filepathInit"] = False
 		status["xmlpathInit"] = False
 		status["xmlCheck"] = False
+		status["sampleSizeCheck"] = False
 
 
 		# Check to see that camera is connected
@@ -1118,6 +1132,27 @@ class StartPage(tkinter.Frame):
 			cancelSession()	
 			return
 
+		# Check to see that Size of Sample is smaller than Workspace
+		status["sampleSizeCheck"] = False
+		while not status["sampleSizeCheck"]:
+			if float(config["sample"]["sizeX"]) <= xWorkspaceMax:
+				status["sampleSizeCheck"] = True
+			else:
+				events["sampleSizeWarning"].set()
+				while events["pause"].is_set():
+					if events["cancel"].is_set():
+						cancelSession()
+						break
+			if float(config["sample"]["sizeY"]) <= yWorkspaceMax:
+				status["sampleSizeCheck"] = True
+			else:
+				events["sampleSizeWarning"].set()
+				while events["pause"].is_set():
+					if events["cancel"].is_set():
+						cancelSession()
+						break
+
+
 		# Check to see if XML file already exists.
 		status["xmlCheck"] = False
 		while not status["xmlCheck"]:
@@ -1179,24 +1214,49 @@ class StartPage(tkinter.Frame):
 		
 		# Calculate MM moved Per X frame
 		mmPerXFrame = xFrameWidth - (1/2*int(int(config["cnc"]["xOverlap"]))/100)
+		print("MM Per X Frame: "+str(mmPerXFrame))
 		
 		# Calculate MM moved Per Y frame
 		mmPerYFrame = 2/3*xFrameWidth - (1/2*float(config["cnc"]["yOverlap"])/100)
-
+		print("MM Per Y Frame: "+str(mmPerYFrame))
+		
 		# Generate List of Positions
 		positions = []
 		
 		calcX = xOriginOffset
 		calcY = yOriginOffset
-		while calcX < xWorkspaceMax:
-			while calcY < yWorkspaceMax:
+		while calcX < float(config["sample"]["sizeX"]):
+			while calcY < float(config["sample"]["sizeY"]):
 				pos = {}
 				pos["x"] = calcX
 				pos["y"] = calcY
 				positions.append(pos)
 				calcY = calcY + (mmPerYFrame)
-			calcX = calcX + (mmPerYFrame)
+			pos = {}
+			pos["x"] = calcX
+			pos["y"] = float(config["sample"]["sizey"])
+			positions.append(pos)
+
+			calcX = calcX + (mmPerXFrame)
 			calcY = yOriginOffset
+
+		pos = {}
+		pos["x"] = float(config["sample"]["sizex"])
+		pos["y"] = float(config["sample"]["sizey"])
+		positions.append(pos)
+			while calcY < float(config["sample"]["sizeY"]):
+				pos = {}
+				pos["x"] = calcX
+				pos["y"] = calcY
+				positions.append(pos)
+				calcY = calcY + (mmPerYFrame)
+			pos = {}
+			pos["x"] = calcX
+			pos["y"] = float(config["sample"]["sizey"])
+			positions.append(pos)
+		
+		print("Position List: "+str(positions))
+		
 		for position in positions:
 		
 			sessionStatus.set("Capturing Image at Position #"+str(positionCount)+" of "+str(len(positions)))
