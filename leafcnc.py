@@ -1456,8 +1456,6 @@ class Settings(tkinter.Frame):
 		self.grid_rowconfigure(15, minsize=20)
 		self.grid_rowconfigure(16, minsize=10)
 		self.grid_rowconfigure(17, minsize=20)
-		self.grid_rowconfigure(18, minsize=10)
-		self.grid_rowconfigure(19, minsize=20)
 
 		self.grid_rowconfigure(20, minsize=10)
 		self.grid_rowconfigure(21, minsize=20)
@@ -1529,7 +1527,7 @@ class Settings(tkinter.Frame):
 		chkDownloadFiles = ttk.Checkbutton(self, var=self.download, text="Download Files from Camera", onvalue=True, offvalue=False, command=lambda: [self.updateVariable()] )
 		chkDownloadFiles.grid(row=20, column=11, sticky="EW")
 		chkDeleteFiles = ttk.Checkbutton(self, var=self.download, text="Delete Files from Camera after Download", onvalue=True, offvalue=False, command=lambda: [self.updateVariable()] )
-		chkDeleteFiles.grid(row=22, column=21, sticky="EW")
+		chkDeleteFiles.grid(row=20, column=21, sticky="EW")
 		lblImagePath = ttk.Label(self, text="Image Storage Path", font=MED_FONT)
 		lblImagePath.grid(row=24, column=10, sticky="EW")
 		fileImagePath = ttk.Entry(self, textvariable=self.imagePath, width=30)
@@ -1670,7 +1668,7 @@ class CameraCalibration(tkinter.Frame):
 		entryLens.grid(row=10, column=21, sticky="WE")
 		
 		# Focus Heights and Values
-		lblBottom = ttk.Label(self, text="Highest Magnification", font=LARGE_FONT)
+		lblBottom = ttk.Label(self, text="Highest Magnification", font=LARGE_FONT, columnspan=2)
 		lblBottomHeight = ttk.Label(self, text="Height (mm)", font=MED_FONT)
 		entryBottomHeight = ttk.Entry(self, textvariable=self.heightBottom, width=10)
 		lblBottomWidth = ttk.Label(self, text="Width (mm)", font=MED_FONT)
@@ -1680,7 +1678,7 @@ class CameraCalibration(tkinter.Frame):
 		entryBottomHeight.grid(row=22, column=11, sticky="WE")
 		lblBottomWidth.grid(row=24, column=10, sticky="WE")
 		entryBottomWidth.grid(row=24, column=11, sticky="WE")
-		lblTop = ttk.Label(self, text="Lowest Magnification", font=LARGE_FONT)
+		lblTop = ttk.Label(self, text="Lowest Magnification", font=LARGE_FONT, columnspan=2)
 		lblTopHeight = ttk.Label(self, text="Height (mm)", font=MED_FONT)
 		entryTopHeight = ttk.Entry(self, textvariable=self.heightTop, width=10)
 		lblTopWidth = ttk.Label(self, text="Width (mm)", font=MED_FONT)
@@ -1737,7 +1735,7 @@ class Initilization(tkinter.Frame):
 		global machine
 		
 		# Size Columns
-		self.grid_columnconfigure(1, minsize=15)
+		self.grid_columnconfigure(1, minsize=50)
 		self.grid_columnconfigure(2, minsize=70)
 		self.grid_columnconfigure(3, minsize=15)
 		
