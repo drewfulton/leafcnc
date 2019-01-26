@@ -14,7 +14,7 @@ from lxml import etree as ET
 from subprocess import call
 
 # Global Variables
-configpath = os.path.dirname(os.path.abspath(__file__))+"/config.ini"
+configpath = os.path.dirname(os.path.abspath(__file__))+"/backend/config.ini"
 parser = ET.XMLParser(remove_blank_text=True)
 cameraDatabase = {}
 lensList = []
