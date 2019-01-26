@@ -718,7 +718,7 @@ class StartPage(tkinter.Frame):
 					events["pause"].set()
 					cncInitPrompt = Toplevel(self)
 					cncInitPrompt.title("Inititilize Machine")
-					cncInitLine0 = ttk.Label(cncInitPrompt, text="Please Confirm Camera is at Origin Point (0,0) and Correct Height", font=LARGE_FONT).pack()
+					cncInitLine0 = ttk.Label(cncInitPrompt, text="Please Confirm you have Run System Initilization and Camera is at Correct Height", font=LARGE_FONT).pack()
 					cncInitLine1 = ttk.Label(cncInitPrompt, text="Press Continue to proceed with Sampling.", font=MED_FONT).pack()
 					cncInitLine2 = ttk.Label(cncInitPrompt, text="Press Cancel to go to Initilization Setup.", font=MED_FONT).pack()
 					cncInitContinue = ttk.Button(cncInitPrompt, text="Continue", command=lambda: [closeWindow(cncInitPrompt), events["pause"].clear()]).pack()
@@ -1199,8 +1199,6 @@ class StartPage(tkinter.Frame):
 		
 
 		# Start Photos and Rotation
-		xPos = 0
-		yPos = 0
 		imageCount = 1
 		positionCount = 1
 		imageList = []
