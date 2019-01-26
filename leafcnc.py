@@ -1477,7 +1477,7 @@ class Settings(tkinter.Frame):
 			self.lens.set('')
 			for key in cameraDatabase.keys():
 				bodyList.append(key)
-			cmbCameraBody.config(values=bodyList)
+			self.cmbCameraBody.config(values=bodyList)
 			body = self.cameraBody.get()
 			lensList = list(cameraDatabase[body].keys())
 			self.cmbLens.config(values=lensList)
@@ -1489,11 +1489,11 @@ class Settings(tkinter.Frame):
 
 		# Camera Settings
 		lblCameraBody = ttk.Label(self, text="Camera Body", font=MED_FONT)
-		cmbCameraBody = ttk.Combobox(self, textvariable=self.cameraBody, width=10)
-		cmbCameraBody.bind("<<ComboboxSelected>>", updateLens)
-		cmbCameraBody['values'] = bodyList
+		self.cmbCameraBody = ttk.Combobox(self, textvariable=self.cameraBody, width=10)
+		self.cmbCameraBody.bind("<<ComboboxSelected>>", updateLens)
+		self.cmbCameraBody['values'] = bodyList
 		lblCameraBody.grid(row=10, column=10, sticky="WE")
-		cmbCameraBody.grid(row=10, column=11, sticky="WE")
+		self.cmbCameraBody.grid(row=10, column=11, sticky="WE")
 		lblLens = ttk.Label(self, text="Lens", font=MED_FONT)
 		self.cmbLens = ttk.Combobox(self, textvariable=self.lens, width=10)
 		self.cmbLens['values'] = lensList
@@ -1564,7 +1564,7 @@ class Settings(tkinter.Frame):
 			global lensList
 			for key in cameraDatabase.keys():
 				bodyList.append(key)
-			cmbCameraBody.config(values=bodyList)
+			self.cmbCameraBody.config(values=bodyList)
 							
 			if not str(self.cameraBody.get()) == "":
 				lensList = list(cameraDatabase[str(self.cameraBody.get())].keys())
@@ -1586,7 +1586,7 @@ class Settings(tkinter.Frame):
 		global lensList
 		for key in cameraDatabase.keys():
 			bodyList.append(key)
-		cmbCameraBody.config(values=bodyList)
+		self.cmbCameraBody.config(values=bodyList)
 						
 		if not str(self.cameraBody.get()) == "":
 			lensList = list(cameraDatabase[str(self.cameraBody.get())].keys())
