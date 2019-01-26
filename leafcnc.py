@@ -1225,34 +1225,34 @@ class StartPage(tkinter.Frame):
 		
 		calcX = xOriginOffset
 		calcY = yOriginOffset
-		while calcX < float(config["sample"]["sizeX"]):
-			while calcY < float(config["sample"]["sizeY"]):
+		while calcY < float(config["sample"]["sizeY"]):
+			while calcX < float(config["sample"]["sizeX"]):
 				pos = {}
 				pos["x"] = calcX
 				pos["y"] = calcY
 				positions.append(pos)
-				calcY = calcY + (mmPerYFrame)
+				calcX = calcX + (mmPerXFrame)
 			pos = {}
-			pos["x"] = calcX
-			pos["y"] = float(config["sample"]["sizey"])
+			pos["x"] = float(config["sample"]["sizex"])
+			pos["y"] = calcY
 			positions.append(pos)
 
-			calcX = calcX + (mmPerXFrame)
-			calcY = yOriginOffset
+			calcX = xOriginOffset
+			calcY = calcY + (mmPerYFrame)
 
 		pos = {}
 		pos["x"] = float(config["sample"]["sizex"])
 		pos["y"] = float(config["sample"]["sizey"])
 		positions.append(pos)
-		while calcY < float(config["sample"]["sizeY"]):
+		while calcX < float(config["sample"]["sizeX"]):
 			pos = {}
 			pos["x"] = calcX
 			pos["y"] = calcY
 			positions.append(pos)
-			calcY = calcY + (mmPerYFrame)
+			calcX = calcX + (mmPerXFrame)
 		pos = {}
-		pos["x"] = calcX
-		pos["y"] = float(config["sample"]["sizey"])
+		pos["x"] = float(config["sample"]["sizex"])
+		pos["y"] = calcY
 		positions.append(pos)
 		
 		print("Position List: "+str(positions))
