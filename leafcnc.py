@@ -534,7 +534,7 @@ class LeafCNC:
 		self.tk.bind("<Escape>", self.end_fullscreen)
 
 		self.frames = {}
-		FrameList = (StartPage, Settings, Initilization, CameraCalibration)
+		FrameList = (StartPage, Settings, Initialization, CameraCalibration)
 		
 		for F in FrameList:
 			frame = F(self.frame, self)
@@ -635,7 +635,7 @@ class StartPage(tkinter.Frame):
 		
 		
 		# Buttons
-		btnInit = ttk.Button(self, text="System Initilization", command=lambda: controller.show_frame(Initilization))
+		btnInit = ttk.Button(self, text="System Initialization", command=lambda: controller.show_frame(Initialization))
 		btnInit.grid(row=10, column=2, sticky="NEWS")
 		btnRunSample = ttk.Button(self, text="Run Sample", command=lambda: [startSessionThreading(self.sessionStatus)])
 		btnRunSample.grid(row=12, column=2, sticky="NEWS")
@@ -728,9 +728,9 @@ class StartPage(tkinter.Frame):
 					cncInitPrompt.grid_rowconfigure(3, minsize=40) 	
 					cncInitPrompt.grid_rowconfigure(4, minsize=60) 	
 					cncInitPrompt.grid_rowconfigure(5, minsize=30) 	
-					cncInitLine0 = ttk.Label(cncInitPrompt, text="System Initilization has not been Run", font=LARGE_FONT)
+					cncInitLine0 = ttk.Label(cncInitPrompt, text="System Initialization has not been Run", font=LARGE_FONT)
 					cncInitLine0.grid(row=1, column=1, sticky="NEWS")
-					cncInitLine2 = ttk.Label(cncInitPrompt, text="Press Cancel to go to Initilization Setup.", font=MED_FONT)
+					cncInitLine2 = ttk.Label(cncInitPrompt, text="Press Cancel to go to Initialization Setup.", font=MED_FONT)
 					cncInitLine2.grid(row=3, column=1, sticky="NEWS")
 					cncInitCancel = ttk.Button(cncInitPrompt, text="Cancel", command=lambda: [closeWindow(cncInitPrompt), events["cancel"].set(), events['cncInit'].clear()])
 					cncInitCancel.grid(row=4, column=1, sticky="NEWS")
@@ -838,7 +838,7 @@ class StartPage(tkinter.Frame):
 					sampleSizePrompt.title("Sample is Too Large")
 					sampleSizeTitle = ttk.Label(sampleSizePrompt, text="Sample is Too Large", font=MED_FONT, anchor=CENTER).pack()
 					sampleSizePromptLine2 = ttk.Label(sampleSizePrompt, text="The sample size entered currently exceeds the workspace.", font=MED_FONT).pack()
-					sampleSizePromptLine3 = ttk.Label(sampleSizePrompt, text="Please hit Cancel and check either the Sample Size or Initilization of Machine.", font=MED_FONT).pack()
+					sampleSizePromptLine3 = ttk.Label(sampleSizePrompt, text="Please hit Cancel and check either the Sample Size or Initialization of Machine.", font=MED_FONT).pack()
 					sampleSizeCancel = ttk.Button(sampleSizePrompt, text="Cancel", command=lambda: [closeWindow(xmlPathPrompt), events["cancel"].set(), events["pause"].clear()]).pack()
 					centerWindow(sampleSizePrompt)
 					events["sampleSizeWarning"].clear()
@@ -1729,9 +1729,9 @@ class CameraCalibration(tkinter.Frame):
 		self.topWidth.set('')
 
 
-# Initilization Page
-class Initilization(tkinter.Frame):
-	# CNC System Initilization
+# Initialization Page
+class Initialization(tkinter.Frame):
+	# CNC System Initialization
 	def __init__(self, parent, controller):
 		tkinter.Frame.__init__(self,parent)
 		
@@ -1779,10 +1779,10 @@ class Initilization(tkinter.Frame):
 		self.grid_rowconfigure(99, minsize=25)
 
 		# Page Title
-		pageTitle = ttk.Label(self, text="System Initilization", font=LARGE_FONT, anchor=CENTER)
+		pageTitle = ttk.Label(self, text="System Initialization", font=LARGE_FONT, anchor=CENTER)
 		pageTitle.grid(row=2, column=1, columnspan=100, sticky="WE")
 
-		# CNC Initilization Buttons
+		# CNC Initialization Buttons
 		btnCNCUpSmall = ttk.Button(self, text="Up 5mm", command=lambda: moveCNCbyAmount(0, 5, machine), width=10)
 		btnCNCUpMed = ttk.Button(self, text="Up 50mm", command=lambda: moveCNCbyAmount(0, 50, machine), width=20)
 		btnCNCUpLarge = ttk.Button(self, text="Up 100mm", command=lambda: moveCNCbyAmount(0, 100, machine), width=30)
