@@ -761,7 +761,7 @@ class StartPage(tkinter.Frame):
 					sampleInfoInitWindow.grid_rowconfigure(13, minsize=10) 	
 					sampleInfoInitWindow.grid_rowconfigure(14, minsize=40) 	
 					sampleInfoInitWindow.grid_rowconfigure(15, minsize=40) 	
-					sampleInfoInitTitle = ttk.Label(sampleInfoInitWindow, text="Enter Sample Information", font=LARGE_FONT)
+					sampleInfoInitTitle = ttk.Label(sampleInfoInitWindow, text="Enter Sample Information", font=LARGE_FONT, anchor=CENTER)
 					sampleInfoInitTitle.grid(row=0, column=2, sticky="NEWS")
 					lblSampleID = ttk.Label(sampleInfoInitWindow, text="Sample ID:", font=MED_FONT)
 					entrySampleID = ttk.Entry(sampleInfoInitWindow, textvariable=self.sampleID, width=10)
@@ -800,7 +800,7 @@ class StartPage(tkinter.Frame):
 					playSound("error")
 					filePathPrompt = Toplevel(self)
 					filePathPrompt.title("File Path Problem")
-					filePathTitle = ttk.Label(filePathPrompt, text="File Path Problem", font=MED_FONT).pack()
+					filePathTitle = ttk.Label(filePathPrompt, text="File Path Problem", font=MED_FONT, anchor=CENTER).pack()
 					filePathPromptLine2 = ttk.Label(filePathPrompt, text="Unable to access the folder designated for image downloads.", font=MED_FONT).pack()
 					filePathPromptLine3 = ttk.Label(filePathPrompt, text="Please hit Cancel and ensure this folder is correct and mounted.", font=MED_FONT).pack()
 					filePathCancel = ttk.Button(filePathPrompt, text="Cancel", command=lambda: [closeWindow(filePathPrompt), events["cancel"].set(), events["pause"].clear()]).pack()
@@ -812,7 +812,7 @@ class StartPage(tkinter.Frame):
 					playSound("error")
 					camSettingsPrompt = Toplevel(self)
 					camSettingsPrompt.title("File Path Problem")
-					camSettingsTitle = ttk.Label(camSettingsPrompt, text="Camera Settings Error", font=MED_FONT).pack()
+					camSettingsTitle = ttk.Label(camSettingsPrompt, text="Camera Settings Error", font=MED_FONT, anchor=CENTER).pack()
 					camSettingsPromptLine2 = ttk.Label(camSettingsPrompt, text="Camera Settings are set to Dark Frame Settings (1/4000 at ISO 100)", font=MED_FONT).pack()
 					camSettingsPromptLine3 = ttk.Label(camSettingsPrompt, text="Please hit Cancel and correct these settings.", font=MED_FONT).pack()
 					camSettingsCancel = ttk.Button(camSettingsPrompt, text="Cancel", command=lambda: [closeWindow(camSettingsPrompt), events["cancel"].set(), events["pause"].clear()]).pack()
@@ -824,7 +824,7 @@ class StartPage(tkinter.Frame):
 					playSound("error")
 					xmlPathPrompt = Toplevel(self)
 					xmlPathPrompt.title("XML Path Problem")
-					xmlPathTitle = ttk.Label(xmlPathPrompt, text="XML Path Problem", font=MED_FONT).pack()
+					xmlPathTitle = ttk.Label(xmlPathPrompt, text="XML Path Problem", font=MED_FONT, anchor=CENTER).pack()
 					xmlPathPromptLine2 = ttk.Label(xmlPathPrompt, text="Unable to access the folder designated for XML files.", font=MED_FONT).pack()
 					xmlPathPromptLine3 = ttk.Label(xmlPathPrompt, text="Please hit Cancel and ensure this folder is correct and mounted.", font=MED_FONT).pack()
 					xmlPathCancel = ttk.Button(xmlPathPrompt, text="Cancel", command=lambda: [closeWindow(xmlPathPrompt), events["cancel"].set(), events["pause"].clear()]).pack()
@@ -836,7 +836,7 @@ class StartPage(tkinter.Frame):
 					playSound("error")
 					sampleSizePrompt = Toplevel(self)
 					sampleSizePrompt.title("Sample is Too Large")
-					sampleSizeTitle = ttk.Label(sampleSizePrompt, text="Sample is Too Large", font=MED_FONT).pack()
+					sampleSizeTitle = ttk.Label(sampleSizePrompt, text="Sample is Too Large", font=MED_FONT, anchor=CENTER).pack()
 					sampleSizePromptLine2 = ttk.Label(sampleSizePrompt, text="The sample size entered currently exceeds the workspace.", font=MED_FONT).pack()
 					sampleSizePromptLine3 = ttk.Label(sampleSizePrompt, text="Please hit Cancel and check either the Sample Size or Initilization of Machine.", font=MED_FONT).pack()
 					sampleSizeCancel = ttk.Button(sampleSizePrompt, text="Cancel", command=lambda: [closeWindow(xmlPathPrompt), events["cancel"].set(), events["pause"].clear()]).pack()
@@ -848,7 +848,7 @@ class StartPage(tkinter.Frame):
 					playSound("error")
 					xmlWarningPrompt = Toplevel(self)
 					xmlWarningPrompt.title("XML Warning")
-					xmlWarningTitle = ttk.Label(xmlWarningPrompt, text="XML File Exists", font=MED_FONT).pack()
+					xmlWarningTitle = ttk.Label(xmlWarningPrompt, text="XML File Exists", font=MED_FONT, anchor=CENTER).pack()
 					xmlWarningPromptLine2 = ttk.Label(xmlWarningPrompt, text="It appears that an XML already exists for a sample with this Sample ID.", font=MED_FONT).pack()
 					xmlWarningPromptLine3 = ttk.Label(xmlWarningPrompt, text="Select Continue to continue and add to the existing XML File.", font=MED_FONT).pack()
 					xmlWarningPrompteLine4 = ttk.Label(xmlWarningPrompt, text="Select Cancel to cancel and start over.", font=SMALL_FONT).pack()
@@ -879,7 +879,7 @@ class StartPage(tkinter.Frame):
 					self.manualFocusStackingWindow.grid_columnconfigure(6, minsize=10)
 					
 					
-					manFocusStackingTitle = ttk.Label(self.manualFocusStackingWindow, text="Manual Focus Stacking", font=LARGE_FONT)
+					manFocusStackingTitle = ttk.Label(self.manualFocusStackingWindow, text="Manual Focus Stacking", font=LARGE_FONT, anchor=CENTER)
 					manFocusStackingTitle.grid(row=1, column=3, sticky="NEWS", columnspan=2)
 					manFocusStackingLine1 = ttk.Label(self.manualFocusStackingWindow, text="To Perform Manual Focus Stacking, use the buttons to adjust the focus,", font=MED_FONT)
 					manFocusStackingLine1.grid(row=2, column=3, sticky="NEWS", columnspan=2)
@@ -1468,7 +1468,8 @@ class Settings(tkinter.Frame):
 		self.grid_rowconfigure(26, minsize=10)
 		self.grid_rowconfigure(27, minsize=20)
 		
-			
+		self.grid_rowconfigure(30, minsize=50)
+
 		def updateLens(*args):
 			global lensList
 			global bodyList
@@ -1483,7 +1484,7 @@ class Settings(tkinter.Frame):
 			self.cmbLens.config(values=lensList)
 		
 		# Page Title
-		pageTitle = ttk.Label(self, text="LeafCNC Settings", font=LARGE_FONT)
+		pageTitle = ttk.Label(self, text="LeafCNC Settings", font=LARGE_FONT, anchor=CENTER)
 		pageTitle.grid(row=0, columnspan=100, sticky="WE")
 
 
@@ -1499,20 +1500,10 @@ class Settings(tkinter.Frame):
 		self.cmbLens['values'] = lensList
 		lblLens.grid(row=12, column=10, sticky="WE")
 		self.cmbLens.grid(row=12, column=11, sticky="WE")
-		lblTriggerMethod = ttk.Label(self, text="Trigger Method", font=MED_FONT)
-		cmbTriggerMethod = ttk.Combobox(self, textvariable=self.triggerMethod, width=10)
-		cmbTriggerMethod['values'] = ["USB","Cable Release"]
-		lblTriggerMethod.grid(row=14, column=10, sticky="WE")
-		cmbTriggerMethod.grid(row=14, column=11, sticky="WE")
 		lblExposure = ttk.Label(self, text="Exposure Length (s)", font=MED_FONT)
 		entryExposure = ttk.Entry(self, textvariable=self.exposureLength, width=5)
-		lblExposure.grid(row=16, column=10, sticky="WE")
-		entryExposure.grid(row=16, column=11, sticky="WE")
-		lblImageFormat = ttk.Label(self, text="Image Format", font=MED_FONT)
-		cmbImageFormat = ttk.Combobox(self, textvariable=self.imageFormat, width=10)
-		cmbImageFormat['values'] = ["JPG","RAW"]
-		lblImageFormat.grid(row=18, column=10, sticky="WE")
-		cmbImageFormat.grid(row=18, column=11, sticky="WE")
+		lblExposure.grid(row=14, column=10, sticky="WE")
+		entryExposure.grid(row=14, column=11, sticky="WE")
 		
 		# CNC Settings
 		lblxOverlap = ttk.Label(self, text="X-Axis Overlap (%)", font=MED_FONT)
@@ -1525,8 +1516,8 @@ class Settings(tkinter.Frame):
 		entryyOverlap.grid(row=12, column=21, sticky="WE")
 		lblPause = ttk.Label(self, text="Pause Length (s)", font=MED_FONT)
 		entryPause = ttk.Entry(self, textvariable=self.pauseLength, width=5)
-		lblPause.grid(row=14, column=20, sticky="WE")
-		entryPause.grid(row=14, column=21, sticky="WE")
+		lblPause.grid(row=16, column=10, sticky="WE")
+		entryPause.grid(row=16, column=11, sticky="WE")
 		lblStackingSize = ttk.Label(self, text="Focus Stacking Size", font=MED_FONT)
 		cmbStackingSize = ttk.Combobox(self, textvariable=self.stackingSize, width=10)
 		cmbStackingSize['values'] = ["Small", "Medium", "Large"]
@@ -1556,7 +1547,7 @@ class Settings(tkinter.Frame):
 
 		# Save and Return 
 		btnStartPage = ttk.Button(self, text="Save", command=lambda: [self.updateVariable(), controller.show_frame(StartPage)])
-		btnStartPage.grid(row=100, column=1, sticky="WE")
+		btnStartPage.grid(row=30, column=10, sticky="NEWS")
 		
 		
 		def updateLists():
@@ -1632,7 +1623,6 @@ class CameraCalibration(tkinter.Frame):
 		self.grid_columnconfigure(10, minsize=100)
 		self.grid_columnconfigure(11, minsize=200)
 		self.grid_columnconfigure(12, minsize=25)
-		self.grid_columnconfigure(19, minsize=50)
 		self.grid_columnconfigure(20, minsize=100)
 		self.grid_columnconfigure(21, minsize=200)
 		self.grid_columnconfigure(99, minsize=50)
@@ -1664,7 +1654,7 @@ class CameraCalibration(tkinter.Frame):
 
 		
 		# Page Title
-		pageTitle = ttk.Label(self, text="Calibrate a New Camera", font=LARGE_FONT)
+		pageTitle = ttk.Label(self, text="Calibrate a New Camera", font=LARGE_FONT, anchor=CENTER)
 		pageTitle.grid(row=0, columnspan=100, sticky="WE")
 
 		# Camera Settings
@@ -1674,12 +1664,12 @@ class CameraCalibration(tkinter.Frame):
 		entryCameraBody.grid(row=10, column=11, sticky="WE")
 		lblLens = ttk.Label(self, text="Lens", font=MED_FONT)
 		entryLens = ttk.Entry(self, textvariable=self.lens, width=10)
-		lblLens.grid(row=10, column=13, sticky="WE")
-		entryLens.grid(row=10, column=14, sticky="WE")
+		lblLens.grid(row=10, column=20, sticky="WE")
+		entryLens.grid(row=10, column=21, sticky="WE")
 		
 		# Focus Heights and Values
 		lblBottom = ttk.Label(self, text="Highest Magnification", font=LARGE_FONT)
-		lblBottomHeight = ttk.Label(self, text="Height", font=MED_FONT)
+		lblBottomHeight = ttk.Label(self, text="Height (mm)", font=MED_FONT)
 		entryBottomHeight = ttk.Entry(self, textvariable=self.heightBottom, width=10)
 		lblBottomWidth = ttk.Label(self, text="Width (mm)", font=MED_FONT)
 		entryBottomWidth = ttk.Entry(self, textvariable=self.bottomWidth, width=10)
@@ -1689,7 +1679,7 @@ class CameraCalibration(tkinter.Frame):
 		lblBottomWidth.grid(row=24, column=10, sticky="WE")
 		entryBottomWidth.grid(row=24, column=11, sticky="WE")
 		lblTop = ttk.Label(self, text="Lowest Magnification", font=LARGE_FONT)
-		lblTopHeight = ttk.Label(self, text="Height", font=MED_FONT)
+		lblTopHeight = ttk.Label(self, text="Height (mm)", font=MED_FONT)
 		entryTopHeight = ttk.Entry(self, textvariable=self.heightTop, width=10)
 		lblTopWidth = ttk.Label(self, text="Width (mm)", font=MED_FONT)
 		entryTopWidth = ttk.Entry(self, textvariable=self.topWidth, width=10)
@@ -1701,7 +1691,7 @@ class CameraCalibration(tkinter.Frame):
 		
 		# Save and Return 
 		btnStartPage = ttk.Button(self, text="Save", command=lambda: [self.updateCameraDatabase(), controller.show_frame(StartPage)])
-		btnStartPage.grid(row=100, column=1, sticky="WE")
+		btnStartPage.grid(row=10, column=10, sticky="NEWS")
 
 		def selectDirectory(var):
 			directory = filedialog.askdirectory()
