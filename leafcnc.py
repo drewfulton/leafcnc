@@ -1098,7 +1098,7 @@ class StartPage(tkinter.Frame):
 		while not status["cameraSettings"]:
 			# Connect to Camera
 			context = gp.Context()
-			camera = initCamera(cameraNumber, context)		
+			camera = initCamera(context)		
 	
 			# Get Image Size/Type Settings from Camera
 			camConfig = camera.get_config(context) 
