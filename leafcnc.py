@@ -547,6 +547,7 @@ class LeafCNC:
 	def show_frame(self, cont):
 		frame = self.frames[cont]
 		frame.tkraise()
+		frame.event_generate("<<ShowFrame>>")
 
 	def toggle_fullscreen(self, event=None):
 		self.state = not self.state
@@ -1432,6 +1433,8 @@ class Settings(tkinter.Frame):
 		global bodyList
 		global lensList
 		
+		self.bind("<<ShowFrame>>", self.on_show_frame)
+		
 		# Size Columns
 		self.grid_columnconfigure(1, minsize=50)
 		self.grid_columnconfigure(10, minsize=100)
@@ -1465,6 +1468,9 @@ class Settings(tkinter.Frame):
 		self.grid_rowconfigure(26, minsize=10)
 		self.grid_rowconfigure(27, minsize=20)
 		
+		def on_show_frame(self, event):
+			updateLens()
+			
 		def updateLens(*args):
 			global lensList
 			global bodyList
