@@ -1582,7 +1582,7 @@ class Settings(tkinter.Frame):
 		updateLists()
 
 	def on_show_frame(self, event):
-		updateLens()
+		updateLists()
 		
 	def updateVariable(self, event=None):
 		config['camera']['body'] = str(self.cameraBody.get())
