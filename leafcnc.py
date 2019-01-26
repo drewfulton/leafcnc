@@ -1235,11 +1235,11 @@ class StartPage(tkinter.Frame):
 		print("xFrame Width: "+str(xFrameWidth))
 		
 		# Calculate MM moved Per X frame
-		mmPerXFrame = xFrameWidth * (float(config["cnc"]["xOverlap"])/100)
+		mmPerXFrame = xFrameWidth - (xFrameWidth * (float(config["cnc"]["xOverlap"])/100))
 		print("MM Per X Frame: "+str(mmPerXFrame))
 		
 		# Calculate MM moved Per Y frame
-		mmPerYFrame = yFrameWidth * (float(config["cnc"]["yOverlap"])/100)
+		mmPerYFrame = yFrameWidth - (yFrameWidth * (float(config["cnc"]["yOverlap"])/100))
 		print("MM Per Y Frame: "+str(mmPerYFrame))
 		
 		# Generate List of Positions
