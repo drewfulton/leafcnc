@@ -1440,7 +1440,7 @@ class Settings(tkinter.Frame):
 		self.grid_columnconfigure(10, minsize=200)
 		self.grid_columnconfigure(11, minsize=200)
 		self.grid_columnconfigure(12, minsize=25)
-		self.grid_columnconfigure(19, minsize=50)
+		self.grid_columnconfigure(19, minsize=75)
 		self.grid_columnconfigure(20, minsize=200)
 		self.grid_columnconfigure(21, minsize=200)
 		self.grid_columnconfigure(99, minsize=50)
