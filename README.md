@@ -15,6 +15,7 @@ Prerequisites
 		libxslt-dev
 		python-dev
 		python3-lxml
+
 	Pip3 Installs
 		pyserial
 		Pillow
@@ -27,28 +28,4 @@ Prerequisites
 			sudo chmod +x Elecrow-LCD101
 			sudo ./Elecrow-LCD101
 		
-Installed for Testing Purposes (To Be Removed Later)
-	bCNC (https://github.com/vlachoudis/bCNC)
-	
-	
-	
-Max X = 360
-Max Y = -470
 
-
-Electronics Notes
-	Power Requirements
-		12V
-			CNC Machine (has AC Adapter)
-			Monitor for Camera
-			Monitor for Pi
-			
-		7.4V 
-			Camera (has AC Adapter)
-		
-		5V
-			Raspberry Pi (has AC Adapter)
-			Monitor for Camera
-			Monitor for Pi
-			Lightbox (has AC Adapter)
-			
