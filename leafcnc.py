@@ -1109,7 +1109,7 @@ class StartPage(tkinter.Frame):
 			shutterspeed = camConfig.get_child_by_name("shutterspeed") 
 			camSettings["shutterspeed"] = shutterspeed.get_value()
 		
-			if str(camSettings["iso"]) == "100" and str(camSettings["exposurecompensation"]) == "1/4000":
+			if str(camSettings["iso"]) == "100" and str(camSettings["shutterspeed"]) == "1/4000":
 				events["fixCameraSettings"].set()
 				events["pause"].set()
 				while events["pause"].is_set():
