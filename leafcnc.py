@@ -3,7 +3,7 @@
 # LeafCNC Application
 
 # Import Libraries and Modules
-import tkinter, configparser, os, serial, time, threading, pygame, datetime, math, io
+import tkinter, configparser, os, serial, time, threading, pygame, datetime, math, io, pickle
 import gphoto2 as gp
 
 from tkinter import *
@@ -14,8 +14,14 @@ from lxml import etree as ET
 from subprocess import call
 
 # Global Variables
-configpath = os.path.dirname(os.path.abspath(__file__))+"/config.ini"
+configpath = os.path.dirname(os.path.abspath(__file__))+"/backend/config.ini"
 parser = ET.XMLParser(remove_blank_text=True)
+cameraDatabase = {}
+lensList = []
+bodyList = []
+systemInitHardStop = False
+systemInitOrigin = False
+
 
 # Stores info about the status of all components of system
 systemStatus = {}
@@ -45,7 +51,9 @@ xPos = 0
 yPos = 0
 xOriginOffset = 0
 yOriginOffset = 0
-XMAX = 200 #should actually be 360 but just testing to avoid the circuit board
+xWorkspaceMax = 0
+yWorkspaceMax = 0
+XMAX = 360 
 YMAX = 470
 rateOfTravel = 100 #mm/s
 
@@ -74,8 +82,8 @@ def moveCNCtoCoordinates(x, y, machine):
 	global yPos
 	global xOriginOffset
 	global yOriginOffset
-	xPos = x + xOriginOffset
-	yPos = y + yOriginOffset
+	xPos = x 
+	yPos = y 
 	msg = 'G0 X'+str(xPos)+' Y'+str(yPos)+'\n'
 	machine.write(msg.encode())
 	responseString = machine.readline().decode()
@@ -97,19 +105,29 @@ def setCNCOrigin():
 	global yOriginOffset
 	global xPos
 	global yPos
+	global xWorkspaceMax
+	global yWorkspaceMax
+	global XMAX
+	global YMAX
+	global systemInitOrigin
+
 	xOriginOffset = xPos
 	yOriginOffset = yPos
-
+	xWorkspaceMax = XMAX - xOriginOffset
+	yWorkspaceMax = YMAX - yOriginOffset
+	systemInitOrigin = True
+	
 def setCNCHardStop():
 	# Set CNC Hard Stops so x=0 and y=0
 	global machine
 	global xPos
 	global yPos
+	global systemInitHardStop
 	closeCNC(machine)
 	machine = openCNC(config["cnc"]["port"])
 	xPos = 0
 	yPos = 0
-
+	systemInitHardStop = True
 
 # Functions to Control Camera
 def get_file_info(camera, context, path):
@@ -163,7 +181,6 @@ def createFolderStructure():
 	# Create File Directory Structure
 	if not os.path.exists(config["filepaths"]["imagepath"]+'/'+config["sample"]["id"]+"-"+config["sample"]["datestamp"]):
 		os.makedirs(config["filepaths"]["imagepath"]+'/'+config["sample"]["id"]+"-"+config["sample"]["datestamp"])
-	print("Downloading to "+ str(config["filepaths"]["imagepath"]+'/'+config["sample"]["id"])+"-"+config["sample"]["datestamp"])
 
 def downloadImages(imageList):
 	# Download Images from Camera
@@ -206,7 +223,6 @@ def livewviewFocusCloser(stepSize):
 		step = "Near3"
 	else:
 		step = "Near2"
-	print("Focus Nearer: "+str(step))
 	camConfig = camera.get_config() 
 	focusmode = camConfig.get_child_by_name("manualfocusdrive") 
 	focusmode.set_value(step)
@@ -224,7 +240,6 @@ def livewviewFocusFarther(stepSize):
 	else:
 		step = "Far2"
 		
-	print("Focus Farther: "+str(step))
 	camConfig = camera.get_config() 
 	focusmode = camConfig.get_child_by_name("manualfocusdrive") 
 	focusmode.set_value(step)
@@ -252,7 +267,6 @@ def moveFocusCloser(stepSize, count=1):
 	camera.set_config(camConfig)
 	focusRound = 0
 	while focusRound < count:
-		print("Moving Focus Closer")
 		camera.set_config(camConfig)
 		focusRound += 1
 		time.sleep(.5)
@@ -279,7 +293,6 @@ def moveFocusFarther(stepSize, count=1):
 	focusmode.set_value(step)
 	focusRound = 0
 	while focusRound < count:
-		print("Moving Focus Farther")
 		camera.set_config(camConfig)
 		focusRound += 1
 		time.sleep(.5)
@@ -292,7 +305,7 @@ def createConfig(path):
 	config = configparser.ConfigParser()
 	
 	config["cnc"] = {"port": "/dev/ttyUSB0", "xOverlap": "40", "yOverlap":"40", "pause":"1", "stackingSize":"Medium"}
-	config["camera"] = {"body": "Canon T2i", "lens": "Tokina 100mm", "trigger":"USB", "exposure":"1", "format":"JPG"}
+	config["camera"] = {"body": "", "lens": "", "trigger":"USB", "exposure":"1", "format":"JPG"}
 	config["filepaths"] = {"download":"True", "imagePath":'', "xmlPath": '', "delete":"True"}
 	config["sample"] = {"cameraHeight":"", "id":"", "stackingMode":"None", "stackingCount":"1", "sizeX":"360","sizeY":"470", "datestamp":""}
 	
@@ -411,7 +424,6 @@ def xmlLogTime(activity, state, other=""):
 		other = "/"+other
 	
 	findString = "./Tasks/Task[@activity='"+activity+"']"+other
-# 	print(findString)
 	nodes = xmlData.findall(findString)
 	for node in nodes:
 		stateNode = ET.SubElement(node, state)
@@ -488,8 +500,23 @@ def xmlImageAddDarkFrame(filename):
 	return xmlTree
 	
 
+# Camera Database Management
+def saveCameraDatabase(cameraDatabase):
+	filepath = os.path.dirname(os.path.abspath(__file__))+"/backend/cameraDatabase.txt"
+	with open(filepath, 'wb+') as f:
+		pickle.dump(cameraDatabase, f, pickle.DEFAULT_PROTOCOL)	
+	return cameraDatabase
 
-
+def getCameraDatabase():
+	filepath = os.path.dirname(os.path.abspath(__file__))+"/backend/cameraDatabase.txt"
+	g = open(filepath, 'rb')
+	if not str(g.read()) == "b''":
+		g.close()
+		with open(filepath, 'rb') as f:
+			cameraDatabase = pickle.load(f)
+	else:
+		cameraDatabase = {}
+	return cameraDatabase
 
 # Tkinter Application Overview
 class LeafCNC:
@@ -507,7 +534,7 @@ class LeafCNC:
 		self.tk.bind("<Escape>", self.end_fullscreen)
 
 		self.frames = {}
-		FrameList = (StartPage, Settings, Initilization)
+		FrameList = (StartPage, Settings, Initilization, CameraCalibration)
 		
 		for F in FrameList:
 			frame = F(self.frame, self)
@@ -551,6 +578,8 @@ class StartPage(tkinter.Frame):
 		global camera
 		global imageCount
 		global globalPosition
+		global systemInitHardStop
+		global systemInitOrigin
 
 		
 		tkinter.Frame.__init__(self,parent)
@@ -592,6 +621,11 @@ class StartPage(tkinter.Frame):
 		self.grid_rowconfigure(16, minsize=50)
 		self.grid_rowconfigure(17, minsize=10)
 		self.grid_rowconfigure(18, minsize=50)
+		self.grid_rowconfigure(19, minsize=10)
+		self.grid_rowconfigure(20, minsize=50)
+		self.grid_rowconfigure(21, minsize=10)
+		self.grid_rowconfigure(22, minsize=50)
+		self.grid_rowconfigure(23, minsize=10)
 		self.grid_rowconfigure(99, minsize=10)
  
 		# Page Title
@@ -607,7 +641,7 @@ class StartPage(tkinter.Frame):
 		btnSettings = ttk.Button(self, text="Settings", command=lambda: controller.show_frame(Settings))
 		btnSettings.grid(row=14, column=2, sticky="NEWS")
 		self.btnLiveView = ttk.Label(self, text="")
-		self.btnLiveView.grid(row=10, column=4, sticky="NEWS", rowspan=11)
+		self.btnLiveView.grid(row=10, column=4, sticky="NEWS", rowspan=13)
 		self.imgLiveView = ImageTk.PhotoImage(Image.open(os.path.dirname(os.path.abspath(__file__))+"/backend/LiveviewTemplate.jpg").resize((800,533), Image.ANTIALIAS))
 		self.btnLiveView.image = self.imgLiveView
 		self.btnLiveView.config(text="", image=self.imgLiveView)
@@ -615,9 +649,12 @@ class StartPage(tkinter.Frame):
 		btnStartLiveView.grid(row=16, column=2, sticky="NEWS")
 		btnStopLivewView = ttk.Button(self, text="Stop Liveview", command=lambda: liveViewEvents["stopLiveView"].set())
 		btnStopLivewView.grid(row=18, column=2, sticky="NEWS")
+
+		btnCamCalibration = ttk.Button(self, text="Camera Calibration", command=lambda: controller.show_frame(CameraCalibration))
+		btnCamCalibration.grid(row=20, column=2, sticky="NEWS")
 		
-		btnQuit = ttk.Button(self, text="Shutdown", command=lambda: controller.quitProgram(machine))
-		btnQuit.grid(row=20, column=2, sticky="NEWS")
+		btnQuit = ttk.Button(self, text="Shutdown", command=lambda: [controller.quitProgram(machine)])
+		btnQuit.grid(row=22, column=2, sticky="NEWS")
 
 		def startSessionThreading(sessionStatus):
 			# Starts the threads to run a Sampling Session
@@ -635,6 +672,8 @@ class StartPage(tkinter.Frame):
 			events["xmlPathProblem"] = threading.Event()
 			events["xmlWarning"] = threading.Event()
 			events["manualFocusStacking"] = threading.Event()
+			events["sampleSizeWarning"] = threading.Event()
+			events["fixCameraSettings"] = threading.Event()
 			sessionThread = threading.Thread(target=self.startSession, args=( events, sessionStatus))
 			interfaceThread = threading.Thread(target=sessionWindow, args=( events, sessionStatus))
 			interfaceThread.start()
@@ -679,11 +718,20 @@ class StartPage(tkinter.Frame):
 					events["pause"].set()
 					cncInitPrompt = Toplevel(self)
 					cncInitPrompt.title("Inititilize Machine")
-					cncInitLine0 = ttk.Label(cncInitPrompt, text="Please Confirm Camera is at Origin Point (0,0) and Correct Height", font=LARGE_FONT).pack()
-					cncInitLine1 = ttk.Label(cncInitPrompt, text="Press Continue to proceed with Sampling.", font=MED_FONT).pack()
-					cncInitLine2 = ttk.Label(cncInitPrompt, text="Press Cancel to go to Initilization Setup.", font=MED_FONT).pack()
-					cncInitContinue = ttk.Button(cncInitPrompt, text="Continue", command=lambda: [closeWindow(cncInitPrompt), events["pause"].clear()]).pack()
-					cncInitCancel = ttk.Button(cncInitPrompt, text="Cancel", command=lambda: [closeWindow(cncInitPrompt), events["cancel"].set(), events['cncInit'].clear()]).pack()
+					cncInitPrompt.grid_columnconfigure(0, minsize=30)
+					cncInitPrompt.grid_columnconfigure(1, minsize=100)
+					cncInitPrompt.grid_columnconfigure(4, minsize=30)
+					cncInitPrompt.grid_rowconfigure(0, minsize=30) 	
+					cncInitPrompt.grid_rowconfigure(1, minsize=40) 	
+					cncInitPrompt.grid_rowconfigure(3, minsize=40) 	
+					cncInitPrompt.grid_rowconfigure(4, minsize=60) 	
+					cncInitPrompt.grid_rowconfigure(5, minsize=30) 	
+					cncInitLine0 = ttk.Label(cncInitPrompt, text="System Initilization has not been Run", font=LARGE_FONT)
+					cncInitLine0.grid(row=1, column=1, sticky="NEWS")
+					cncInitLine2 = ttk.Label(cncInitPrompt, text="Press Cancel to go to Initilization Setup.", font=MED_FONT)
+					cncInitLine2.grid(row=3, column=1, sticky="NEWS")
+					cncInitCancel = ttk.Button(cncInitPrompt, text="Cancel", command=lambda: [closeWindow(cncInitPrompt), events["cancel"].set(), events['cncInit'].clear()])
+					cncInitCancel.grid(row=4, column=1, sticky="NEWS")
 					centerWindow(cncInitPrompt)
 					events["cncInit"].clear()
 				
@@ -757,6 +805,18 @@ class StartPage(tkinter.Frame):
 					centerWindow(filePathPrompt)
 					events["filePathProblem"].clear()
 				
+				if events["fixCameraSettings"].is_set():
+					events["pause"].set()
+					playSound("error")
+					camSettingsPrompt = Toplevel(self)
+					camSettingsPrompt.title("File Path Problem")
+					camSettingsTitle = ttk.Label(camSettingsPrompt, text="Camera Settings Error", font=MED_FONT).pack()
+					camSettingsPromptLine2 = ttk.Label(camSettingsPrompt, text="Camera Settings are set to Dark Frame Settings (1/4000 at ISO 100)", font=MED_FONT).pack()
+					camSettingsPromptLine3 = ttk.Label(camSettingsPrompt, text="Please hit Cancel and correct these settings.", font=MED_FONT).pack()
+					camSettingsCancel = ttk.Button(camSettingsPrompt, text="Cancel", command=lambda: [closeWindow(camSettingsPrompt), events["cancel"].set(), events["pause"].clear()]).pack()
+					centerWindow(camSettingsPrompt)
+					events["fixCameraSettings"].clear()
+				
 				if events["xmlPathProblem"].is_set():
 					events["pause"].set()
 					playSound("error")
@@ -768,6 +828,18 @@ class StartPage(tkinter.Frame):
 					xmlPathCancel = ttk.Button(xmlPathPrompt, text="Cancel", command=lambda: [closeWindow(xmlPathPrompt), events["cancel"].set(), events["pause"].clear()]).pack()
 					centerWindow(xmlPathPrompt)
 					events["xmlPathProblem"].clear()
+				
+				if events["sampleSizeWarning"].is_set():
+					events["pause"].set()
+					playSound("error")
+					sampleSizePrompt = Toplevel(self)
+					sampleSizePrompt.title("Sample is Too Large")
+					sampleSizeTitle = ttk.Label(sampleSizePrompt, text="Sample is Too Large", font=MED_FONT).pack()
+					sampleSizePromptLine2 = ttk.Label(sampleSizePrompt, text="The sample size entered currently exceeds the workspace.", font=MED_FONT).pack()
+					sampleSizePromptLine3 = ttk.Label(sampleSizePrompt, text="Please hit Cancel and check either the Sample Size or Initilization of Machine.", font=MED_FONT).pack()
+					sampleSizeCancel = ttk.Button(sampleSizePrompt, text="Cancel", command=lambda: [closeWindow(xmlPathPrompt), events["cancel"].set(), events["pause"].clear()]).pack()
+					centerWindow(sampleSizePrompt)
+					events["sampleSizeWarning"].clear()
 				
 				if events["xmlWarning"].is_set():
 					events["pause"].set()
@@ -837,7 +909,7 @@ class StartPage(tkinter.Frame):
 					btnFocusFartherLarge.grid(row=9, column=5, sticky="NEWS")
 					btnFocusStackingCapture = ttk.Button(self.manualFocusStackingWindow, text="Capture", command=lambda: [liveViewEvents["capturingImage"].set()])
 					btnFocusStackingCapture.grid(row=10, column=3, sticky="NEWS")
-					btnFocusStackingNextPosition = ttk.Button(self.manualFocusStackingWindow, text="Next Position", command=lambda: [events["pause"].clear()])
+					btnFocusStackingNextPosition = ttk.Button(self.manualFocusStackingWindow, text="Next Position", command=lambda: [liveViewEvents["stopLiveView"].set(), events["pause"].clear()])
 					btnFocusStackingNextPosition.grid(row=10, column=4, sticky="NEWS")
 					
 					centerWindow(self.manualFocusStackingWindow)
@@ -942,8 +1014,8 @@ class StartPage(tkinter.Frame):
 		# Main Session Handler that triggers events in the GUI controlled above.
 		global rolledOver
 		global machine
-		global XMAX
-		global YMAX
+		global xWorkspaceMax
+		global yWorkspaceMax
 		global xPos
 		global yPos
 		global rateOfTravel
@@ -951,12 +1023,15 @@ class StartPage(tkinter.Frame):
 		global positionCount
 		global position
 		global imageList
+		global systemInitHardStop
+		global systemInitOrigin
 		
 		# Check to see if everything is ready
 		status["filepathInit"] = False
 		status["xmlpathInit"] = False
 		status["xmlCheck"] = False
-
+		status["sampleSizeCheck"] = False
+		status["cameraSettings"] = False
 
 		# Check to see that camera is connected
 		if events["cancel"].is_set():
@@ -1019,50 +1094,45 @@ class StartPage(tkinter.Frame):
 			return
 								
 		# Check to see camera settings are not Dark Frame Settings (1/4000 at 100 ISO)
-# 		status["cameraSettings"] = False
-# 		while not status["cameraSettings"]:
-# 			# Connect to Camera
-# 			context = gp.Context()
-# 			camera = initCamera(cameraNumber, context)		
-# 	
-# 			# Get Image Size/Type Settings from Camera
-# 			camConfig = camera.get_config(context) 
-# 			camera.exit(context)
-# 			camSettings = {}
-# 			iso = camConfig.get_child_by_name("iso") 
-# 			camSettings["iso"] = iso.get_value()
-# 			shutterspeed = camConfig.get_child_by_name("shutterspeed") 
-# 			camSettings["shutterspeed"] = shutterspeed.get_value()
-# 			exposurecompensation = camConfig.get_child_by_name("exposurecompensation")			
-# 			camSettings["exposurecompensation"] = exposurecompensation.get_value()
-# 			imagequality = camConfig.get_child_by_name("imagequality") 
-# 			camSettings["imagequality"] = imagequality.get_value() 		#"0"
-# 		
-# 			if str(camSettings["iso"]) == "6400" or str(camSettings["exposurecompensation"]) == "5" or str(camSettings["imagequality"]) != "NEF+Fine":
-# 				camerasToFix.append(cameraNumber)
-# 		
-# 			if len(camerasToFix) > 0:
-# 				events["fixCameraSettings"].set()
-# 				events["pause"].set()
-# 				while events["pause"].is_set():
-# 					if events["cancel"].is_set():
-# 						cancelSession()
-# 						break
-# 			else:	
-# 				status["cameraSettings"] = True
-# 
+		status["cameraSettings"] = False
+		while not status["cameraSettings"]:
+			# Connect to Camera
+			context = gp.Context()
+			camera = initCamera(context)		
+	
+			# Get Image Size/Type Settings from Camera
+			camConfig = camera.get_config(context) 
+			camera.exit(context)
+			camSettings = {}
+			iso = camConfig.get_child_by_name("iso") 
+			camSettings["iso"] = iso.get_value()
+			shutterspeed = camConfig.get_child_by_name("shutterspeed") 
+			camSettings["shutterspeed"] = shutterspeed.get_value()
+		
+			if str(camSettings["iso"]) == "100" and str(camSettings["shutterspeed"]) == "1/4000":
+				events["fixCameraSettings"].set()
+				events["pause"].set()
+				while events["pause"].is_set():
+					if events["cancel"].is_set():
+						cancelSession()
+						break
+			else:	
+				status["cameraSettings"] = True
+
 		if events["cancel"].is_set():
 			events["complete"].set()
 			cancelSession()	
 			return
 
 		# Prompt User to Verify Table is Ready
-		events["cncInit"].set()
-		events["pause"].set()
-		while events["pause"].is_set():
-			if events["cancel"].is_set():
-				cancelSession()
-				break
+		if systemInitHardStop == False or systemInitOrigin == False:
+			events["cncInit"].set()
+			events["pause"].set()
+			while events["pause"].is_set():
+				if events["cancel"].is_set():
+					cancelSession()
+					break
+
 		if events["cancel"].is_set():
 			events["complete"].set()
 			cancelSession()	
@@ -1081,6 +1151,27 @@ class StartPage(tkinter.Frame):
 			events["complete"].set()
 			cancelSession()	
 			return
+
+		# Check to see that Size of Sample is smaller than Workspace
+		status["sampleSizeCheck"] = False
+		while not status["sampleSizeCheck"]:
+			if float(config["sample"]["sizeX"]) <= xWorkspaceMax:
+				status["sampleSizeCheck"] = True
+			else:
+				events["sampleSizeWarning"].set()
+				while events["pause"].is_set():
+					if events["cancel"].is_set():
+						cancelSession()
+						break
+			if float(config["sample"]["sizeY"]) <= yWorkspaceMax:
+				status["sampleSizeCheck"] = True
+			else:
+				events["sampleSizeWarning"].set()
+				while events["pause"].is_set():
+					if events["cancel"].is_set():
+						cancelSession()
+						break
+
 
 		# Check to see if XML file already exists.
 		status["xmlCheck"] = False
@@ -1126,34 +1217,51 @@ class StartPage(tkinter.Frame):
 		
 
 		# Start Photos and Rotation
-		xPos = 0
-		yPos = 0
 		imageCount = 1
 		positionCount = 1
 		imageList = []
 		
+		# Calculate Line Equation
+		# This isn't quite linear but is functionally close enough with conservative overlap percentages
+		camData = cameraDatabase[config["camera"]["body"]][config["camera"]["lens"]]
+		slope = (float(camData["topHeight"])-float(camData["bottomHeight"]))/(float(camData["topWidth"])-float(camData["bottomWidth"]))
+		b = float(camData["topHeight"])-slope*float(camData["topWidth"])
 		
+		xFrameWidth = (float(config["sample"]["cameraHeight"])-b)/slope
+		yFrameWidth = xFrameWidth*2/3
 		
-		# Calculate Frames Per X
-		framesPerX = 2
-		# Calculate Frames Per Y	
-		framesPerY = 2
+		# Calculate MM moved Per X frame
+		mmPerXFrame = xFrameWidth - (xFrameWidth * (float(config["cnc"]["xOverlap"])/100))
+		
+		# Calculate MM moved Per Y frame
+		mmPerYFrame = yFrameWidth - (yFrameWidth * (float(config["cnc"]["yOverlap"])/100))
+		
 		# Generate List of Positions
 		positions = []
 		
-		calcX = 0
-		calcY = 0
-		while calcX < XMAX:
-			while calcY < YMAX:
+		calcX = xOriginOffset
+		calcY = yOriginOffset
+		while calcY < float(config["sample"]["sizeY"]):
+			while calcX < float(config["sample"]["sizeX"]):
 				pos = {}
 				pos["x"] = calcX
 				pos["y"] = calcY
 				positions.append(pos)
-				calcY = calcY + (YMAX/framesPerY)
-			calcX = calcX + (XMAX/framesPerX)
-			calcY = 0
-		for position in positions:
+				calcX = calcX + (mmPerXFrame)
+			pos = {}
+			pos["x"] = float(config["sample"]["sizex"])
+			pos["y"] = calcY
+			positions.append(pos)
+
+			calcX = xOriginOffset
+			calcY = calcY + (mmPerYFrame)
+
+		pos = {}
+		pos["x"] = float(config["sample"]["sizex"])
+		pos["y"] = float(config["sample"]["sizey"])
+		positions.append(pos)
 		
+		for position in positions:
 			sessionStatus.set("Capturing Image at Position #"+str(positionCount)+" of "+str(len(positions)))
 			distanceToTravel = math.sqrt((xPos-int(position["x"]))**2 + (yPos - int(position["y"]))**2)
 			
@@ -1207,7 +1315,7 @@ class StartPage(tkinter.Frame):
 					if events["cancel"].is_set():
 						cancelSession()
 						break
-				liveViewEvents["stopLiveView"].set()
+# 				liveViewEvents["stopLiveView"].set()
 				time.sleep(.5)
 				closeWindow(self.manualFocusStackingWindow)
 				positionCount +=1		
@@ -1224,7 +1332,7 @@ class StartPage(tkinter.Frame):
 		sessionStatus.set("Returning Camera to Origin")
 		print(str(sessionStatus.get()))
 		
-		responseString = moveCNCtoCoordinates(0, 0, machine)
+		responseString = moveCNCtoCoordinates(xOriginOffset, yOriginOffset, machine)
 		
 		if events["cancel"].is_set():
 			cancelSession()
@@ -1315,6 +1423,8 @@ class Settings(tkinter.Frame):
 		self.deleteImages.set(config['filepaths'].getboolean('delete'))
 		self.stackingSize = StringVar()
 		self.stackingSize.set(str(config['cnc']['stackingSize']))
+		global bodyList
+		global lensList
 		
 		# Size Columns
 		self.grid_columnconfigure(1, minsize=50)
@@ -1349,6 +1459,19 @@ class Settings(tkinter.Frame):
 		self.grid_rowconfigure(26, minsize=10)
 		self.grid_rowconfigure(27, minsize=20)
 		
+		def updateLens(*args):
+			global lensList
+			global bodyList
+			bodyList = []
+			lensList = []
+			self.lens.set('')
+			for key in cameraDatabase.keys():
+				bodyList.append(key)
+			cmbCameraBody.config(values=bodyList)
+			body = self.cameraBody.get()
+			lensList = list(cameraDatabase[body].keys())
+			self.cmbLens.config(values=lensList)
+		
 		# Page Title
 		pageTitle = ttk.Label(self, text="LeafCNC Settings", font=LARGE_FONT)
 		pageTitle.grid(row=0, columnspan=100, sticky="WE")
@@ -1357,14 +1480,15 @@ class Settings(tkinter.Frame):
 		# Camera Settings
 		lblCameraBody = ttk.Label(self, text="Camera Body", font=MED_FONT)
 		cmbCameraBody = ttk.Combobox(self, textvariable=self.cameraBody, width=10)
-		cmbCameraBody['values'] = ["Canon T2i"]
+		cmbCameraBody.bind("<<ComboboxSelected>>", updateLens)
+		cmbCameraBody['values'] = bodyList
 		lblCameraBody.grid(row=10, column=10, sticky="WE")
 		cmbCameraBody.grid(row=10, column=11, sticky="WE")
 		lblLens = ttk.Label(self, text="Lens", font=MED_FONT)
-		cmbLens = ttk.Combobox(self, textvariable=self.lens, width=10)
-		cmbLens['values'] = ["Tokina 100"]
+		self.cmbLens = ttk.Combobox(self, textvariable=self.lens, width=10)
+		self.cmbLens['values'] = lensList
 		lblLens.grid(row=12, column=10, sticky="WE")
-		cmbLens.grid(row=12, column=11, sticky="WE")
+		self.cmbLens.grid(row=12, column=11, sticky="WE")
 		lblTriggerMethod = ttk.Label(self, text="Trigger Method", font=MED_FONT)
 		cmbTriggerMethod = ttk.Combobox(self, textvariable=self.triggerMethod, width=10)
 		cmbTriggerMethod['values'] = ["USB","Cable Release"]
@@ -1423,11 +1547,29 @@ class Settings(tkinter.Frame):
 		# Save and Return 
 		btnStartPage = ttk.Button(self, text="Save", command=lambda: [self.updateVariable(), controller.show_frame(StartPage)])
 		btnStartPage.grid(row=100, column=1, sticky="WE")
+		
+		
+		def updateLists():
+			global bodyList
+			global lensList
+			for key in cameraDatabase.keys():
+				bodyList.append(key)
+			cmbCameraBody.config(values=bodyList)
+							
+			if not str(self.cameraBody.get()) == "":
+				lensList = list(cameraDatabase[str(self.cameraBody.get())].keys())
+# 				self.cmbLens['values'] = self.lensList
+				self.cmbLens.config(values=lensList)
+				
+
+
 
 		def selectDirectory(var):
 			directory = filedialog.askdirectory()
 			var.set(directory)
 			return var
+
+		updateLists()
 		
 	def updateVariable(self, event=None):
 		config['camera']['body'] = str(self.cameraBody.get())
@@ -1443,6 +1585,116 @@ class Settings(tkinter.Frame):
 		config['filepaths']['xmlPath'] = str(self.xmlPath.get())
 		updateConfig(config, configpath)
 
+
+# Camera Calibration Page
+class CameraCalibration(tkinter.Frame):
+	# Camera Calibration Page
+	
+	def __init__(self, parent, controller):
+		tkinter.Frame.__init__(self,parent)
+		
+		# Variables
+		self.cameraBody = StringVar()
+		self.lens = StringVar()
+		self.heightBottom = StringVar()
+		self.heightTop = StringVar()
+		self.bottomWidth = StringVar()
+		self.topWidth = StringVar()
+		
+		# Size Columns
+		self.grid_columnconfigure(1, minsize=50)
+		self.grid_columnconfigure(10, minsize=100)
+		self.grid_columnconfigure(11, minsize=200)
+		self.grid_columnconfigure(12, minsize=25)
+		self.grid_columnconfigure(19, minsize=50)
+		self.grid_columnconfigure(20, minsize=100)
+		self.grid_columnconfigure(21, minsize=200)
+		self.grid_columnconfigure(99, minsize=50)
+		# Size Rows
+		self.grid_rowconfigure(2, minsize=100)
+		self.grid_rowconfigure(99, minsize=20)
+		self.grid_rowconfigure(10, minsize=20)
+		self.grid_rowconfigure(11, minsize=10)
+		self.grid_rowconfigure(10, minsize=20)
+		self.grid_rowconfigure(12, minsize=10)
+		self.grid_rowconfigure(13, minsize=20)
+		self.grid_rowconfigure(14, minsize=10)
+		self.grid_rowconfigure(15, minsize=20)
+		self.grid_rowconfigure(16, minsize=10)
+		self.grid_rowconfigure(17, minsize=20)
+		self.grid_rowconfigure(18, minsize=10)
+		self.grid_rowconfigure(19, minsize=20)
+
+		self.grid_rowconfigure(20, minsize=10)
+		self.grid_rowconfigure(21, minsize=20)
+		self.grid_rowconfigure(22, minsize=10)
+		self.grid_rowconfigure(23, minsize=20)
+		self.grid_rowconfigure(24, minsize=10)
+		self.grid_rowconfigure(25, minsize=20)
+		self.grid_rowconfigure(26, minsize=10)
+		self.grid_rowconfigure(27, minsize=20)
+		
+		# Page Title
+		pageTitle = ttk.Label(self, text="Calibrate a New Camera", font=LARGE_FONT)
+		pageTitle.grid(row=0, columnspan=100, sticky="WE")
+
+		# Camera Settings
+		lblCameraBody = ttk.Label(self, text="Camera Body", font=MED_FONT)
+		entryCameraBody = ttk.Entry(self, textvariable=self.cameraBody, width=10)
+		lblCameraBody.grid(row=10, column=10, sticky="WE")
+		entryCameraBody.grid(row=10, column=11, sticky="WE")
+		lblLens = ttk.Label(self, text="Lens", font=MED_FONT)
+		entryLens = ttk.Entry(self, textvariable=self.lens, width=10)
+		lblLens.grid(row=10, column=13, sticky="WE")
+		entryLens.grid(row=10, column=14, sticky="WE")
+		
+		# Focus Heights and Values
+		lblBottom = ttk.Label(self, text="Highest Magnification", font=LARGE_FONT)
+		lblBottomHeight = ttk.Label(self, text="Height", font=MED_FONT)
+		entryBottomHeight = ttk.Entry(self, textvariable=self.heightBottom, width=10)
+		lblBottomWidth = ttk.Label(self, text="Width (mm)", font=MED_FONT)
+		entryBottomWidth = ttk.Entry(self, textvariable=self.bottomWidth, width=10)
+		lblBottom.grid(row=20, column=10, sticky="WE")
+		lblBottomHeight.grid(row=22, column=10, sticky="WE")
+		entryBottomHeight.grid(row=22, column=11, sticky="WE")
+		lblBottomWidth.grid(row=24, column=10, sticky="WE")
+		entryBottomWidth.grid(row=24, column=11, sticky="WE")
+		lblTop = ttk.Label(self, text="Lowest Magnification", font=LARGE_FONT)
+		lblTopHeight = ttk.Label(self, text="Height", font=MED_FONT)
+		entryTopHeight = ttk.Entry(self, textvariable=self.heightTop, width=10)
+		lblTopWidth = ttk.Label(self, text="Width (mm)", font=MED_FONT)
+		entryTopWidth = ttk.Entry(self, textvariable=self.topWidth, width=10)
+		lblTop.grid(row=20, column=20, sticky="WE")
+		lblTopHeight.grid(row=22, column=20, sticky="WE")
+		entryTopHeight.grid(row=22, column=21, sticky="WE")
+		lblTopWidth.grid(row=24, column=20, sticky="WE")
+		entryTopWidth.grid(row=24, column=21, sticky="WE")
+		
+		# Save and Return 
+		btnStartPage = ttk.Button(self, text="Save", command=lambda: [self.updateCameraDatabase(), controller.show_frame(StartPage)])
+		btnStartPage.grid(row=100, column=1, sticky="WE")
+
+		def selectDirectory(var):
+			directory = filedialog.askdirectory()
+			var.set(directory)
+			return var
+		
+	def updateCameraDatabase(self, event=None):
+		global cameraDatabase
+		camBody = str(self.cameraBody.get())
+		camLens = str(self.lens.get())
+		if not camBody == "" and not camLens == "":
+			if camBody not in cameraDatabase:
+				cameraDatabase[camBody] = {}
+			if camLens not in cameraDatabase[camBody]:
+				cameraDatabase[camBody][camLens] = {}
+		
+			cameraDatabase[camBody][camLens]["topHeight"] =  str(self.heightTop.get())
+			cameraDatabase[camBody][camLens]["topWidth"] =  str(self.topWidth.get())
+			cameraDatabase[camBody][camLens]["bottomHeight"] =  str(self.heightBottom.get())
+			cameraDatabase[camBody][camLens]["bottomWidth"] =  str(self.bottomWidth.get())
+		
+			cameraDatabase = saveCameraDatabase(cameraDatabase)
 
 
 # Initilization Page
@@ -1621,6 +1873,7 @@ config = getConfig(configpath)
 machine = openCNC(config["cnc"]["port"])
 xmlData = ET.Element("data")
 xmlTree = ET.ElementTree(xmlData)
+cameraDatabase = getCameraDatabase()
 
 #RunApplication Start
 app = LeafCNC()
