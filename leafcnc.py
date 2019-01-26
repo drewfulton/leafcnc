@@ -804,6 +804,18 @@ class StartPage(tkinter.Frame):
 					centerWindow(filePathPrompt)
 					events["filePathProblem"].clear()
 				
+				if events["fixCameraSettings"].is_set():
+					events["pause"].set()
+					playSound("error")
+					camSettingsPrompt = Toplevel(self)
+					camSettingsPrompt.title("File Path Problem")
+					camSettingsTitle = ttk.Label(camSettingsPrompt, text="Camera Settings Error", font=MED_FONT).pack()
+					camSettingsPromptLine2 = ttk.Label(camSettingsPrompt, text="Camera Settings are set to Dark Frame Settings (1/4000 at ISO 100)", font=MED_FONT).pack()
+					camSettingsPromptLine3 = ttk.Label(camSettingsPrompt, text="Please hit Cancel and correct these settings.", font=MED_FONT).pack()
+					camSettingsCancel = ttk.Button(camSettingsPrompt, text="Cancel", command=lambda: [closeWindow(camSettingsPrompt), events["cancel"].set(), events["pause"].clear()]).pack()
+					centerWindow(camSettingsPrompt)
+					events["fixCameraSettings"].clear()
+				
 				if events["xmlPathProblem"].is_set():
 					events["pause"].set()
 					playSound("error")
@@ -896,7 +908,7 @@ class StartPage(tkinter.Frame):
 					btnFocusFartherLarge.grid(row=9, column=5, sticky="NEWS")
 					btnFocusStackingCapture = ttk.Button(self.manualFocusStackingWindow, text="Capture", command=lambda: [liveViewEvents["capturingImage"].set()])
 					btnFocusStackingCapture.grid(row=10, column=3, sticky="NEWS")
-					btnFocusStackingNextPosition = ttk.Button(self.manualFocusStackingWindow, text="Next Position", command=lambda: [events["pause"].clear()])
+					btnFocusStackingNextPosition = ttk.Button(self.manualFocusStackingWindow, text="Next Position", command=lambda: [liveViewEvents["stopLiveView"].set(), events["pause"].clear()])
 					btnFocusStackingNextPosition.grid(row=10, column=4, sticky="NEWS")
 					
 					centerWindow(self.manualFocusStackingWindow)
@@ -1018,7 +1030,7 @@ class StartPage(tkinter.Frame):
 		status["xmlpathInit"] = False
 		status["xmlCheck"] = False
 		status["sampleSizeCheck"] = False
-
+		status["cameraSettings"] = False
 
 		# Check to see that camera is connected
 		if events["cancel"].is_set():
@@ -1081,38 +1093,31 @@ class StartPage(tkinter.Frame):
 			return
 								
 		# Check to see camera settings are not Dark Frame Settings (1/4000 at 100 ISO)
-# 		status["cameraSettings"] = False
-# 		while not status["cameraSettings"]:
-# 			# Connect to Camera
-# 			context = gp.Context()
-# 			camera = initCamera(cameraNumber, context)		
-# 	
-# 			# Get Image Size/Type Settings from Camera
-# 			camConfig = camera.get_config(context) 
-# 			camera.exit(context)
-# 			camSettings = {}
-# 			iso = camConfig.get_child_by_name("iso") 
-# 			camSettings["iso"] = iso.get_value()
-# 			shutterspeed = camConfig.get_child_by_name("shutterspeed") 
-# 			camSettings["shutterspeed"] = shutterspeed.get_value()
-# 			exposurecompensation = camConfig.get_child_by_name("exposurecompensation")			
-# 			camSettings["exposurecompensation"] = exposurecompensation.get_value()
-# 			imagequality = camConfig.get_child_by_name("imagequality") 
-# 			camSettings["imagequality"] = imagequality.get_value() 		#"0"
-# 		
-# 			if str(camSettings["iso"]) == "6400" or str(camSettings["exposurecompensation"]) == "5" or str(camSettings["imagequality"]) != "NEF+Fine":
-# 				camerasToFix.append(cameraNumber)
-# 		
-# 			if len(camerasToFix) > 0:
-# 				events["fixCameraSettings"].set()
-# 				events["pause"].set()
-# 				while events["pause"].is_set():
-# 					if events["cancel"].is_set():
-# 						cancelSession()
-# 						break
-# 			else:	
-# 				status["cameraSettings"] = True
-# 
+		status["cameraSettings"] = False
+		while not status["cameraSettings"]:
+			# Connect to Camera
+			context = gp.Context()
+			camera = initCamera(cameraNumber, context)		
+	
+			# Get Image Size/Type Settings from Camera
+			camConfig = camera.get_config(context) 
+			camera.exit(context)
+			camSettings = {}
+			iso = camConfig.get_child_by_name("iso") 
+			camSettings["iso"] = iso.get_value()
+			shutterspeed = camConfig.get_child_by_name("shutterspeed") 
+			camSettings["shutterspeed"] = shutterspeed.get_value()
+		
+			if str(camSettings["iso"]) == "100" and str(camSettings["exposurecompensation"]) == "1/4000":
+				events["fixCameraSettings"].set()
+				events["pause"].set()
+				while events["pause"].is_set():
+					if events["cancel"].is_set():
+						cancelSession()
+						break
+			else:	
+				status["cameraSettings"] = True
+
 		if events["cancel"].is_set():
 			events["complete"].set()
 			cancelSession()	
@@ -1309,7 +1314,7 @@ class StartPage(tkinter.Frame):
 					if events["cancel"].is_set():
 						cancelSession()
 						break
-				liveViewEvents["stopLiveView"].set()
+# 				liveViewEvents["stopLiveView"].set()
 				time.sleep(.5)
 				closeWindow(self.manualFocusStackingWindow)
 				positionCount +=1		
