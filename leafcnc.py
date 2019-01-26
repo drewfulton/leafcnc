@@ -1255,7 +1255,9 @@ class StartPage(tkinter.Frame):
 		pos["x"] = float(config["sample"]["sizex"])
 		pos["y"] = calcY
 		positions.append(pos)
-		
+		responseString = moveCNCtoCoordinates(position["x"], position["y"], machine)	
+		responseString = moveCNCtoCoordinates(position["x"], position["y"], machine)	
+		responseString = moveCNCtoCoordinates(position["x"], position["y"], machine)	
 		print("Position List: "+str(positions))
 		
 		for position in positions:
