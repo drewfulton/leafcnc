@@ -1562,6 +1562,8 @@ class Settings(tkinter.Frame):
 		def updateLists():
 			global bodyList
 			global lensList
+			bodyList = []
+			lensList = []
 			for key in cameraDatabase.keys():
 				bodyList.append(key)
 			self.cmbCameraBody.config(values=bodyList)
@@ -1584,6 +1586,8 @@ class Settings(tkinter.Frame):
 	def on_show_frame(self, event):
 		global bodyList
 		global lensList
+		bodyList = []
+		lensList = []
 		for key in cameraDatabase.keys():
 			bodyList.append(key)
 		self.cmbCameraBody.config(values=bodyList)
