@@ -115,8 +115,6 @@ def setCNCOrigin():
 	yOriginOffset = yPos
 	xWorkspaceMax = XMAX - xOriginOffset
 	yWorkspaceMax = YMAX - yOriginOffset
-	print("X Origin Offset: "+str(xOriginOffset))
-	print("Y Origin Offset: "+str(yOriginOffset))
 	systemInitOrigin = True
 	
 def setCNCHardStop():
@@ -183,7 +181,6 @@ def createFolderStructure():
 	# Create File Directory Structure
 	if not os.path.exists(config["filepaths"]["imagepath"]+'/'+config["sample"]["id"]+"-"+config["sample"]["datestamp"]):
 		os.makedirs(config["filepaths"]["imagepath"]+'/'+config["sample"]["id"]+"-"+config["sample"]["datestamp"])
-	print("Downloading to "+ str(config["filepaths"]["imagepath"]+'/'+config["sample"]["id"])+"-"+config["sample"]["datestamp"])
 
 def downloadImages(imageList):
 	# Download Images from Camera
@@ -226,7 +223,6 @@ def livewviewFocusCloser(stepSize):
 		step = "Near3"
 	else:
 		step = "Near2"
-	print("Focus Nearer: "+str(step))
 	camConfig = camera.get_config() 
 	focusmode = camConfig.get_child_by_name("manualfocusdrive") 
 	focusmode.set_value(step)
@@ -244,7 +240,6 @@ def livewviewFocusFarther(stepSize):
 	else:
 		step = "Far2"
 		
-	print("Focus Farther: "+str(step))
 	camConfig = camera.get_config() 
 	focusmode = camConfig.get_child_by_name("manualfocusdrive") 
 	focusmode.set_value(step)
@@ -272,7 +267,6 @@ def moveFocusCloser(stepSize, count=1):
 	camera.set_config(camConfig)
 	focusRound = 0
 	while focusRound < count:
-		print("Moving Focus Closer")
 		camera.set_config(camConfig)
 		focusRound += 1
 		time.sleep(.5)
@@ -299,7 +293,6 @@ def moveFocusFarther(stepSize, count=1):
 	focusmode.set_value(step)
 	focusRound = 0
 	while focusRound < count:
-		print("Moving Focus Farther")
 		camera.set_config(camConfig)
 		focusRound += 1
 		time.sleep(.5)
@@ -431,7 +424,6 @@ def xmlLogTime(activity, state, other=""):
 		other = "/"+other
 	
 	findString = "./Tasks/Task[@activity='"+activity+"']"+other
-# 	print(findString)
 	nodes = xmlData.findall(findString)
 	for node in nodes:
 		stateNode = ET.SubElement(node, state)
@@ -524,7 +516,6 @@ def getCameraDatabase():
 			cameraDatabase = pickle.load(f)
 	else:
 		cameraDatabase = {}
-	print("CameraDatabase: "+str(cameraDatabase))
 	return cameraDatabase
 
 # Tkinter Application Overview
@@ -1232,15 +1223,12 @@ class StartPage(tkinter.Frame):
 		
 		xFrameWidth = (float(config["sample"]["cameraHeight"])-b)/slope
 		yFrameWidth = xFrameWidth*2/3
-		print("xFrame Width: "+str(xFrameWidth))
 		
 		# Calculate MM moved Per X frame
 		mmPerXFrame = xFrameWidth - (xFrameWidth * (float(config["cnc"]["xOverlap"])/100))
-		print("MM Per X Frame: "+str(mmPerXFrame))
 		
 		# Calculate MM moved Per Y frame
 		mmPerYFrame = yFrameWidth - (yFrameWidth * (float(config["cnc"]["yOverlap"])/100))
-		print("MM Per Y Frame: "+str(mmPerYFrame))
 		
 		# Generate List of Positions
 		positions = []
@@ -1266,17 +1254,6 @@ class StartPage(tkinter.Frame):
 		pos["x"] = float(config["sample"]["sizex"])
 		pos["y"] = float(config["sample"]["sizey"])
 		positions.append(pos)
-# 		while calcX < float(config["sample"]["sizeX"]):
-# 			pos = {}
-# 			pos["x"] = calcX
-# 			pos["y"] = calcY
-# 			positions.append(pos)
-# 			calcX = calcX + (mmPerXFrame)
-# 		pos = {}
-# 		pos["x"] = float(config["sample"]["sizex"])
-# 		pos["y"] = calcY
-# 		positions.append(pos)
-		print("Position List: "+str(positions))
 		
 		for position in positions:
 			sessionStatus.set("Capturing Image at Position #"+str(positionCount)+" of "+str(len(positions)))
