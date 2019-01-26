@@ -1468,8 +1468,6 @@ class Settings(tkinter.Frame):
 		self.grid_rowconfigure(26, minsize=10)
 		self.grid_rowconfigure(27, minsize=20)
 		
-		def on_show_frame(self, event):
-			updateLens()
 			
 		def updateLens(*args):
 			global lensList
@@ -1582,6 +1580,9 @@ class Settings(tkinter.Frame):
 			return var
 
 		updateLists()
+
+	def on_show_frame(self, event):
+		updateLens()
 		
 	def updateVariable(self, event=None):
 		config['camera']['body'] = str(self.cameraBody.get())
