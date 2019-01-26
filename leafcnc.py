@@ -673,6 +673,7 @@ class StartPage(tkinter.Frame):
 			events["xmlWarning"] = threading.Event()
 			events["manualFocusStacking"] = threading.Event()
 			events["sampleSizeWarning"] = threading.Event()
+			events["fixCameraSettings"] = threading.Event()
 			sessionThread = threading.Thread(target=self.startSession, args=( events, sessionStatus))
 			interfaceThread = threading.Thread(target=sessionWindow, args=( events, sessionStatus))
 			interfaceThread.start()
