@@ -1244,16 +1244,16 @@ class StartPage(tkinter.Frame):
 		pos["x"] = float(config["sample"]["sizex"])
 		pos["y"] = float(config["sample"]["sizey"])
 		positions.append(pos)
-			while calcY < float(config["sample"]["sizeY"]):
-				pos = {}
-				pos["x"] = calcX
-				pos["y"] = calcY
-				positions.append(pos)
-				calcY = calcY + (mmPerYFrame)
+		while calcY < float(config["sample"]["sizeY"]):
 			pos = {}
 			pos["x"] = calcX
-			pos["y"] = float(config["sample"]["sizey"])
+			pos["y"] = calcY
 			positions.append(pos)
+			calcY = calcY + (mmPerYFrame)
+		pos = {}
+		pos["x"] = calcX
+		pos["y"] = float(config["sample"]["sizey"])
+		positions.append(pos)
 		
 		print("Position List: "+str(positions))
 		
