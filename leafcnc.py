@@ -1266,21 +1266,19 @@ class StartPage(tkinter.Frame):
 		pos["x"] = float(config["sample"]["sizex"])
 		pos["y"] = float(config["sample"]["sizey"])
 		positions.append(pos)
-		while calcX < float(config["sample"]["sizeX"]):
-			pos = {}
-			pos["x"] = calcX
-			pos["y"] = calcY
-			positions.append(pos)
-			calcX = calcX + (mmPerXFrame)
-		pos = {}
-		pos["x"] = float(config["sample"]["sizex"])
-		pos["y"] = calcY
-		positions.append(pos)
+# 		while calcX < float(config["sample"]["sizeX"]):
+# 			pos = {}
+# 			pos["x"] = calcX
+# 			pos["y"] = calcY
+# 			positions.append(pos)
+# 			calcX = calcX + (mmPerXFrame)
+# 		pos = {}
+# 		pos["x"] = float(config["sample"]["sizex"])
+# 		pos["y"] = calcY
+# 		positions.append(pos)
 		print("Position List: "+str(positions))
 		
 		for position in positions:
-			print("Current Position: ("+str(xPos)+", "+str(yPos)+")")
-			print("Moving to Position: ("+str(position["x"])+", "+str(position["y"])+")")
 			sessionStatus.set("Capturing Image at Position #"+str(positionCount)+" of "+str(len(positions)))
 			distanceToTravel = math.sqrt((xPos-int(position["x"]))**2 + (yPos - int(position["y"]))**2)
 			
