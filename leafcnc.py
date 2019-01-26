@@ -1445,7 +1445,9 @@ class Settings(tkinter.Frame):
 		self.grid_columnconfigure(21, minsize=200)
 		self.grid_columnconfigure(99, minsize=50)
 		# Size Rows
-		self.grid_rowconfigure(2, minsize=100)
+		self.grid_rowconfigure(0, minsize=25)
+		self.grid_rowconfigure(1, minsize=50)
+		self.grid_rowconfigure(2, minsize=25)
 		self.grid_rowconfigure(99, minsize=20)
 		self.grid_rowconfigure(10, minsize=20)
 		self.grid_rowconfigure(11, minsize=10)
@@ -1483,7 +1485,7 @@ class Settings(tkinter.Frame):
 		
 		# Page Title
 		pageTitle = ttk.Label(self, text="LeafCNC Settings", font=LARGE_FONT, anchor=CENTER)
-		pageTitle.grid(row=0, columnspan=100, sticky="WE")
+		pageTitle.grid(row=1, columnspan=100, sticky="WE")
 
 
 		# Camera Settings
@@ -1620,12 +1622,14 @@ class CameraCalibration(tkinter.Frame):
 		self.grid_columnconfigure(1, minsize=50)
 		self.grid_columnconfigure(10, minsize=100)
 		self.grid_columnconfigure(11, minsize=200)
-		self.grid_columnconfigure(12, minsize=25)
+		self.grid_columnconfigure(12, minsize=75)
 		self.grid_columnconfigure(20, minsize=100)
 		self.grid_columnconfigure(21, minsize=200)
 		self.grid_columnconfigure(99, minsize=50)
 		# Size Rows
-		self.grid_rowconfigure(2, minsize=100)
+		self.grid_rowconfigure(0, minsize=25)
+		self.grid_rowconfigure(1, minsize=50)
+		self.grid_rowconfigure(2, minsize=25)
 		self.grid_rowconfigure(99, minsize=20)
 		self.grid_rowconfigure(10, minsize=20)
 		self.grid_rowconfigure(11, minsize=10)
@@ -1655,7 +1659,7 @@ class CameraCalibration(tkinter.Frame):
 		
 		# Page Title
 		pageTitle = ttk.Label(self, text="Calibrate a New Camera", font=LARGE_FONT, anchor=CENTER)
-		pageTitle.grid(row=0, columnspan=100, sticky="WE")
+		pageTitle.grid(row=1, columnspan=100, sticky="WE")
 
 		# Camera Settings
 		lblCameraBody = ttk.Label(self, text="Camera Body", font=MED_FONT)
@@ -1746,8 +1750,9 @@ class Initilization(tkinter.Frame):
 		self.grid_columnconfigure(15, minsize=50)
 		
 		# Size Rows
+		self.grid_rowconfigure(0, minsize=25)
 		self.grid_rowconfigure(2, minsize=20)
-		self.grid_rowconfigure(5, minsize=45)
+		self.grid_rowconfigure(5, minsize=25)
 		
 		self.grid_rowconfigure(10, minsize=45)
 		self.grid_rowconfigure(11, minsize=10)
@@ -1771,11 +1776,11 @@ class Initilization(tkinter.Frame):
 
 		self.grid_rowconfigure(40, minsize=50)
 		
-		self.grid_rowconfigure(99, minsize=20)
+		self.grid_rowconfigure(99, minsize=25)
 
 		# Page Title
 		pageTitle = ttk.Label(self, text="System Initilization", font=LARGE_FONT, anchor=CENTER)
-		pageTitle.grid(row=0, columnspan=100, sticky="WE")
+		pageTitle.grid(row=2, columnspan=100, sticky="WE")
 
 		# CNC Initilization Buttons
 		btnCNCUpSmall = ttk.Button(self, text="Up 5mm", command=lambda: moveCNCbyAmount(0, 5, machine), width=10)
