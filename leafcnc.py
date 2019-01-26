@@ -1521,15 +1521,15 @@ class Settings(tkinter.Frame):
 		lblStackingSize = ttk.Label(self, text="Focus Stacking Size", font=MED_FONT)
 		cmbStackingSize = ttk.Combobox(self, textvariable=self.stackingSize, width=10)
 		cmbStackingSize['values'] = ["Small", "Medium", "Large"]
-		lblStackingSize.grid(row=16, column=20, sticky="WE")
-		cmbStackingSize.grid(row=16, column=21, sticky="WE")
+		lblStackingSize.grid(row=14, column=20, sticky="WE")
+		cmbStackingSize.grid(row=14, column=21, sticky="WE")
 
 		# File Paths
 		folderIcon = ImageTk.PhotoImage(Image.open("/home/pi/leafcnc/backend/folderIcon-small.png"))
 		chkDownloadFiles = ttk.Checkbutton(self, var=self.download, text="Download Files from Camera", onvalue=True, offvalue=False, command=lambda: [self.updateVariable()] )
 		chkDownloadFiles.grid(row=20, column=11, sticky="EW")
 		chkDeleteFiles = ttk.Checkbutton(self, var=self.download, text="Delete Files from Camera after Download", onvalue=True, offvalue=False, command=lambda: [self.updateVariable()] )
-		chkDeleteFiles.grid(row=22, column=11, sticky="EW")
+		chkDeleteFiles.grid(row=22, column=21, sticky="EW")
 		lblImagePath = ttk.Label(self, text="Image Storage Path", font=MED_FONT)
 		lblImagePath.grid(row=24, column=10, sticky="EW")
 		fileImagePath = ttk.Entry(self, textvariable=self.imagePath, width=30)
@@ -1650,6 +1650,8 @@ class CameraCalibration(tkinter.Frame):
 		self.grid_rowconfigure(26, minsize=10)
 		self.grid_rowconfigure(27, minsize=20)
 
+		self.grid_rowconfigure(30, minsize=50)
+
 		self.bind("<<ShowFrame>>", self.on_show_frame)
 
 		
@@ -1691,7 +1693,7 @@ class CameraCalibration(tkinter.Frame):
 		
 		# Save and Return 
 		btnStartPage = ttk.Button(self, text="Save", command=lambda: [self.updateCameraDatabase(), controller.show_frame(StartPage)])
-		btnStartPage.grid(row=10, column=10, sticky="NEWS")
+		btnStartPage.grid(row=30, column=10, sticky="NEWS")
 
 		def selectDirectory(var):
 			directory = filedialog.askdirectory()
@@ -1768,11 +1770,13 @@ class Initilization(tkinter.Frame):
 		self.grid_rowconfigure(33, minsize=10)
 		self.grid_rowconfigure(34, minsize=45)
 		self.grid_rowconfigure(35, minsize=10)
+
+		self.grid_rowconfigure(40, minsize=50)
 		
 		self.grid_rowconfigure(99, minsize=20)
 
 		# Page Title
-		pageTitle = ttk.Label(self, text="System Initilization", font=LARGE_FONT)
+		pageTitle = ttk.Label(self, text="System Initilization", font=LARGE_FONT, anchor=CENTER)
 		pageTitle.grid(row=0, columnspan=100, sticky="WE")
 
 		# CNC Initilization Buttons
