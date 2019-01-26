@@ -19,6 +19,9 @@ parser = ET.XMLParser(remove_blank_text=True)
 cameraDatabase = {}
 lensList = []
 bodyList = []
+systemInitHardStop = False
+systemInitOrigin = False
+
 
 # Stores info about the status of all components of system
 systemStatus = {}
@@ -106,6 +109,7 @@ def setCNCOrigin():
 	global yWorkspaceMax
 	global XMAX
 	global YMAX
+	global systemInitOrigin
 
 	xOriginOffset = xPos
 	yOriginOffset = yPos
@@ -113,17 +117,19 @@ def setCNCOrigin():
 	yWorkspaceMax = YMAX - yOriginOffset
 	print("X Origin Offset: "+str(xOriginOffset))
 	print("Y Origin Offset: "+str(yOriginOffset))
+	systemInitOrigin = True
 	
 def setCNCHardStop():
 	# Set CNC Hard Stops so x=0 and y=0
 	global machine
 	global xPos
 	global yPos
+	global systemInitHardStop
 	closeCNC(machine)
 	machine = openCNC(config["cnc"]["port"])
 	xPos = 0
 	yPos = 0
-
+	systemInitHardStop = True
 
 # Functions to Control Camera
 def get_file_info(camera, context, path):
@@ -581,6 +587,8 @@ class StartPage(tkinter.Frame):
 		global camera
 		global imageCount
 		global globalPosition
+		global systemInitHardStop
+		global systemInitOrigin
 
 		
 		tkinter.Frame.__init__(self,parent)
@@ -720,25 +728,18 @@ class StartPage(tkinter.Frame):
 					cncInitPrompt.title("Inititilize Machine")
 					cncInitPrompt.grid_columnconfigure(0, minsize=30)
 					cncInitPrompt.grid_columnconfigure(1, minsize=100)
-					cncInitPrompt.grid_columnconfigure(2, minsize=30)
-					cncInitPrompt.grid_columnconfigure(3, minsize=100)
 					cncInitPrompt.grid_columnconfigure(4, minsize=30)
 					cncInitPrompt.grid_rowconfigure(0, minsize=30) 	
 					cncInitPrompt.grid_rowconfigure(1, minsize=40) 	
-					cncInitPrompt.grid_rowconfigure(2, minsize=40) 	
 					cncInitPrompt.grid_rowconfigure(3, minsize=40) 	
 					cncInitPrompt.grid_rowconfigure(4, minsize=60) 	
 					cncInitPrompt.grid_rowconfigure(5, minsize=30) 	
-					cncInitLine0 = ttk.Label(cncInitPrompt, text="Please Confirm you have Run System Initilization and Camera is at Correct Height", font=LARGE_FONT)
-					cncInitLine0.grid(row=1, column=1, columnspan=3, sticky="NEWS")
-					cncInitLine1 = ttk.Label(cncInitPrompt, text="Press Continue to proceed with Sampling.", font=MED_FONT)
-					cncInitLine1.grid(row=2, column=1, columnspan=3, sticky="NEWS")
+					cncInitLine0 = ttk.Label(cncInitPrompt, text="System Initilization has not been Run", font=LARGE_FONT)
+					cncInitLine0.grid(row=1, column=1, sticky="NEWS")
 					cncInitLine2 = ttk.Label(cncInitPrompt, text="Press Cancel to go to Initilization Setup.", font=MED_FONT)
-					cncInitLine2.grid(row=3, column=1, columnspan=3, sticky="NEWS")
-					cncInitContinue = ttk.Button(cncInitPrompt, text="Continue", command=lambda: [closeWindow(cncInitPrompt), events["pause"].clear()])
-					cncInitContinue.grid(row=4, column=1, sticky="NEWS")
+					cncInitLine2.grid(row=3, column=1, sticky="NEWS")
 					cncInitCancel = ttk.Button(cncInitPrompt, text="Cancel", command=lambda: [closeWindow(cncInitPrompt), events["cancel"].set(), events['cncInit'].clear()])
-					cncInitCancel.grid(row=4, column=3, sticky="NEWS")
+					cncInitCancel.grid(row=4, column=1, sticky="NEWS")
 					centerWindow(cncInitPrompt)
 					events["cncInit"].clear()
 				
@@ -1018,6 +1019,8 @@ class StartPage(tkinter.Frame):
 		global positionCount
 		global position
 		global imageList
+		global systemInitHardStop
+		global systemInitOrigin
 		
 		# Check to see if everything is ready
 		status["filepathInit"] = False
@@ -1125,12 +1128,14 @@ class StartPage(tkinter.Frame):
 			return
 
 		# Prompt User to Verify Table is Ready
-		events["cncInit"].set()
-		events["pause"].set()
-		while events["pause"].is_set():
-			if events["cancel"].is_set():
-				cancelSession()
-				break
+		if systemInitHardStop == False or systemInitOrigin == False:
+			events["cncInit"].set()
+			events["pause"].set()
+			while events["pause"].is_set():
+				if events["cancel"].is_set():
+					cancelSession()
+					break
+
 		if events["cancel"].is_set():
 			events["complete"].set()
 			cancelSession()	
