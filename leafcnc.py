@@ -111,6 +111,8 @@ def setCNCOrigin():
 	yOriginOffset = yPos
 	xWorkspaceMax = XMAX - xOriginOffset
 	yWorkspaceMax = YMAX - yOriginOffset
+	print("X Origin Offset: "+str(xOriginOffset))
+	print("Y Origin Offset: "+str(yOriginOffset))
 	
 def setCNCHardStop():
 	# Set CNC Hard Stops so x=0 and y=0
