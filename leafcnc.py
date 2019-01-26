@@ -1258,15 +1258,12 @@ class StartPage(tkinter.Frame):
 		print("Position List: "+str(positions))
 		
 		for position in positions:
-		
+			print("Current Position: ("+str(xPos)+", "+str(yPos)+")")
+			print("Moving to Position: ("+str(position["x"])+", "+str(position["y"])+")")
 			sessionStatus.set("Capturing Image at Position #"+str(positionCount)+" of "+str(len(positions)))
 			distanceToTravel = math.sqrt((xPos-int(position["x"]))**2 + (yPos - int(position["y"]))**2)
 			
 			timetoTravel = distanceToTravel/rateOfTravel
-			responseString = moveCNCtoCoordinates(position["x"], position["y"], machine)	
-			time.sleep(timetoTravel)
-			responseString = moveCNCtoCoordinates(position["x"], position["y"], machine)	
-			time.sleep(timetoTravel)
 			responseString = moveCNCtoCoordinates(position["x"], position["y"], machine)	
 			time.sleep(timetoTravel)
 			time.sleep(int(config["cnc"]["pause"]))
