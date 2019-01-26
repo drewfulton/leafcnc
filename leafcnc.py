@@ -1255,9 +1255,6 @@ class StartPage(tkinter.Frame):
 		pos["x"] = float(config["sample"]["sizex"])
 		pos["y"] = calcY
 		positions.append(pos)
-		responseString = moveCNCtoCoordinates(position["x"], position["y"], machine)	
-		responseString = moveCNCtoCoordinates(position["x"], position["y"], machine)	
-		responseString = moveCNCtoCoordinates(position["x"], position["y"], machine)	
 		print("Position List: "+str(positions))
 		
 		for position in positions:
@@ -1266,6 +1263,10 @@ class StartPage(tkinter.Frame):
 			distanceToTravel = math.sqrt((xPos-int(position["x"]))**2 + (yPos - int(position["y"]))**2)
 			
 			timetoTravel = distanceToTravel/rateOfTravel
+			responseString = moveCNCtoCoordinates(position["x"], position["y"], machine)	
+			time.sleep(timetoTravel)
+			responseString = moveCNCtoCoordinates(position["x"], position["y"], machine)	
+			time.sleep(timetoTravel)
 			responseString = moveCNCtoCoordinates(position["x"], position["y"], machine)	
 			time.sleep(timetoTravel)
 			time.sleep(int(config["cnc"]["pause"]))
