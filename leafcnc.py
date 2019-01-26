@@ -1437,11 +1437,11 @@ class Settings(tkinter.Frame):
 		
 		# Size Columns
 		self.grid_columnconfigure(1, minsize=50)
-		self.grid_columnconfigure(10, minsize=100)
+		self.grid_columnconfigure(10, minsize=150)
 		self.grid_columnconfigure(11, minsize=200)
 		self.grid_columnconfigure(12, minsize=25)
 		self.grid_columnconfigure(19, minsize=50)
-		self.grid_columnconfigure(20, minsize=100)
+		self.grid_columnconfigure(20, minsize=150)
 		self.grid_columnconfigure(21, minsize=200)
 		self.grid_columnconfigure(99, minsize=50)
 		# Size Rows
@@ -1537,7 +1537,7 @@ class Settings(tkinter.Frame):
 		btnImagePath = ttk.Button(self, image=folderIcon, command=lambda: selectDirectory(self.imagePath))
 		btnImagePath.image = folderIcon
 		btnImagePath.grid(row=24, column=12, sticky="W")
-		lblxmlPath = ttk.Label(self, text="XML Storage Path", font=SMALL_FONT)
+		lblxmlPath = ttk.Label(self, text="XML Storage Path", font=MED_FONT)
 		lblxmlPath.grid(row=26, column=10, columnspan=2, sticky="EW")
 		filexmlPath = ttk.Entry(self, textvariable=self.xmlPath, width=30)
 		filexmlPath.grid(row=26, column=11, sticky="EW")
