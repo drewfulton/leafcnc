@@ -79,8 +79,8 @@ def moveCNCtoCoordinates(x, y, machine):
 	global yPos
 	global xOriginOffset
 	global yOriginOffset
-	xPos = x + xOriginOffset
-	yPos = y + yOriginOffset
+	xPos = x 
+	yPos = y 
 	msg = 'G0 X'+str(xPos)+' Y'+str(yPos)+'\n'
 	machine.write(msg.encode())
 	responseString = machine.readline().decode()
