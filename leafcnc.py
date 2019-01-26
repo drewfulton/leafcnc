@@ -1780,7 +1780,7 @@ class Initilization(tkinter.Frame):
 
 		# Page Title
 		pageTitle = ttk.Label(self, text="System Initilization", font=LARGE_FONT, anchor=CENTER)
-		pageTitle.grid(row=2, columnspan=100, sticky="WE")
+		pageTitle.grid(row=2, column=1, columnspan=100, sticky="WE")
 
 		# CNC Initilization Buttons
 		btnCNCUpSmall = ttk.Button(self, text="Up 5mm", command=lambda: moveCNCbyAmount(0, 5, machine), width=10)
