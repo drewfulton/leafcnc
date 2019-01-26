@@ -716,6 +716,7 @@ class StartPage(tkinter.Frame):
 
 				if events["cncInit"].is_set():
 					events["pause"].set()
+					playSound("error")
 					cncInitPrompt = Toplevel(self)
 					cncInitPrompt.title("Inititilize Machine")
 					cncInitPrompt.grid_columnconfigure(0, minsize=30)
@@ -759,7 +760,7 @@ class StartPage(tkinter.Frame):
 					sampleInfoInitWindow.grid_rowconfigure(13, minsize=10) 	
 					sampleInfoInitWindow.grid_rowconfigure(14, minsize=40) 	
 					sampleInfoInitWindow.grid_rowconfigure(15, minsize=40) 	
-					sampleInfoInitTitle = ttk.Label(sampleInfoInitWindow, text="Enter Sample Information", font=MED_FONT)
+					sampleInfoInitTitle = ttk.Label(sampleInfoInitWindow, text="Enter Sample Information", font=LARGE_FONT)
 					sampleInfoInitTitle.grid(row=0, column=2, sticky="NEWS")
 					lblSampleID = ttk.Label(sampleInfoInitWindow, text="Sample ID:", font=MED_FONT)
 					entrySampleID = ttk.Entry(sampleInfoInitWindow, textvariable=self.sampleID, width=10)
@@ -867,7 +868,7 @@ class StartPage(tkinter.Frame):
 					self.manualFocusStackingWindow.grid_rowconfigure(7, minsize=30)	#buttons
 					self.manualFocusStackingWindow.grid_rowconfigure(8, minsize=30)	#buttons
 					self.manualFocusStackingWindow.grid_rowconfigure(9, minsize=30)	#buttons
-					self.manualFocusStackingWindow.grid_rowconfigure(10, minsize=30)	#buttons
+					self.manualFocusStackingWindow.grid_rowconfigure(10, minsize=50)	#buttons
 					self.manualFocusStackingWindow.grid_rowconfigure(11, minsize=30)
 					self.manualFocusStackingWindow.grid_columnconfigure(1, minsize=10)
 					self.manualFocusStackingWindow.grid_columnconfigure(2, minsize=75)
@@ -1033,7 +1034,6 @@ class StartPage(tkinter.Frame):
 		status["sampleSizeCheck"] = False
 		status["cameraSettings"] = False
 
-		# Check to see that camera is connected
 		if events["cancel"].is_set():
 			events["complete"].set()
 			cancelSession()	
@@ -1171,6 +1171,12 @@ class StartPage(tkinter.Frame):
 					if events["cancel"].is_set():
 						cancelSession()
 						break
+
+		if events["cancel"].is_set():
+			events["complete"].set()
+			cancelSession()	
+			return
+
 
 
 		# Check to see if XML file already exists.
@@ -1695,6 +1701,7 @@ class CameraCalibration(tkinter.Frame):
 			cameraDatabase[camBody][camLens]["bottomWidth"] =  str(self.bottomWidth.get())
 		
 			cameraDatabase = saveCameraDatabase(cameraDatabase)
+			cameraDatabase = getCameraDatabase()
 
 
 # Initilization Page
