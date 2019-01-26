@@ -1659,6 +1659,9 @@ class CameraCalibration(tkinter.Frame):
 		self.grid_rowconfigure(25, minsize=20)
 		self.grid_rowconfigure(26, minsize=10)
 		self.grid_rowconfigure(27, minsize=20)
+
+		self.bind("<<ShowFrame>>", self.on_show_frame)
+
 		
 		# Page Title
 		pageTitle = ttk.Label(self, text="Calibrate a New Camera", font=LARGE_FONT)
@@ -1722,6 +1725,14 @@ class CameraCalibration(tkinter.Frame):
 		
 			cameraDatabase = saveCameraDatabase(cameraDatabase)
 			cameraDatabase = getCameraDatabase()
+	
+	def on_show_frame(self, event):
+		self.cameraBody.set('')
+		self.lens.set('')
+		self.heightBottom.set('')
+		self.heightTop.set('')
+		self.bottomWidth.set('')
+		self.topWidth.set('')
 
 
 # Initilization Page
