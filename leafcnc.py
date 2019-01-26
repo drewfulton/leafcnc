@@ -1559,18 +1559,6 @@ class Settings(tkinter.Frame):
 		btnStartPage.grid(row=100, column=1, sticky="WE")
 		
 		
-		def updateLists():
-			global bodyList
-			global lensList
-			for key in cameraDatabase.keys():
-				bodyList.append(key)
-			cmbCameraBody.config(values=bodyList)
-							
-			if not str(self.cameraBody.get()) == "":
-				lensList = list(cameraDatabase[str(self.cameraBody.get())].keys())
-# 				self.cmbLens['values'] = self.lensList
-				self.cmbLens.config(values=lensList)
-				
 
 
 
@@ -1583,6 +1571,20 @@ class Settings(tkinter.Frame):
 
 	def on_show_frame(self, event):
 		updateLists()
+
+	def updateLists():
+		global bodyList
+		global lensList
+		for key in cameraDatabase.keys():
+			bodyList.append(key)
+		cmbCameraBody.config(values=bodyList)
+						
+		if not str(self.cameraBody.get()) == "":
+			lensList = list(cameraDatabase[str(self.cameraBody.get())].keys())
+# 				self.cmbLens['values'] = self.lensList
+			self.cmbLens.config(values=lensList)
+				
+
 		
 	def updateVariable(self, event=None):
 		config['camera']['body'] = str(self.cameraBody.get())
