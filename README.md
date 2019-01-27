@@ -15,7 +15,9 @@ Prerequisites
 		libxslt-dev
 		python-dev
 		python3-lxml
-
+		samba
+		samba-common-bin
+		
 	Pip3 Installs
 		pyserial
 		Pillow
