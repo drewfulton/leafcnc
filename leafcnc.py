@@ -1275,13 +1275,13 @@ class StartPage(tkinter.Frame):
 			timetoTravel = distanceToTravel/rateOfTravel
 			responseString = moveCNCtoCoordinates(position["x"], position["y"], machine)	
 			time.sleep(timetoTravel)
-			time.sleep(int(config["cnc"]["pause"]))
+			time.sleep(float(config["cnc"]["pause"]))
 			# Trigger Camera
 			if config["sample"]["stackingMode"] == "None":
 				cameraInfo = triggerImageUSB()
 				finalFilename = str(config["sample"]["id"])+"-"+str(config["sample"]["datestamp"])+"-"+str(imageCount).zfill(3)+str(cameraInfo.name[-4:])
 				imageList.append((cameraInfo.folder+"/"+cameraInfo.name, finalFilename))
-				time.sleep(int(config["camera"]["exposure"]))
+				time.sleep(float(config["camera"]["exposure"]))
 				imageCount +=1	
 				positionCount +=1		
 				xmlTree = xmlAddImage(position, cameraInfo, finalFilename)
