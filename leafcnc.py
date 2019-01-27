@@ -1382,7 +1382,8 @@ class StartPage(tkinter.Frame):
 		
 		events["complete"].set()	
 		
-			
+		playSound("complete")
+
 		return
 			
 	def capturePreview(self, camera, target, focus=None):
