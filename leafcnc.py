@@ -306,7 +306,7 @@ def createConfig(path):
 	
 	config["cnc"] = {"port": "/dev/ttyUSB0", "xOverlap": "40", "yOverlap":"40", "pause":"1", "stackingSize":"Medium"}
 	config["camera"] = {"body": "", "lens": "", "trigger":"USB", "exposure":"1", "format":"JPG"}
-	config["filepaths"] = {"download":"True", "imagePath":'', "xmlPath": '', "delete":"True"}
+	config["filepaths"] = {"download":"True", "imagePath":'/home/pi/leafcnc/images', "xmlPath": '/home/pi/leafcnc/xml', "delete":"True"}
 	config["sample"] = {"cameraHeight":"", "id":"", "stackingMode":"None", "stackingCount":"1", "sizeX":"360","sizeY":"470", "datestamp":""}
 	
 	# Write Config file
