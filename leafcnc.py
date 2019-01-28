@@ -1311,6 +1311,7 @@ class StartPage(tkinter.Frame):
 					stackCount -= 1
 				positionCount +=1		
 
+
 			elif config["sample"]["stackingMode"] == "Manual":
 				# Launch Live View/Manual Window
 				global globalPosition
@@ -1328,6 +1329,10 @@ class StartPage(tkinter.Frame):
 				if events["cancel"].is_set():
 					cancelSession()
 					return
+
+			if events["cancel"].is_set():
+				cancelSession()
+				break
 		
 		if events["cancel"].is_set():
 			events["complete"].set()	
