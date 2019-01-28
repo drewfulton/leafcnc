@@ -1362,7 +1362,27 @@ class StartPage(tkinter.Frame):
 			xmlTree = xmlLogTime("DownloadingImages", "Start")
 
 			createFolderStructure()
-			downloadImages(imageList)
+# 			downloadImages(imageList)
+
+			# Download Images from Camera
+			context = gp.Context()
+			camera = initCamera(context)	
+			dl = 0
+			for image in imageList:
+				dl +=1
+				sessionStatus.set("Downloading Image ("+str(dl)+"/"+str(len(imageList))")...  This may take a while...")
+				(file, finalfilename) = image
+				path, filename = os.path.split(file)
+				blah, ext = os.path.splitext(file)			
+				target = os.path.join(config["filepaths"]["imagepath"]+'/'+config["sample"]["id"]+"-"+config["sample"]["datestamp"],finalfilename)
+				camera_file = camera.file_get(path, filename, gp.GP_FILE_TYPE_NORMAL, context)
+				gp.gp_file_save(camera_file, target)
+				if (config["filepaths"]["delete"]):
+					gp.gp_camera_file_delete(camera, path, filename)
+					
+		
+			return
+
 
 			xmlTree = xmlTaskStatus("DownloadingImages", "Complete")
 			xmlTree = xmlLogTime("DownloadingImages", "Complete")
