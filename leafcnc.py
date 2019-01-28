@@ -1156,7 +1156,7 @@ class StartPage(tkinter.Frame):
 		# Check to see that Size of Sample is smaller than Workspace
 		status["sampleSizeCheck"] = False
 		while not status["sampleSizeCheck"]:
-			if float(config["sample"]["sizeX"]) <= xWorkspaceMax:
+			if float(config["sample"]["sizeX"])+20 <= xWorkspaceMax:
 				status["sampleSizeCheck"] = True
 			else:
 				events["sampleSizeWarning"].set()
@@ -1164,7 +1164,7 @@ class StartPage(tkinter.Frame):
 					if events["cancel"].is_set():
 						cancelSession()
 						break
-			if float(config["sample"]["sizeY"]) <= yWorkspaceMax:
+			if float(config["sample"]["sizeY"])+20 <= yWorkspaceMax:
 				status["sampleSizeCheck"] = True
 			else:
 				events["sampleSizeWarning"].set()
@@ -1248,8 +1248,8 @@ class StartPage(tkinter.Frame):
 		
 		calcX = xOriginOffset
 		calcY = yOriginOffset
-		while calcY < float(config["sample"]["sizeY"]):
-			while calcX < float(config["sample"]["sizeX"]):
+		while calcY < (float(config["sample"]["sizeY"])+20):
+			while calcX < (float(config["sample"]["sizeX"])+20):
 				pos = {}
 				pos["x"] = calcX
 				pos["y"] = calcY
@@ -1293,7 +1293,6 @@ class StartPage(tkinter.Frame):
 				while stackCount <= int(config["sample"]["stackingCount"]):
 					sessionStatus.set("Capturing Image #"+str(stackCount)+"/"+str(config["sample"]["stackingCount"])+" at Position #"+str(positionCount)+" of "+str(len(positions)))
 					cameraInfo = triggerImageUSB()
-					print("Captured: "+cameraInfo.name)
 					finalFilename = str(config["sample"]["id"])+"-"+str(config["sample"]["datestamp"])+"-"+str(imageCount).zfill(3)+str(cameraInfo.name[-4:])
 					imageList.append((cameraInfo.folder+"/"+cameraInfo.name, finalFilename))
 					time.sleep(float(config["camera"]["exposure"]))
