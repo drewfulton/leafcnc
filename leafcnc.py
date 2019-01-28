@@ -1362,7 +1362,6 @@ class StartPage(tkinter.Frame):
 			xmlTree = xmlLogTime("DownloadingImages", "Start")
 
 			createFolderStructure()
-# 			downloadImages(imageList)
 
 			# Download Images from Camera
 			context = gp.Context()
