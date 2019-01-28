@@ -1379,8 +1379,6 @@ class StartPage(tkinter.Frame):
 				if (config["filepaths"]["delete"]):
 					gp.gp_camera_file_delete(camera, path, filename)
 					
-		
-			return
 
 
 			xmlTree = xmlTaskStatus("DownloadingImages", "Complete")
