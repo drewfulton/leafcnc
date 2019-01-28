@@ -742,7 +742,7 @@ class StartPage(tkinter.Frame):
 					sampleInfoInitWindow = Toplevel(self)
 					sampleInfoInitWindow.title("Sample Details")
 					sampleInfoInitWindow.grid_columnconfigure(1, minsize=30)
-					sampleInfoInitWindow.grid_columnconfigure(2, minsize=40)
+					sampleInfoInitWindow.grid_columnconfigure(2, minsize=50)
 					sampleInfoInitWindow.grid_columnconfigure(3, minsize=250)
 					sampleInfoInitWindow.grid_columnconfigure(4, minsize=30)
 					sampleInfoInitWindow.grid_rowconfigure(0, minsize=40) 	
