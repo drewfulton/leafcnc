@@ -1256,10 +1256,10 @@ class StartPage(tkinter.Frame):
 				pos["y"] = calcY
 				positions.append(pos)
 				calcX = calcX + (mmPerXFrame)
-			pos = {}
-			pos["x"] = float(config["sample"]["sizex"])
-			pos["y"] = calcY
-			positions.append(pos)
+# 			pos = {}
+# 			pos["x"] = float(config["sample"]["sizex"])
+# 			pos["y"] = calcY
+# 			positions.append(pos)
 
 			calcX = xOriginOffset
 			calcY = calcY + (mmPerYFrame)
