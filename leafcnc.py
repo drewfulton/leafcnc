@@ -762,7 +762,7 @@ class StartPage(tkinter.Frame):
 					sampleInfoInitWindow.grid_rowconfigure(14, minsize=40) 	
 					sampleInfoInitWindow.grid_rowconfigure(15, minsize=40) 	
 					sampleInfoInitTitle = ttk.Label(sampleInfoInitWindow, text="Enter Sample Information", font=LARGE_FONT, anchor=CENTER)
-					sampleInfoInitTitle.grid(row=0, column=2, sticky="NEWS")
+					sampleInfoInitTitle.grid(row=0, column=2, columnspan=2, sticky="NEWS")
 					lblSampleID = ttk.Label(sampleInfoInitWindow, text="Sample ID:", font=MED_FONT)
 					entrySampleID = ttk.Entry(sampleInfoInitWindow, textvariable=self.sampleID, width=10)
 					lblSampleID.grid(row=2, column=2, sticky="EW")
