@@ -1369,7 +1369,7 @@ class StartPage(tkinter.Frame):
 			dl = 0
 			for image in imageList:
 				dl +=1
-				sessionStatus.set("Downloading Image ("+str(dl)+"/"+str(len(imageList))")...  This may take a while...")
+				sessionStatus.set("Downloading Image ("+str(dl)+"/"+str(len(imageList))+")...  This may take a while...")
 				(file, finalfilename) = image
 				path, filename = os.path.split(file)
 				blah, ext = os.path.splitext(file)			
