@@ -972,7 +972,7 @@ class StartPage(tkinter.Frame):
 				cameraInfo = triggerImageUSB()
 				finalFilename = str(config["sample"]["id"])+"-"+str(config["sample"]["datestamp"])+"-"+str(imageCount).zfill(3)+str(cameraInfo.name[-4:])
 				imageList.append((cameraInfo.folder+"/"+cameraInfo.name, finalFilename))
-				time.sleep(int(config["camera"]["exposure"]))
+				time.sleep(float(config["camera"]["exposure"]))
 				imageCount += 1	
 				xmlTree = xmlAddImage(globalPosition, cameraInfo, finalFilename, stackCount)
 				stackCount += 1
@@ -1296,7 +1296,7 @@ class StartPage(tkinter.Frame):
 					print("Captured: "+cameraInfo.name)
 					finalFilename = str(config["sample"]["id"])+"-"+str(config["sample"]["datestamp"])+"-"+str(imageCount).zfill(3)+str(cameraInfo.name[-4:])
 					imageList.append((cameraInfo.folder+"/"+cameraInfo.name, finalFilename))
-					time.sleep(int(config["camera"]["exposure"]))
+					time.sleep(float(config["camera"]["exposure"]))
 					imageCount +=1	
 					xmlTree = xmlAddImage(position, cameraInfo, finalFilename, stackCount)
 					stackCount += 1
@@ -1862,7 +1862,7 @@ class Initialization(tkinter.Frame):
 				cameraInfo = triggerImageUSB()
 				finalFilename = str(config["sample"]["id"])+"-"+str(config["sample"]["datestamp"])+"-"+str(imageCount).zfill(3)+str(cameraInfo.name[-4:])
 				imageList.append((cameraInfo.folder+"/"+cameraInfo.name, finalFilename))
-				time.sleep(int(config["camera"]["exposure"]))
+				time.sleep(float(config["camera"]["exposure"]))
 				imageCount += 1	
 				xmlTree = xmlAddImage(globalPosition, cameraInfo, finalFilename, stackCount)
 				stackCount += 1
