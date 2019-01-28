@@ -354,7 +354,8 @@ def playSoundThread(sound):
 	pygame.mixer.quit()
 
 def cancelSession():
-	#Doesn't actually do anything for now but can be used to shutdown processes if required
+	global xmlTree
+	xmlTree = xmlRestart()
 	pass
 
 def setEvent(event):
