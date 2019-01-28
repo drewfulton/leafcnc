@@ -1358,7 +1358,7 @@ class StartPage(tkinter.Frame):
 		print(str(sessionStatus.get()))
 	
 		# Download Images
-		if config["filepaths"].getboolean("download"):
+		if config["filepaths"].getboolean("download") and len(imageList) > 0:
 			# Download Instructions
 			sessionStatus.set("Downloading Images...  This may take a while...")
 			print(str(sessionStatus.get()))
