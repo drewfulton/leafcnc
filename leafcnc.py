@@ -1273,6 +1273,7 @@ class StartPage(tkinter.Frame):
 		if config["sample"]["stackingMode"] == "Auto":
 			stackCount = 1
 			while stackCount <= int(config["sample"]["stackingCount"]):
+				positionCount = 1
 				for position in positions:
 					distanceToTravel = math.sqrt((xPos-int(position["x"]))**2 + (yPos - int(position["y"]))**2)
 			
@@ -1287,6 +1288,7 @@ class StartPage(tkinter.Frame):
 					imageList.append((cameraInfo.folder+"/"+cameraInfo.name, finalFilename))
 					time.sleep(float(config["camera"]["exposure"]))
 					imageCount +=1	
+					positionCount +=1		
 					xmlTree = xmlAddImage(position, cameraInfo, finalFilename, stackCount)
 					if events["cancel"].is_set():
 						cancelSession()
@@ -1298,56 +1300,55 @@ class StartPage(tkinter.Frame):
 				
 				# move focus farther one step
 				moveFocusFarther(config["cnc"]["stackingSize"])
-			sessionStatus.set("Resetting Focus at Position #"+str(positionCount)+" of "+str(len(positions)))
+			sessionStatus.set("Resetting Focus.  Please check focus before running next sample.")
 			while stackCount > 1:
 				moveFocusCloser(config["cnc"]["stackingSize"])
 				stackCount -= 1
-			positionCount +=1		
 
 
-		
-		for position in positions:
-			sessionStatus.set("Capturing Image at Position #"+str(positionCount)+" of "+str(len(positions)))
-			distanceToTravel = math.sqrt((xPos-int(position["x"]))**2 + (yPos - int(position["y"]))**2)
+		else:
+			for position in positions:
+				sessionStatus.set("Capturing Image at Position #"+str(positionCount)+" of "+str(len(positions)))
+				distanceToTravel = math.sqrt((xPos-int(position["x"]))**2 + (yPos - int(position["y"]))**2)
 			
-			timetoTravel = distanceToTravel/rateOfTravel
-			responseString = moveCNCtoCoordinates(position["x"], position["y"], machine)	
-			time.sleep(timetoTravel)
-			time.sleep(float(config["cnc"]["pause"]))
-			# Trigger Camera
-			if config["sample"]["stackingMode"] == "None":
-				cameraInfo = triggerImageUSB()
-				finalFilename = str(config["sample"]["id"])+"-"+str(config["sample"]["datestamp"])+"-"+str(imageCount).zfill(3)+str(cameraInfo.name[-4:])
-				imageList.append((cameraInfo.folder+"/"+cameraInfo.name, finalFilename))
-				time.sleep(float(config["camera"]["exposure"]))
-				imageCount +=1	
-				positionCount +=1		
-				xmlTree = xmlAddImage(position, cameraInfo, finalFilename)
-				if events["cancel"].is_set():
-					cancelSession()
-					break
-
-			elif config["sample"]["stackingMode"] == "Manual":
-				# Launch Live View/Manual Window
-				global globalPosition
-				globalPosition = position
-				events["pause"].set()
-				events["manualFocusStacking"].set()
-				while events["pause"].is_set():
+				timetoTravel = distanceToTravel/rateOfTravel
+				responseString = moveCNCtoCoordinates(position["x"], position["y"], machine)	
+				time.sleep(timetoTravel)
+				time.sleep(float(config["cnc"]["pause"]))
+				# Trigger Camera
+				if config["sample"]["stackingMode"] == "None":
+					cameraInfo = triggerImageUSB()
+					finalFilename = str(config["sample"]["id"])+"-"+str(config["sample"]["datestamp"])+"-"+str(imageCount).zfill(3)+str(cameraInfo.name[-4:])
+					imageList.append((cameraInfo.folder+"/"+cameraInfo.name, finalFilename))
+					time.sleep(float(config["camera"]["exposure"]))
+					imageCount +=1	
+					positionCount +=1		
+					xmlTree = xmlAddImage(position, cameraInfo, finalFilename)
 					if events["cancel"].is_set():
 						cancelSession()
 						break
-# 				liveViewEvents["stopLiveView"].set()
-				time.sleep(.5)
-				closeWindow(self.manualFocusStackingWindow)
-				positionCount +=1		
+
+				elif config["sample"]["stackingMode"] == "Manual":
+					# Launch Live View/Manual Window
+					global globalPosition
+					globalPosition = position
+					events["pause"].set()
+					events["manualFocusStacking"].set()
+					while events["pause"].is_set():
+						if events["cancel"].is_set():
+							cancelSession()
+							break
+	# 				liveViewEvents["stopLiveView"].set()
+					time.sleep(.5)
+					closeWindow(self.manualFocusStackingWindow)
+					positionCount +=1		
+					if events["cancel"].is_set():
+						cancelSession()
+						return
+
 				if events["cancel"].is_set():
 					cancelSession()
-					return
-
-			if events["cancel"].is_set():
-				cancelSession()
-				break
+					break
 		
 		if events["cancel"].is_set():
 			events["complete"].set()	
