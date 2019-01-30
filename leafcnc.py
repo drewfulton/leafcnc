@@ -100,7 +100,10 @@ def openCNC(port):
 
 def closeCNC(machine):
 	# Close the CNC Machine Connection
-	machine.close()
+	try:
+		machine.close()
+	except:
+		pass
 	return True
 
 def setCNCOrigin():
