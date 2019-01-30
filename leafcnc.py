@@ -684,6 +684,7 @@ class StartPage(tkinter.Frame):
 			events["manualFocusStacking"] = threading.Event()
 			events["sampleSizeWarning"] = threading.Event()
 			events["fixCameraSettings"] = threading.Event()
+			events["cncConnect"] = threading.Event()
 			sessionThread = threading.Thread(target=self.startSession, args=( events, sessionStatus))
 			interfaceThread = threading.Thread(target=sessionWindow, args=( events, sessionStatus))
 			interfaceThread.start()
@@ -723,6 +724,31 @@ class StartPage(tkinter.Frame):
 			while not events["complete"].is_set():
 				if events["cancel"].is_set():
 					sessionStatus.set("Cancelling...")
+
+				if events["cncConnect"].is_set():
+					events["pause"].set()
+					playSound("error")
+					noCNCError = Toplevel(self)
+					noCNCError.title("Machine Connection Problem")
+					noCNCError.grid_columnconfigure(0, minsize=30)
+					noCNCError.grid_columnconfigure(1, minsize=100)
+					noCNCError.grid_columnconfigure(4, minsize=30)
+					noCNCError.grid_rowconfigure(0, minsize=30) 	
+					noCNCError.grid_rowconfigure(1, minsize=40) 	
+					noCNCError.grid_rowconfigure(2, minsize=40) 	
+					noCNCError.grid_rowconfigure(3, minsize=40) 	
+					noCNCError.grid_rowconfigure(4, minsize=60) 	
+					noCNCError.grid_rowconfigure(5, minsize=30) 	
+					noCNCErrorLine0 = ttk.Label(noCNCError, text="Can not connect to CNC Machine.", font=LARGE_FONT)
+					noCNCErrorLine0.grid(row=1, column=1, sticky="NEWS")
+					noCNCErrorLine2 = ttk.Label(noCNCError, text="Please Press Shutdown to turn off machine.", font=MED_FONT)
+					noCNCErrorLine2.grid(row=2, column=1, sticky="NEWS")
+					noCNCErrorLine2 = ttk.Label(noCNCError, text="Check all Power and USB connections before powering back on.", font=MED_FONT)
+					noCNCErrorLine2.grid(row=3, column=1, sticky="NEWS")
+					noCNCErrorCancel = ttk.Button(noCNCError, text="OK", command=lambda: [closeWindow(noCNCError)])
+					noCNCErrorCancel.grid(row=4, column=1, sticky="NEWS")
+					centerWindow(noCNCError)
+					events["cncConnect"].clear()
 
 				if events["cncInit"].is_set():
 					events["pause"].set()
@@ -944,7 +970,8 @@ class StartPage(tkinter.Frame):
 		if machine == False:
 			playSound("error")
 			noCNCError = Toplevel(self)
-			noCNCError.title("Inititilize Machine")
+			noCNCError.attributes("-topmost", True)
+			noCNCError.title("Machine Connection Problem")
 			noCNCError.grid_columnconfigure(0, minsize=30)
 			noCNCError.grid_columnconfigure(1, minsize=100)
 			noCNCError.grid_columnconfigure(4, minsize=30)
@@ -963,11 +990,7 @@ class StartPage(tkinter.Frame):
 			noCNCErrorCancel = ttk.Button(noCNCError, text="OK", command=lambda: [closeWindow(noCNCError)])
 			noCNCErrorCancel.grid(row=4, column=1, sticky="NEWS")
 			centerWindow(noCNCError)
-	
-		try:
-			noCNCError.lift()
-		except:
-			pass
+		
 			
 	
 	
@@ -1077,8 +1100,19 @@ class StartPage(tkinter.Frame):
 			events["complete"].set()
 			cancelSession()	
 			return
-
-
+		# Check to see if CNC machine is connected
+		if machine == False:
+			events["cncConnect"].set()
+			events["pause"].set()
+				while events["pause"].is_set():
+					if events["cancel"].is_set():
+						cancelSession()
+						break
+		if events["cancel"].is_set():
+			events["complete"].set()
+			cancelSession()	
+			return
+		
 		# Check to see if File Download Path is available
 		if config["filepaths"]["download"] == "False":
 			status["filepathInit"] = True
