@@ -579,8 +579,8 @@ class LeafCNC:
 		updateConfig(config, configpath)
 		closeCNC(machine)
 		time.sleep(1)
-		exit()
-# 		call("sudo shutdown -h now", shell=True)
+# 		exit()
+ 		call("sudo shutdown -h now", shell=True)
 		return "break"
 
 # Start Page Class
@@ -1999,7 +1999,6 @@ class NoCNCMachine(tkinter.Frame):
 		tkinter.Frame.__init__(self,parent)
 		
 		
-		playSound("error")
 		self.grid_columnconfigure(0, minsize=30)
 		self.grid_columnconfigure(1, minsize=100)
 		self.grid_columnconfigure(4, minsize=30)
@@ -2017,6 +2016,9 @@ class NoCNCMachine(tkinter.Frame):
 		noCNCErrorLine2.grid(row=3, column=1, sticky="NEWS")
 		noCNCErrorCancel = ttk.Button(self, text="Shutdown", command=lambda: [controller.quitProgram(machine)])
 		noCNCErrorCancel.grid(row=4, column=1, sticky="NEWS")
+
+		if machine == False:
+			playSound("error")
 
 
 
