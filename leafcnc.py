@@ -579,8 +579,8 @@ class LeafCNC:
 		updateConfig(config, configpath)
 		closeCNC(machine)
 		time.sleep(1)
-# 		exit()
- 		call("sudo shutdown -h now", shell=True)
+	# 		exit()
+		call("sudo shutdown -h now", shell=True)
 		return "break"
 
 # Start Page Class
