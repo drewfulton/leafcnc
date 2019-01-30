@@ -91,8 +91,12 @@ def moveCNCtoCoordinates(x, y, machine):
 
 def openCNC(port):
 	# Connect to CNC Machine
-	machine = serial.Serial(port,115200)
-	return machine
+	try:
+		machine = serial.Serial(port,115200)
+		return machine
+	except: 
+		print("Can't connect to CNC Machine.  Please shutdown, check connections, and restart.")
+		return False
 
 def closeCNC(machine):
 	# Close the CNC Machine Connection
@@ -933,6 +937,30 @@ class StartPage(tkinter.Frame):
 			liveViewEvents["stopLiveView"].clear()
 			liveViewThread = threading.Thread(target=self.startLiveView, args=( target,))
 			liveViewThread.start()
+			
+		if machine == False:
+			playSound("error")
+			noCNCError = Toplevel(self)
+			noCNCError.title("Inititilize Machine")
+			noCNCError.grid_columnconfigure(0, minsize=30)
+			noCNCError.grid_columnconfigure(1, minsize=100)
+			noCNCError.grid_columnconfigure(4, minsize=30)
+			noCNCError.grid_rowconfigure(0, minsize=30) 	
+			noCNCError.grid_rowconfigure(1, minsize=40) 	
+			noCNCError.grid_rowconfigure(2, minsize=40) 	
+			noCNCError.grid_rowconfigure(3, minsize=40) 	
+			noCNCError.grid_rowconfigure(4, minsize=60) 	
+			noCNCError.grid_rowconfigure(5, minsize=30) 	
+			noCNCErrorLine0 = ttk.Label(noCNCError, text="Can not connect to CNC Machine.", font=LARGE_FONT)
+			noCNCErrorLine0.grid(row=1, column=1, sticky="NEWS")
+			noCNCErrorLine2 = ttk.Label(noCNCError, text="Please Press Shutdown to turn off machine.", font=MED_FONT)
+			noCNCErrorLine2.grid(row=2, column=1, sticky="NEWS")
+			noCNCErrorLine2 = ttk.Label(noCNCError, text="Check all Power and USB connections before powering back on.", font=MED_FONT)
+			noCNCErrorLine2.grid(row=3, column=1, sticky="NEWS")
+			noCNCErrorCancel = ttk.Button(noCNCError, text="OK", command=lambda: [closeWindow(noCNCError)])
+			noCNCErrorCancel.grid(row=4, column=1, sticky="NEWS")
+			centerWindow(noCNCError)
+			
 	
 	
 	def updateSampleInfo(self, event=None):
