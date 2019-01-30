@@ -1104,10 +1104,10 @@ class StartPage(tkinter.Frame):
 		if machine == False:
 			events["cncConnect"].set()
 			events["pause"].set()
-				while events["pause"].is_set():
-					if events["cancel"].is_set():
-						cancelSession()
-						break
+			while events["pause"].is_set():
+				if events["cancel"].is_set():
+					cancelSession()
+					break
 		if events["cancel"].is_set():
 			events["complete"].set()
 			cancelSession()	
