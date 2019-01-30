@@ -539,7 +539,7 @@ class LeafCNC:
 		self.frame.grid_rowconfigure(0, weight=1)
 		self.frame.grid_columnconfigure(0, weight=1)
 		self.state = False
-		self.tk.bind("<F11>", self.toggle_fullscreen)
+		self.tk.bind("<F10>", self.toggle_fullscreen)
 		self.tk.bind("<Escape>", self.end_fullscreen)
 
 		self.frames = {}
