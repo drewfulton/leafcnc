@@ -2000,7 +2000,6 @@ class NoCNCMachine(tkinter.Frame):
 		
 		
 		playSound("error")
-		self.title("Machine Connection Problem")
 		self.grid_columnconfigure(0, minsize=30)
 		self.grid_columnconfigure(1, minsize=100)
 		self.grid_columnconfigure(4, minsize=30)
