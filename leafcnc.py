@@ -963,7 +963,11 @@ class StartPage(tkinter.Frame):
 			noCNCErrorCancel = ttk.Button(noCNCError, text="OK", command=lambda: [closeWindow(noCNCError)])
 			noCNCErrorCancel.grid(row=4, column=1, sticky="NEWS")
 			centerWindow(noCNCError)
+	
+		try:
 			noCNCError.lift()
+		except:
+			pass
 			
 	
 	
