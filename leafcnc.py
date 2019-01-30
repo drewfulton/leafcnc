@@ -543,14 +543,16 @@ class LeafCNC:
 		self.tk.bind("<Escape>", self.end_fullscreen)
 
 		self.frames = {}
-		FrameList = (StartPage, Settings, Initialization, CameraCalibration)
+		FrameList = (StartPage, Settings, Initialization, CameraCalibration, NoCNCMachine)
 		
 		for F in FrameList:
 			frame = F(self.frame, self)
 			self.frames[F] = frame
 			frame.grid(row=0, column=0, sticky="nsew")
-		
-		self.show_frame(StartPage)
+		if machine == False:
+			self.show_frame(NoCNCMachine)
+		else:
+			self.show_frame(StartPage)
 	
 		
 	def show_frame(self, cont):
@@ -967,31 +969,7 @@ class StartPage(tkinter.Frame):
 			liveViewThread = threading.Thread(target=self.startLiveView, args=( target,))
 			liveViewThread.start()
 			
-		if machine == False:
-			playSound("error")
-			noCNCError = Toplevel(self)
-			noCNCError.attributes("-topmost", True)
-			noCNCError.title("Machine Connection Problem")
-			noCNCError.grid_columnconfigure(0, minsize=30)
-			noCNCError.grid_columnconfigure(1, minsize=100)
-			noCNCError.grid_columnconfigure(4, minsize=30)
-			noCNCError.grid_rowconfigure(0, minsize=30) 	
-			noCNCError.grid_rowconfigure(1, minsize=40) 	
-			noCNCError.grid_rowconfigure(2, minsize=40) 	
-			noCNCError.grid_rowconfigure(3, minsize=40) 	
-			noCNCError.grid_rowconfigure(4, minsize=60) 	
-			noCNCError.grid_rowconfigure(5, minsize=30) 	
-			noCNCErrorLine0 = ttk.Label(noCNCError, text="Can not connect to CNC Machine.", font=LARGE_FONT)
-			noCNCErrorLine0.grid(row=1, column=1, sticky="NEWS")
-			noCNCErrorLine2 = ttk.Label(noCNCError, text="Please Press Shutdown to turn off machine.", font=MED_FONT)
-			noCNCErrorLine2.grid(row=2, column=1, sticky="NEWS")
-			noCNCErrorLine2 = ttk.Label(noCNCError, text="Check all Power and USB connections before powering back on.", font=MED_FONT)
-			noCNCErrorLine2.grid(row=3, column=1, sticky="NEWS")
-			noCNCErrorCancel = ttk.Button(noCNCError, text="OK", command=lambda: [closeWindow(noCNCError)])
-			noCNCErrorCancel.grid(row=4, column=1, sticky="NEWS")
-			centerWindow(noCNCError)
 		
-			
 	
 	
 	def updateSampleInfo(self, event=None):
@@ -2011,6 +1989,40 @@ class Initialization(tkinter.Frame):
 		target.image = imgLiveView
 		target.config(text="", image=imgLiveView)
 		return target
+
+# No CNC Connection Page
+
+class NoCNCMachine(tkinter.Frame):
+	# Camera Calibration Page
+	
+	def __init__(self, parent, controller):
+		tkinter.Frame.__init__(self,parent)
+		
+		
+		playSound("error")
+		self.attributes("-topmost", True)
+		self.attributes("-fullscreen", True)
+		self.title("Machine Connection Problem")
+		self.grid_columnconfigure(0, minsize=30)
+		self.grid_columnconfigure(1, minsize=100)
+		self.grid_columnconfigure(4, minsize=30)
+		self.grid_rowconfigure(0, minsize=30) 	
+		self.grid_rowconfigure(1, minsize=40) 	
+		self.grid_rowconfigure(2, minsize=40) 	
+		self.grid_rowconfigure(3, minsize=40) 	
+		self.grid_rowconfigure(4, minsize=60) 	
+		self.grid_rowconfigure(5, minsize=30) 	
+		noCNCErrorLine0 = ttk.Label(self, text="Can not connect to CNC Machine.", font=LARGE_FONT)
+		noCNCErrorLine0.grid(row=1, column=1, sticky="NEWS")
+		noCNCErrorLine2 = ttk.Label(self, text="Please Press Shutdown to turn off machine.", font=MED_FONT)
+		noCNCErrorLine2.grid(row=2, column=1, sticky="NEWS")
+		noCNCErrorLine2 = ttk.Label(self, text="Check all Power and USB connections before powering back on.", font=MED_FONT)
+		noCNCErrorLine2.grid(row=3, column=1, sticky="NEWS")
+		noCNCErrorCancel = ttk.Button(self, text="Shutdown", command=lambda: [controller.quitProgram(machine)])
+		noCNCErrorCancel.grid(row=4, column=1, sticky="NEWS")
+
+
+
 
 config = getConfig(configpath)
 machine = openCNC(config["cnc"]["port"])
