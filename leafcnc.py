@@ -1298,8 +1298,8 @@ class StartPage(tkinter.Frame):
 		
 		calcX = xOriginOffset
 		calcY = yOriginOffset
-		while calcY < (float(config["sample"]["sizeY"])+20):
-			while calcX < (float(config["sample"]["sizeX"])+20):
+		while calcY < (float(config["sample"]["sizeY"])+yOriginOffset+20):
+			while calcX < (float(config["sample"]["sizeX"])+xOriginOffset+20):
 				pos = {}
 				pos["x"] = calcX
 				pos["y"] = calcY
