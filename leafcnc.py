@@ -482,6 +482,10 @@ def xmlAddImage(position, cameraFileInfo, finalFilename, stackCount=1):
 		xmlImagePositionX.text =  str(position["x"])
 		xmlImagePositionY = ET.SubElement(xmlImage, "PositionY")
 		xmlImagePositionY.text =  str(position["y"])
+		xmlImageRow = ET.SubElement(xmlImage, "Row")
+		xmlImageRow.text =  str(position["row"])
+		xmlImageColumn = ET.SubElement(xmlImage, "Column")
+		xmlImageColumn.text =  str(position["col"])
 		xmlImageFolder = ET.SubElement(xmlImage, "CameraFolder")
 		xmlImageFolder.text = str(cameraFileInfo.folder)
 		xmlImageFilename = ET.SubElement(xmlImage, "CameraFilename")
@@ -1277,6 +1281,8 @@ class StartPage(tkinter.Frame):
 		imageCount = 1
 		positionCount = 1
 		imageList = []
+		row = 1
+		col = 1
 		
 		# Calculate Line Equation
 		# This isn't quite linear but is functionally close enough with conservative overlap percentages
@@ -1298,13 +1304,17 @@ class StartPage(tkinter.Frame):
 		
 		calcX = xOriginOffset
 		calcY = yOriginOffset
+		
 		while calcY < (float(config["sample"]["sizeY"])+yOriginOffset+20):
 			while calcX < (float(config["sample"]["sizeX"])+xOriginOffset+20):
 				pos = {}
 				pos["x"] = calcX
 				pos["y"] = calcY
+				pos["row"] = row
+				pos["col"] = col
 				positions.append(pos)
 				calcX = calcX + (mmPerXFrame)
+				col += 1
 # 			pos = {}
 # 			pos["x"] = float(config["sample"]["sizex"])
 # 			pos["y"] = calcY
@@ -1312,10 +1322,13 @@ class StartPage(tkinter.Frame):
 
 			calcX = xOriginOffset
 			calcY = calcY + (mmPerYFrame)
+			row += 1
 
 		pos = {}
 		pos["x"] = float(config["sample"]["sizex"])
 		pos["y"] = float(config["sample"]["sizey"])
+		pos["row"] = row
+		pos["col"] = col
 		positions.append(pos)
 
 		if config["sample"]["stackingMode"] == "Auto":
@@ -1332,7 +1345,7 @@ class StartPage(tkinter.Frame):
 
 					sessionStatus.set("Capturing Image #"+str(stackCount)+"/"+str(config["sample"]["stackingCount"])+" at Position #"+str(positionCount)+" of "+str(len(positions)))
 					cameraInfo = triggerImageUSB()
-					finalFilename = str(config["sample"]["id"])+"-"+str(config["sample"]["datestamp"])+"-"+str(imageCount).zfill(3)+str(cameraInfo.name[-4:])
+					finalFilename = str(config["sample"]["id"])+"_"+str(config["sample"]["datestamp"])+"_"+str(position["row"]).zfill(2)+"_"+str(position["col"]).zfill(2)+"_"+str(cameraInfo.name[-4:])
 					imageList.append((cameraInfo.folder+"/"+cameraInfo.name, finalFilename))
 					time.sleep(float(config["camera"]["exposure"]))
 					imageCount +=1	
