@@ -1345,7 +1345,7 @@ class StartPage(tkinter.Frame):
 
 					sessionStatus.set("Capturing Image #"+str(stackCount)+"/"+str(config["sample"]["stackingCount"])+" at Position #"+str(positionCount)+" of "+str(len(positions)))
 					cameraInfo = triggerImageUSB()
-					finalFilename = str(config["sample"]["id"])+"_"+str(config["sample"]["datestamp"])+"_"+str(position["row"]).zfill(2)+"_"+str(position["col"]).zfill(2)+"_"+str(cameraInfo.name[-4:])
+					finalFilename = str(config["sample"]["id"])+"_"+str(config["sample"]["datestamp"])+"_"+str(position["row"]).zfill(2)+"_"+str(position["col"]).zfill(2)+"_"+str(stackCount).zfill(2)+"_"+str(cameraInfo.name[-4:])
 					imageList.append((cameraInfo.folder+"/"+cameraInfo.name, finalFilename))
 					time.sleep(float(config["camera"]["exposure"]))
 					imageCount +=1	
@@ -1379,7 +1379,7 @@ class StartPage(tkinter.Frame):
 				# Trigger Camera
 				if config["sample"]["stackingMode"] == "None":
 					cameraInfo = triggerImageUSB()
-					finalFilename = str(config["sample"]["id"])+"-"+str(config["sample"]["datestamp"])+"-"+str(imageCount).zfill(3)+str(cameraInfo.name[-4:])
+					finalFilename = str(config["sample"]["id"])+"_"+str(config["sample"]["datestamp"])+"_"+str(position["row"]).zfill(2)+"_"+str(position["col"]).zfill(2)+"_"+str(cameraInfo.name[-4:])
 					imageList.append((cameraInfo.folder+"/"+cameraInfo.name, finalFilename))
 					time.sleep(float(config["camera"]["exposure"]))
 					imageCount +=1	
